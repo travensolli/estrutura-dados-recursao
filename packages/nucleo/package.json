@@ -1,0 +1,24 @@
+{
+  "name": "@sequencias/nucleo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Algoritmos recursivos (Fatorial, Fibonacci, Tribonacci) com e sem cache, versões puras e instrumentadas, em TypeScript puro",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@sequencias/contrato": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.3",
+    "fast-check": "^4.10.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
+  }
+}
