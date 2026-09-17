@@ -74,6 +74,9 @@ describe('ArvoreLista', () => {
     expect(itens().filter((item) => item.dataset.estado === 'ativo')).toHaveLength(2);
     expect(itens().filter((item) => item.dataset.estado === 'futuro')).toHaveLength(44);
     expect(screen.getByText('f(7) = …')).toBeInTheDocument();
+    const evento = itens().filter((item) => item.dataset.evento === 'sim');
+    expect(evento).toHaveLength(1);
+    expect(evento[0]).toHaveAttribute('data-argumento', '6');
   });
 
   it('marca os nós cortados pelo limite de nós', () => {

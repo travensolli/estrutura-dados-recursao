@@ -1,7 +1,14 @@
 import type { No } from '@sequencias/contrato';
 import { useCallback, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { abreviarValor, corDoArgumento, formatarInteiro } from '../utilitarios/formatar';
-import { descendentesDe, estadoDoNoNoPasso, rotuloTipo } from './modelo';
+import {
+  achatarNos,
+  descendentesDe,
+  estadoDoNoNoPasso,
+  eventoNoPasso,
+  indexarPassos,
+  rotuloTipo,
+} from './modelo';
 import { MarcaTipo } from './ui/MarcaTipo';
 
 const RECUO = 18;
@@ -65,6 +72,8 @@ export function ArvoreLista({
   const itensRef = useRef(new Map<number, HTMLLIElement>());
 
   const itens = useMemo(() => montarItens(raiz, recolhidos), [raiz, recolhidos]);
+  const indicePassos = useMemo(() => indexarPassos(achatarNos(raiz)), [raiz]);
+  const idEvento = passo === null ? null : (eventoNoPasso(indicePassos, passo)?.no.id ?? null);
   const posicaoPorId = useMemo(
     () => new Map(itens.map((item, indice) => [item.no.id, indice])),
     [itens],
@@ -130,6 +139,7 @@ export function ArvoreLista({
         {itens.map((item) => {
           const { no } = item;
           const estado = passo === null ? null : estadoDoNoNoPasso(no, passo);
+          const emFoco = no.id === idEvento;
           const valor = abreviarValor(no.valor, 14);
           const mostraValor = estado === null || estado === 'resolvido';
           return (
@@ -144,6 +154,7 @@ export function ArvoreLista({
               data-argumento={no.argumento}
               data-tipo={no.tipo}
               data-estado={estado ?? 'inteira'}
+              data-evento={emFoco ? 'sim' : 'nao'}
               aria-level={item.nivel}
               aria-posinset={item.posicao}
               aria-setsize={item.irmaos}
@@ -153,7 +164,9 @@ export function ArvoreLista({
               style={{ paddingInlineStart: `${item.nivel * RECUO}px` }}
               className={`flex cursor-pointer items-center gap-2 rounded-md border-l border-borda px-2 py-1.5 hover:bg-superficie-suave focus-visible:outline-3 focus-visible:outline-foco ${
                 estado === 'futuro' ? 'opacity-45' : ''
-              } ${estado === 'ativo' ? 'bg-superficie-suave' : ''}`}
+              } ${estado === 'ativo' ? 'bg-superficie-suave' : ''} ${
+                emFoco ? 'ring-2 ring-foco' : ''
+              }`}
               onClick={() => {
                 focar(no.id);
                 alternar(no, item.recolhido);
