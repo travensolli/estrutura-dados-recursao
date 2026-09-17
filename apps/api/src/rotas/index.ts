@@ -1,4 +1,5 @@
 import { type FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
+import { rotaArvore } from './arvore';
 import { rotaCalcular } from './calcular';
 import { rotaEstimativa } from './estimativa';
 import { rotaSaude } from './saude';
@@ -10,4 +11,5 @@ export const rotas: FastifyPluginAsyncZod = async (app) => {
   await app.register(rotaSequencias);
   await app.register(rotaEstimativa);
   await app.register(rotaCalcular);
+  await app.register(rotaArvore);
 };
