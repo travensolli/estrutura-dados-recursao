@@ -36,6 +36,16 @@ export class ErroApi extends Error {
   }
 }
 
+/**
+ * Verdadeiro quando a API não está utilizável: sem resposta, erro do servidor
+ * ou rota ausente (proxy apontando para o lugar errado). Um erro de negócio,
+ * como limite excedido, não entra aqui: o cálculo no navegador falharia igual.
+ */
+export function apiIndisponivel(erro: unknown): boolean {
+  if (!(erro instanceof ErroApi) || erro.codigo === 'CANCELADO') return false;
+  return erro.codigo === 'INDISPONIVEL' || erro.status >= 500 || erro.status === 404;
+}
+
 const BASE = import.meta.env.VITE_API_URL ?? '';
 
 function analisarJson(texto: string): unknown {
