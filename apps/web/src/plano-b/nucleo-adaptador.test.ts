@@ -16,10 +16,16 @@ describe('executarInstrumentado', () => {
     expect(sem.metricas).toEqual(executarMock('tribonacci', 7, 'sem_cache').metricas);
   });
   it('omite a árvore quando não pedida', () => {
-    const r = executarInstrumentado('fibonacci', 10, 'com_cache');
+    const r = executarInstrumentado('fibonacci', 10, 'com_cache', { comArvore: false });
     expect(r.raiz).toBeNull();
     expect(r.nosExibidos).toBe(0);
     expect(r.metricas.invocacoes).toBe(19);
+  });
+
+  it('monta a árvore quando a opção não é informada', () => {
+    const r = executarInstrumentado('fibonacci', 10, 'com_cache');
+    expect(r.raiz?.argumento).toBe(10);
+    expect(r.nosExibidos).toBe(19);
   });
   it('trunca pelo limite de nós', () => {
     const r = executarInstrumentado('fibonacci', 12, 'sem_cache', {

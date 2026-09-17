@@ -1,41 +1,11 @@
-import type { Metricas, Modo, No, Sequencia } from '@sequencias/contrato';
-import { executarMock, truncarArvore } from '../mocks/referencia-mock';
+import type { OpcoesInstrumentacao, ResultadoInstrumentado } from '@sequencias/nucleo';
+import { executarInstrumentado } from '@sequencias/nucleo';
 
-export interface OpcoesExecucao {
-  comArvore?: boolean;
-  limiteNos?: number;
-}
-
-export interface ResultadoInstrumentado {
-  valor: bigint;
-  metricas: Metricas;
-  raiz: No | null;
-  truncada: boolean;
-  nosExibidos: number;
-}
+export type { OpcoesInstrumentacao, ResultadoInstrumentado };
 
 /**
- * Ponto único de troca do plano B. Enquanto o núcleo não está integrado, o
- * cálculo vem de `executarMock` e `truncarArvore` (src/mocks/referencia-mock).
- * Na integração, apagar o corpo desta função e delegar para
- * `executarInstrumentado` de `@sequencias/nucleo`, que tem a mesma assinatura;
- * nenhum outro arquivo de src/plano-b, src/arvore ou src/trabalhadores muda.
+ * Origem do cálculo do plano B: o mesmo núcleo que a API usa no servidor.
+ * As contagens e a árvore saem idênticas às da API; só o relógio é do
+ * navegador, por isso o tempo aparece marcado como indicativo.
  */
-export function executarInstrumentado(
-  sequencia: Sequencia,
-  n: number,
-  modo: Modo,
-  opcoes: OpcoesExecucao = {},
-): ResultadoInstrumentado {
-  const { metricas, raiz } = executarMock(sequencia, n, modo);
-  const valor = BigInt(metricas.valor);
-  if (!opcoes.comArvore) return { valor, metricas, raiz: null, truncada: false, nosExibidos: 0 };
-  const truncamento = truncarArvore(raiz, opcoes.limiteNos ?? Number.POSITIVE_INFINITY);
-  return {
-    valor,
-    metricas,
-    raiz: truncamento.raiz,
-    truncada: truncamento.truncada,
-    nosExibidos: truncamento.nos,
-  };
-}
+export { executarInstrumentado };
