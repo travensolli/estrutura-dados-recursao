@@ -79,3 +79,25 @@
     border-radius: 999px;
   }
 }
+
+/* Entrada do diálogo: a regra global de movimento reduzido já a encurta. */
+@keyframes surgir-fundo {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes surgir-painel {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+  }
+}
+
+@utility animar-fundo {
+  animation: surgir-fundo 150ms var(--ease-suave) both;
+}
+
+@utility animar-painel {
+  animation: surgir-painel 150ms var(--ease-suave) both;
+}
