@@ -16,3 +16,4 @@ export {
   tribonacciSemCacheInstrumentado,
 } from './instrumentados';
 export { arvoreParaTexto, descreverNo } from './arvore';
+export { executarProtegido, validarN } from './validacao';
