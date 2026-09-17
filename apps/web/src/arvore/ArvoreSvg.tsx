@@ -7,7 +7,14 @@ import { abreviarValor, corDoArgumento, formatarInteiro } from '../utilitarios/f
 import { baixarPng, baixarSvg, type Extensao } from './exportar';
 import { estiloDoTipo } from './formas';
 import { calcularLayout, DIMENSOES, enquadrar, larguraDoNo, type NoPosicionado } from './layout';
-import { descreverArvore, rotuloTipo } from './modelo';
+import {
+  achatarNos,
+  descreverArvore,
+  estadoDoNoNoPasso,
+  eventoNoPasso,
+  indexarPassos,
+  rotuloTipo,
+} from './modelo';
 import { Contadores } from './ui/Contadores';
 import { Legenda } from './ui/Legenda';
 
@@ -30,6 +37,10 @@ export interface ArvoreSvgProps {
   modo: Modo;
   truncada?: boolean;
   nosExibidos?: number;
+  /** Instante da reprodução; sem ele a árvore aparece inteira e resolvida. */
+  passo?: number | null;
+  /** prefers-reduced-motion: sem transições. */
+  animacaoReduzida?: boolean;
 }
 
 interface Dica {
@@ -52,6 +63,8 @@ export function ArvoreSvg({
   modo,
   truncada = false,
   nosExibidos,
+  passo = null,
+  animacaoReduzida = false,
 }: ArvoreSvgProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const comportamentoRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
@@ -71,6 +84,9 @@ export function ArvoreSvg({
   useEffect(() => {
     layoutRef.current = layout;
   }, [layout]);
+
+  const indicePassos = useMemo(() => indexarPassos(achatarNos(raiz)), [raiz]);
+  const idEvento = passo === null ? null : (eventoNoPasso(indicePassos, passo)?.no.id ?? null);
 
   const ocorrencias = useMemo(
     () => new Map(metricas.invocacoes_por_argumento.map((e) => [e.argumento, e.invocacoes])),
@@ -146,14 +162,14 @@ export function ArvoreSvg({
   }, []);
 
   const vizinho = useCallback(
-    (posicionado: NoPosicionado, passo: number): number | null => {
+    (posicionado: NoPosicionado, salto: number): number | null => {
       const pai = posicionado.paiId === null ? null : layout.porId.get(posicionado.paiId);
       if (pai) {
         const irmaos = pai.filhosVisiveis;
-        const alvo = irmaos.indexOf(posicionado.no.id) + passo;
+        const alvo = irmaos.indexOf(posicionado.no.id) + salto;
         if (alvo >= 0 && alvo < irmaos.length) return irmaos[alvo] ?? null;
       }
-      const posicao = layout.ordem.indexOf(posicionado.no.id) + passo;
+      const posicao = layout.ordem.indexOf(posicionado.no.id) + salto;
       return layout.ordem[posicao] ?? null;
     },
     [layout],
@@ -313,15 +329,22 @@ export function ArvoreSvg({
             transform={`translate(${transformacao.x}, ${transformacao.y}) scale(${transformacao.k})`}
           >
             <g fill="none" stroke="var(--borda-forte)" strokeWidth={1.5}>
-              {layout.ligacoes.map((ligacao) => (
-                <path
-                  key={ligacao.id}
-                  d={ligacao.caminho}
-                  opacity={
-                    argumentoFoco === null || argumentoFoco === ligacao.argumentoDestino ? 0.9 : 0.2
-                  }
-                />
-              ))}
+              {layout.ligacoes.map((ligacao) => {
+                const destino = layout.porId.get(ligacao.idDestino);
+                const futura =
+                  passo !== null &&
+                  destino !== undefined &&
+                  estadoDoNoNoPasso(destino.no, passo) === 'futuro';
+                const realcada =
+                  argumentoFoco === null || argumentoFoco === ligacao.argumentoDestino;
+                return (
+                  <path
+                    key={ligacao.id}
+                    d={ligacao.caminho}
+                    opacity={futura ? 0.12 : realcada ? 0.9 : 0.2}
+                  />
+                );
+              })}
             </g>
             {layout.nos.map((posicionado) => {
               const { no } = posicionado;
@@ -329,6 +352,9 @@ export function ArvoreSvg({
               const largura = larguraDoNo(no.tipo);
               const estilo = estiloDoTipo(no.tipo, largura, A);
               const realcado = argumentoFoco !== null && argumentoFoco === no.argumento;
+              const estado = passo === null ? null : estadoDoNoNoPasso(no, passo);
+              const futuro = estado === 'futuro';
+              const emFoco = no.id === idEvento;
               const apagado = argumentoFoco !== null && !realcado;
               const valor = abreviarValor(no.valor, 9);
               const selo =
@@ -348,13 +374,16 @@ export function ArvoreSvg({
                   data-argumento={no.argumento}
                   data-tipo={no.tipo}
                   data-realce={argumentoFoco === null ? 'neutro' : realcado ? 'sim' : 'nao'}
+                  data-estado={estado ?? 'inteira'}
                   transform={`translate(${posicionado.x}, ${posicionado.y})`}
                   tabIndex={no.id === idAtivo ? 0 : -1}
                   role="button"
                   aria-label={rotuloAcessivel(posicionado)}
                   aria-expanded={no.filhos.length > 0 ? !posicionado.recolhido : undefined}
-                  className="cursor-pointer transition-opacity"
-                  opacity={apagado ? 0.25 : 1}
+                  className={
+                    animacaoReduzida ? 'cursor-pointer' : 'cursor-pointer transition-opacity'
+                  }
+                  opacity={futuro ? 0.16 : apagado ? 0.25 : 1}
                   onFocus={() => setIdFoco(no.id)}
                   onBlur={() => setIdFoco((atual) => (atual === no.id ? null : atual))}
                   onPointerEnter={() => setIdPonteiro(no.id)}
@@ -365,12 +394,21 @@ export function ArvoreSvg({
                   }}
                   onKeyDown={(evento) => aoTeclar(evento, posicionado)}
                 >
+                  {emFoco && (
+                    <path
+                      d={estilo.caminho}
+                      fill="none"
+                      stroke="var(--foco)"
+                      strokeWidth={8}
+                      opacity={0.8}
+                    />
+                  )}
                   <path
                     d={estilo.caminho}
                     fill={cor}
-                    fillOpacity={realcado ? 0.34 : 0.22}
+                    fillOpacity={realcado || emFoco ? 0.34 : 0.22}
                     stroke={cor}
-                    strokeWidth={realcado ? 3 : 2}
+                    strokeWidth={realcado || emFoco ? 3 : 2}
                     strokeDasharray={estilo.tracejado}
                   />
                   <path
@@ -397,7 +435,7 @@ export function ArvoreSvg({
                     fontSize={11}
                     fill="var(--texto-suave)"
                   >
-                    {valor.abreviado}
+                    {estado === null || estado === 'resolvido' ? valor.abreviado : '…'}
                   </text>
                   {selo && (
                     <g transform={`translate(0, ${A / 2 + 13})`}>

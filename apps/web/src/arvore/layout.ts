@@ -35,6 +35,7 @@ export interface Ligacao {
   id: string;
   caminho: string;
   argumentoDestino: number;
+  idDestino: number;
 }
 
 export interface Caixa {
@@ -108,6 +109,7 @@ export function calcularLayout(raiz: No, recolhidos: ReadonlySet<number>): Layou
         DIMENSOES.altura,
       ),
       argumentoDestino: ligacao.target.data.argumento,
+      idDestino: ligacao.target.data.id,
     });
   }
 

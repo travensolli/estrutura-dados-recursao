@@ -1,11 +1,11 @@
 import type { Modo } from '@sequencias/contrato';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { act } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { executarInstrumentado } from '../plano-b/nucleo-adaptador';
 import { ArvoreSvg } from './ArvoreSvg';
 
-function desenhar(modo: Modo, limiteNos?: number) {
+function desenhar(modo: Modo, limiteNos?: number, passo?: number) {
   const execucao = executarInstrumentado('tribonacci', 7, modo, { comArvore: true, limiteNos });
   if (!execucao.raiz) throw new Error('execução sem árvore');
   render(
@@ -17,6 +17,7 @@ function desenhar(modo: Modo, limiteNos?: number) {
       modo={modo}
       truncada={execucao.truncada}
       nosExibidos={execucao.nosExibidos}
+      passo={passo ?? null}
     />,
   );
   return execucao;
@@ -24,6 +25,11 @@ function desenhar(modo: Modo, limiteNos?: number) {
 
 function nos() {
   return screen.getAllByTestId('no-arvore');
+}
+
+/** O desenho, sem os contadores em volta. */
+function figura() {
+  return within(screen.getByRole('img'));
 }
 
 afterEach(() => {
@@ -93,6 +99,30 @@ describe('ArvoreSvg', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir os 1 nós recolhidos' }));
     expect(nos()).toHaveLength(46);
+  });
+
+  it('sem reprodução mostra a árvore inteira já resolvida', () => {
+    desenhar('sem_cache');
+    expect(nos().every((no) => no.dataset.estado === 'inteira')).toBe(true);
+    expect(figura().getByText('31')).toBeInTheDocument();
+  });
+
+  it('apaga os nós futuros e esconde o valor ainda não calculado', () => {
+    desenhar('sem_cache', undefined, 1);
+    const porEstado = (estado: string) => nos().filter((no) => no.dataset.estado === estado);
+    // passo 1: f(7) e f(6) na pilha, o resto ainda não aconteceu
+    expect(porEstado('ativo')).toHaveLength(2);
+    expect(porEstado('futuro')).toHaveLength(44);
+    expect(porEstado('resolvido')).toHaveLength(0);
+    expect(figura().queryByText('31')).not.toBeInTheDocument();
+    expect(figura().getAllByText('…').length).toBeGreaterThan(0);
+  });
+
+  it('mostra o valor dos nós já resolvidos', () => {
+    desenhar('sem_cache', undefined, 91);
+    expect(nos().every((no) => no.dataset.estado === 'resolvido')).toBe(true);
+    expect(figura().getByText('31')).toBeInTheDocument();
+    expect(figura().queryByText('…')).not.toBeInTheDocument();
   });
 
   it('baixa o desenho em SVG com o nome da execução', () => {
