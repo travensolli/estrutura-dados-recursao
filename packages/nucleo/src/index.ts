@@ -15,6 +15,7 @@ export {
   tribonacciComCacheInstrumentado,
   tribonacciSemCacheInstrumentado,
 } from './instrumentados';
+export { executarInstrumentado, executarPuro } from './fachadas';
 export { arvoreParaTexto, descreverNo } from './arvore';
 export { executarProtegido, validarN } from './validacao';
 export { estimarInvocacoes, estimarProfundidade } from './estimativa';
