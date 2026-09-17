@@ -1,4 +1,4 @@
-import { ErroSequencia, type CodigoErro, type Erro } from '@sequencias/contrato';
+import { ErroSchema, ErroSequencia, type CodigoErro, type Erro } from '@sequencias/contrato';
 import {
   hasZodFastifySchemaValidationErrors,
   isResponseSerializationError,
@@ -82,4 +82,12 @@ export interface RespostaDeErro {
 export function respostaDeErro(erro: unknown): RespostaDeErro {
   const traduzido = traduzirErro(erro);
   return { status: statusDoCodigo(traduzido.codigo), corpo: traduzido.paraJson() };
+}
+
+/** Declara o formato de erro do contrato na documentação dos status informados. */
+export function respostasDeErro<T extends number>(...status: T[]): Record<T, typeof ErroSchema> {
+  return Object.fromEntries(status.map((codigo) => [codigo, ErroSchema])) as Record<
+    T,
+    typeof ErroSchema
+  >;
 }

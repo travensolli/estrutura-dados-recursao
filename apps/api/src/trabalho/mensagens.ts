@@ -3,6 +3,7 @@ import {
   type CalcularResposta,
   type CompararResposta,
   type Erro,
+  type EstimativaResposta,
   type Modo,
   type Sequencia,
 } from '@sequencias/contrato';
@@ -31,12 +32,20 @@ export interface PedidoComparar {
   ordem: Modo[];
 }
 
-export type Pedido = PedidoCalcular | PedidoArvore | PedidoComparar;
+export interface PedidoEstimativa {
+  tipo: 'estimativa';
+  sequencia: Sequencia;
+  n: number;
+  modo: Modo;
+}
+
+export type Pedido = PedidoCalcular | PedidoArvore | PedidoComparar | PedidoEstimativa;
 
 export interface RespostaPorTipo {
   calcular: CalcularResposta;
   arvore: ArvoreResposta;
   comparar: CompararResposta;
+  estimativa: EstimativaResposta;
 }
 
 export type RespostaDeTrabalho = RespostaPorTipo[Pedido['tipo']];
