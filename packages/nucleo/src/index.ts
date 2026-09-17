@@ -17,3 +17,4 @@ export {
 } from './instrumentados';
 export { arvoreParaTexto, descreverNo } from './arvore';
 export { executarProtegido, validarN } from './validacao';
+export { estimarInvocacoes, estimarProfundidade } from './estimativa';
