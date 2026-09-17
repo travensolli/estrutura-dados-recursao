@@ -3,7 +3,8 @@
 Este documento explica, com o exemplo Tribonacci f(7), por que a versão com cache faz muito
 menos chamadas do que a versão sem cache. É a base conceitual do modo apresentação da interface
 (`/apresentacao`) e das respostas às perguntas mais prováveis na defesa do trabalho. O roteiro da
-aula está em `docs/roteiro-apresentacao.md`.
+aula está em `docs/roteiro-apresentacao.md` e a forma como o programa mede tempo e memória está
+em `docs/metodologia-medicao.md`.
 
 Todos os números daqui foram obtidos desenhando as árvores a partir da definição, contando nó a nó,
 e conferidos contra a execução instrumentada do programa. Nenhum valor é ilustrativo.
@@ -349,7 +350,8 @@ as mesmas n invocações, nenhum acerto, e ainda sobram n - 1 entradas guardadas
 cache só ajudaria se o mesmo cache sobrevivesse entre execuções, atendendo a vários pedidos. Como
 aqui cada execução começa com o cache vazio, a interface mostra tempo parecido nos dois modos e
 memória um pouco maior com cache. Isso não é falha da medição: é o resultado correto, e ele ensina
-que memoização só compensa onde existem subproblemas repetidos.
+que memoização só compensa onde existem subproblemas repetidos. A seção 8 de
+`docs/metodologia-medicao.md` detalha esse ponto.
 
 ### 6.5 O custo em memória
 
@@ -394,6 +396,10 @@ execução instrumentada de verdade. Para conferir ao vivo, com a interface em
 | A árvore de 16 nós e os 5 acertos  | `/arvore?sequencia=tribonacci&n=7&modo=com_cache`   |
 | Tempo, memória e chamadas evitadas | `/comparar?sequencia=tribonacci&n=7`                |
 | Os dois modos lado a lado          | `/apresentacao`                                     |
+
+Os números de tempo e memória da tela `/comparar` seguem o método descrito em
+`docs/metodologia-medicao.md`: mediana de várias repetições, com aquecimento, cache novo a cada
+repetição e memória medida em execução separada.
 
 Sem abrir o navegador, pela linha de comando:
 

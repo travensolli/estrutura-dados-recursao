@@ -5,7 +5,7 @@ com e sem cache, comparando desempenho em tempo e memória e exibindo a árvore 
 
 Formato assumido e registrado em `docs/decisoes.md`: 15 minutos, ao vivo, com projetor, sem
 restrição de ferramentas. A base conceitual (árvores, contagens e fórmulas) está em
-`docs/explicacao-tribonacci.md`.
+`docs/explicacao-tribonacci.md`, e o método de medição está em `docs/metodologia-medicao.md`.
 
 ## A ideia central
 
