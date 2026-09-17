@@ -1,6 +1,6 @@
 // Implementação simplificada usada SOMENTE pelos mocks MSW enquanto a API real
 // não existe. Não é o núcleo oficial e será removida na integração (Fase 3).
-import type { Metricas, Modo, No, Sequencia } from '@sequencias/contrato';
+import type { AcertoCache, Metricas, Modo, No, Sequencia } from '@sequencias/contrato';
 
 const ehBase: Record<Sequencia, (k: number) => boolean> = {
   fatorial: (k) => k <= 1,
@@ -34,8 +34,9 @@ export function executarMock(sequencia: Sequencia, n: number, modo: Modo): Execu
   let acertos = 0;
   let profundidadeMaxima = 0;
   const porArgumento = new Map<number, number>();
+  const acertosDetalhados: AcertoCache[] = [];
 
-  function f(k: number, profundidade: number): No {
+  function f(k: number, profundidade: number, pai: number): No {
     invocacoes += 1;
     porArgumento.set(k, (porArgumento.get(k) ?? 0) + 1);
     profundidadeMaxima = Math.max(profundidadeMaxima, profundidade + 1);
@@ -55,10 +56,11 @@ export function executarMock(sequencia: Sequencia, n: number, modo: Modo): Execu
       no.tipo = 'acerto_cache';
       no.valor = String(cache.get(k));
       acertos += 1;
+      acertosDetalhados.push({ argumento: k, dentro_de: pai });
     } else {
       no.tipo = 'calculado';
       const valores = argumentosFilhos[sequencia](k).map((j) => {
-        const filho = f(j, profundidade + 1);
+        const filho = f(j, profundidade + 1, k);
         no.filhos.push(filho);
         return BigInt(filho.valor);
       });
@@ -71,7 +73,7 @@ export function executarMock(sequencia: Sequencia, n: number, modo: Modo): Execu
     return no;
   }
 
-  const raiz = f(n, 0);
+  const raiz = f(n, 0, n);
   const metricas: Metricas = {
     valor: raiz.valor,
     digitos: raiz.valor.length,
@@ -85,6 +87,7 @@ export function executarMock(sequencia: Sequencia, n: number, modo: Modo): Execu
     invocacoes_por_argumento: [...porArgumento.entries()]
       .sort((a, b) => b[0] - a[0])
       .map(([argumento, quantidade]) => ({ argumento, invocacoes: quantidade })),
+    acertos_detalhados: acertosDetalhados,
   };
   return { metricas, raiz };
 }

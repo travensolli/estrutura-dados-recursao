@@ -43,5 +43,8 @@ export const REPETICOES_PADRAO = 5;
 export const REPETICOES_MAXIMO = 30;
 export const PONTOS_SERIE_MAXIMO = 60;
 
-/** A estimativa aceita n além dos limites de execução, só para informar o tamanho. */
-export const N_MAXIMO_ESTIMATIVA = 100_000;
+/**
+ * A estimativa aceita n além dos limites de execução, só para informar o
+ * tamanho. O teto mantém a recursão com cache dentro da pilha ampliada do worker.
+ */
+export const N_MAXIMO_ESTIMATIVA = 20_000;

@@ -84,6 +84,7 @@ describe('métricas e árvore', () => {
         { argumento: 7, invocacoes: 1 },
         { argumento: 0, invocacoes: 7 },
       ],
+      acertos_detalhados: [],
     });
     expect(metricas.invocacoes).toBe(46);
   });
