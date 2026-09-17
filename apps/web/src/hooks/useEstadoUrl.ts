@@ -1,6 +1,8 @@
 import {
   MODOS,
   N_MAXIMO_ESTIMATIVA,
+  REPETICOES_MAXIMO,
+  REPETICOES_PADRAO,
   SEQUENCIAS,
   type Modo,
   type Sequencia,
@@ -17,6 +19,8 @@ export interface EstadoUrl {
   sequencia: Sequencia;
   n: number;
   modo: ModoTela;
+  /** Quantas vezes a comparação repete cada execução. */
+  repeticoes: number;
 }
 
 export type EstadoUrlParcial = Partial<EstadoUrl>;
@@ -25,6 +29,7 @@ export const ESTADO_URL_PADRAO: EstadoUrl = {
   sequencia: 'tribonacci',
   n: 7,
   modo: 'sem_cache',
+  repeticoes: REPETICOES_PADRAO,
 };
 
 export interface OpcoesEstadoUrl {
@@ -68,11 +73,17 @@ export function lerEstadoUrl(parametros: URLSearchParams, opcoes: OpcoesEstadoUr
   const modo = parametros.get('modo');
   const n = parametros.get('n');
   const nLido = n === null ? null : validarInteiro(n, { minimo: 0, maximo: N_MAXIMO_ESTIMATIVA });
+  const repeticoes = parametros.get('repeticoes');
+  const repeticoesLidas =
+    repeticoes === null
+      ? null
+      : validarInteiro(repeticoes, { minimo: 1, maximo: REPETICOES_MAXIMO });
 
   return {
     sequencia: ehSequencia(sequencia) ? sequencia : base.sequencia,
     n: nLido?.valido ? nLido.valor : base.n,
     modo: ehModoTela(modo, modosPermitidos) ? modo : modoPadrao,
+    repeticoes: repeticoesLidas?.valido ? repeticoesLidas.valor : base.repeticoes,
   };
 }
 
@@ -85,6 +96,7 @@ export function escreverEstadoUrl(
   if (parcial.sequencia !== undefined) proximos.set('sequencia', parcial.sequencia);
   if (parcial.n !== undefined) proximos.set('n', String(parcial.n));
   if (parcial.modo !== undefined) proximos.set('modo', parcial.modo);
+  if (parcial.repeticoes !== undefined) proximos.set('repeticoes', String(parcial.repeticoes));
   return proximos;
 }
 
@@ -95,7 +107,8 @@ export function enderecoComEstado(caminho: string, parcial: EstadoUrlParcial): s
 }
 
 /**
- * Sequência, n e modo lidos e validados do endereço, com padrões e escrita parcial.
+ * Sequência, n, modo e repetições lidos e validados do endereço, com padrões e
+ * escrita parcial.
  * Use um objeto de opções constante para o estado manter a mesma referência.
  */
 export function useEstadoUrl(opcoes: OpcoesEstadoUrl = {}): UsoEstadoUrl {

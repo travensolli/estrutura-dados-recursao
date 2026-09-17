@@ -24,34 +24,49 @@ describe('lerEstadoUrl', () => {
     expect(lerEstadoUrl(new URLSearchParams())).toEqual(ESTADO_URL_PADRAO);
   });
 
-  it('lê os três parâmetros do endereço', () => {
-    expect(lerEstadoUrl(new URLSearchParams('sequencia=fibonacci&n=10&modo=comparar'))).toEqual({
+  it('lê os quatro parâmetros do endereço', () => {
+    expect(
+      lerEstadoUrl(new URLSearchParams('sequencia=fibonacci&n=10&modo=comparar&repeticoes=9')),
+    ).toEqual({
       sequencia: 'fibonacci',
       n: 10,
       modo: 'comparar',
+      repeticoes: 9,
     });
   });
 
-  it.each(['sequencia=lucas', 'modo=memo', 'n=-3', 'n=2,5', 'n=abc', 'n=999999'])(
-    'cai no padrão com %s',
-    (consulta) => {
-      expect(lerEstadoUrl(new URLSearchParams(consulta))).toEqual(ESTADO_URL_PADRAO);
-    },
-  );
+  it.each([
+    'sequencia=lucas',
+    'modo=memo',
+    'n=-3',
+    'n=2,5',
+    'n=abc',
+    'n=999999',
+    'repeticoes=0',
+    'repeticoes=99',
+    'repeticoes=tres',
+  ])('cai no padrão com %s', (consulta) => {
+    expect(lerEstadoUrl(new URLSearchParams(consulta))).toEqual(ESTADO_URL_PADRAO);
+  });
 
   it('respeita padrão próprio e lista de modos permitidos', () => {
     const estado = lerEstadoUrl(new URLSearchParams('modo=comparar'), {
       padrao: { sequencia: 'fatorial', n: 25 },
       modosPermitidos: ['sem_cache', 'com_cache'],
     });
-    expect(estado).toEqual({ sequencia: 'fatorial', n: 25, modo: 'sem_cache' });
+    expect(estado).toEqual({ sequencia: 'fatorial', n: 25, modo: 'sem_cache', repeticoes: 5 });
   });
 });
 
 describe('useEstadoUrl', () => {
   it('devolve o estado do endereço', () => {
     const { result } = renderizar('/calcular?sequencia=fatorial&n=25&modo=com_cache');
-    expect(result.current.estado).toEqual({ sequencia: 'fatorial', n: 25, modo: 'com_cache' });
+    expect(result.current.estado).toEqual({
+      sequencia: 'fatorial',
+      n: 25,
+      modo: 'com_cache',
+      repeticoes: 5,
+    });
   });
 
   it('grava só a chave alterada e preserva os outros parâmetros', () => {
@@ -59,7 +74,12 @@ describe('useEstadoUrl', () => {
     act(() => {
       result.current.definir({ n: 12 });
     });
-    expect(result.current.estado).toEqual({ sequencia: 'fibonacci', n: 12, modo: 'sem_cache' });
+    expect(result.current.estado).toEqual({
+      sequencia: 'fibonacci',
+      n: 12,
+      modo: 'sem_cache',
+      repeticoes: 5,
+    });
   });
 
   it('mantém a mesma referência de definir entre renderizações', () => {
@@ -86,5 +106,8 @@ describe('auxiliares', () => {
       '/calcular?sequencia=fatorial',
     );
     expect(enderecoComEstado('/calcular', {})).toBe('/calcular');
+    expect(enderecoComEstado('/comparar', { sequencia: 'fibonacci', n: 20, repeticoes: 5 })).toBe(
+      '/comparar?sequencia=fibonacci&n=20&repeticoes=5',
+    );
   });
 });

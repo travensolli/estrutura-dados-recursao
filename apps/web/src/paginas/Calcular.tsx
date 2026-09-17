@@ -294,13 +294,16 @@ function duracaoLegivel(duracaoMs: number): string {
     : 'menos que a resolução do relógio';
 }
 
-function entradaPara(execucao: EstadoUrl | null, alvo: Modo): CalcularEntrada | null {
+/** Parâmetros de uma execução já disparada; repetições não valem aqui. */
+type Pedido = Pick<EstadoUrl, 'sequencia' | 'n' | 'modo'>;
+
+function entradaPara(execucao: Pedido | null, alvo: Modo): CalcularEntrada | null {
   if (execucao === null) return null;
   if (execucao.modo !== 'comparar' && execucao.modo !== alvo) return null;
   return { sequencia: execucao.sequencia, n: execucao.n, modo: alvo };
 }
 
-function mesmoPedido(a: EstadoUrl | null, b: EstadoUrl): boolean {
+function mesmoPedido(a: Pedido | null, b: Pedido): boolean {
   return a !== null && a.sequencia === b.sequencia && a.n === b.n && a.modo === b.modo;
 }
 
@@ -323,7 +326,7 @@ export function PaginaCalcular() {
     setRascunho(String(n));
   }
 
-  const [execucao, setExecucao] = useState<EstadoUrl | null>(null);
+  const [execucao, setExecucao] = useState<Pedido | null>(null);
   const [confirmando, setConfirmando] = useState(false);
   const [verificando, setVerificando] = useState(false);
   const [cancelado, setCancelado] = useState(false);
