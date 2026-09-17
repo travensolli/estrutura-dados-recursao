@@ -6,6 +6,7 @@ import {
   type CompararResposta,
 } from '@sequencias/contrato';
 import { executarInstrumentado, executarProtegido, validarN } from '@sequencias/nucleo';
+import { config } from '../config';
 import { compararModos } from '../medicao/comparacao';
 import {
   type Pedido,
@@ -50,7 +51,11 @@ function comparar(pedido: PedidoComparar): CompararResposta {
   const { sequencia, n, repeticoes, ordem } = pedido;
   // A comparação roda os dois modos, então vale o limite do mais restrito.
   validarN(n, limiteN('node', sequencia, 'sem_cache'));
-  return compararModos(sequencia, n, { repeticoes, ordem });
+  return compararModos(sequencia, n, {
+    repeticoes,
+    ordem,
+    memoria: { intervaloAmostragem: config.intervaloAmostragemMemoria },
+  });
 }
 
 /** Ponto único de execução dos trabalhos pesados, chamado dentro do worker. */

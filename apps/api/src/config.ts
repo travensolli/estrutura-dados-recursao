@@ -1,4 +1,5 @@
 import { TEMPO_LIMITE_MS_PADRAO } from '@sequencias/contrato';
+import { INTERVALO_AMOSTRAGEM_PADRAO } from './medicao/memoria';
 
 /** Pilha ampliada do worker, em MB: a recursão com cache chega a milhares de quadros. */
 export const PILHA_MB_PADRAO = 64;
@@ -15,4 +16,5 @@ export const config = {
   versao: process.env.VERSAO_APP ?? '0.1.0',
   tempoLimiteMs: numero('TEMPO_LIMITE_MS', TEMPO_LIMITE_MS_PADRAO),
   pilhaMb: numero('PILHA_MB', PILHA_MB_PADRAO),
+  intervaloAmostragemMemoria: numero('INTERVALO_AMOSTRAGEM', INTERVALO_AMOSTRAGEM_PADRAO),
 };
