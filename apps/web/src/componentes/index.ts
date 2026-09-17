@@ -31,6 +31,7 @@ export { EstadoVazio, type EstadoVazioProps } from './EstadoVazio';
 export { Icone, type IconeProps, type NomeIcone } from './Icone';
 export { ListaMetricas, Metrica, type ListaMetricasProps, type MetricaProps } from './Metrica';
 export { NumeroGrande, type NumeroGrandeProps } from './NumeroGrande';
+export { RotuloModo, type RotuloModoProps } from './RotuloModo';
 export { Selo, SeloModo, type SeloProps, type TomSelo } from './Selo';
 export {
   SeletorSegmentado,

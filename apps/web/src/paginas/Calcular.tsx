@@ -33,6 +33,7 @@ import {
   ListaMetricas,
   Metrica,
   NumeroGrande,
+  RotuloModo,
   SeletorSegmentado,
   Selo,
   SeloModo,
@@ -49,7 +50,6 @@ import {
   type ModoTela,
   type OpcoesEstadoUrl,
 } from '../hooks/useEstadoUrl';
-import { juntarClasses } from '../utilitarios/classes';
 import { formatarInteiro, formatarTempoNs, rotuloModo } from '../utilitarios/formatar';
 import { validarInteiro } from '../utilitarios/validacao';
 
@@ -65,11 +65,6 @@ const OPCOES_MODO: ReadonlyArray<OpcaoSegmento<ModoTela>> = [
   { valor: 'com_cache', rotulo: 'Com cache', marca: 'com-cache' },
   { valor: 'comparar', rotulo: 'Comparar', icone: 'comparar' },
 ];
-
-const CLASSES_MARCA: Record<Modo, string> = {
-  sem_cache: 'bg-serie-sem-cache',
-  com_cache: 'bg-serie-com-cache',
-};
 
 interface DescricaoMetrica {
   chave: string;
@@ -176,7 +171,7 @@ function TabelaMetricas({ respostas }: { respostas: CalcularResposta[] }) {
     },
     ...respostas.map((resposta) => ({
       chave: resposta.modo,
-      rotulo: <CabecalhoSerie modo={resposta.modo} />,
+      rotulo: <RotuloModo modo={resposta.modo} />,
       numerico: true,
       className: 'w-20 sm:w-28',
       conteudo: (linha: DescricaoMetrica) => formatarInteiro(linha.valor(resposta.metricas)),
@@ -191,18 +186,6 @@ function TabelaMetricas({ respostas }: { respostas: CalcularResposta[] }) {
       chave={(linha) => linha.chave}
       destacar={(linha) => linha.chave === 'invocacoes'}
     />
-  );
-}
-
-function CabecalhoSerie({ modo }: { modo: Modo }) {
-  return (
-    <span className="inline-flex items-center gap-2">
-      <span
-        aria-hidden="true"
-        className={juntarClasses('h-1 w-4 rounded-full', CLASSES_MARCA[modo])}
-      />
-      {rotuloModo(modo)}
-    </span>
   );
 }
 
@@ -243,7 +226,7 @@ function TabelaArgumentos({ respostas }: { respostas: CalcularResposta[] }) {
   modos.forEach((modo, indice) => {
     colunas.push({
       chave: `invocacoes-${modo}`,
-      rotulo: modos.length > 1 ? <CabecalhoSerie modo={modo} /> : 'Invocações',
+      rotulo: modos.length > 1 ? <RotuloModo modo={modo} /> : 'Invocações',
       numerico: true,
       className: 'w-20 sm:w-28',
       conteudo: (linha) => formatarInteiro(linha.valores[indice] ?? 0),
