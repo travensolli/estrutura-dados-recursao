@@ -11,6 +11,7 @@ import {
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
+import { registrarDocumentacao } from './http/documentacao';
 import { erroDeRotaDesconhecida, respostaDeErro } from './http/erros';
 import { rotas } from './rotas';
 
@@ -24,8 +25,8 @@ export type Aplicacao = FastifyInstance<
 
 /**
  * Monta a aplicação: validação e serialização pelos schemas Zod do contrato,
- * CORS liberado para o ambiente de desenvolvimento e erros sempre no formato
- * { codigo, mensagem }.
+ * CORS liberado para o ambiente de desenvolvimento, documentação OpenAPI em
+ * /docs e erros sempre no formato { codigo, mensagem }.
  */
 export function criarAplicacao(): Aplicacao {
   const app = Fastify({
@@ -49,6 +50,7 @@ export function criarAplicacao(): Aplicacao {
   });
 
   void app.register(cors, { origin: true, methods: ['GET', 'POST', 'OPTIONS'] });
+  registrarDocumentacao(app);
   void app.register(rotas);
 
   return app;
