@@ -50,7 +50,10 @@ export function BarraComparativa({
       {descricao ? <p className="mt-0.5 text-sm text-texto-suave">{descricao}</p> : null}
       <ul className="mt-3 space-y-0.5">
         {series.map((serie) => (
-          <li key={serie.modo} className="grid grid-cols-[6.5rem_1fr] items-center gap-x-3">
+          <li
+            key={serie.modo}
+            className="grid grid-cols-[5rem_1fr] items-center gap-x-3 sm:grid-cols-[6.5rem_1fr]"
+          >
             <span className="text-sm text-texto-suave">{rotuloModo(serie.modo)}</span>
             <span className="flex min-w-0 items-center gap-2">
               <span

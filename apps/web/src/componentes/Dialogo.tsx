@@ -122,7 +122,7 @@ export function Dialogo({
         ) : null}
         {children ? <div className="mt-4">{children}</div> : null}
         {acoes ? (
-          <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">{acoes}</div>
+          <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">{acoes}</div>
         ) : null}
       </div>
     </div>,
