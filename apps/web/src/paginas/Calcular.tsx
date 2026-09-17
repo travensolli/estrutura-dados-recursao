@@ -1,14 +1,596 @@
+import {
+  DESCRICAO_SEQUENCIAS,
+  N_MAXIMO_ESTIMATIVA,
+  SEQUENCIAS,
+  type CalcularResposta,
+  type Metricas,
+  type Modo,
+  type Sequencia,
+} from '@sequencias/contrato';
+import { useQueryClient } from '@tanstack/react-query';
+import { useMemo, useState, type FormEvent } from 'react';
+import type { CalcularEntrada } from '../api/cliente';
+import {
+  chaves,
+  opcoesEstimativa,
+  useCalcular,
+  useEstimativa,
+  useSequencias,
+} from '../api/consultas';
+import {
+  Alerta,
+  BarraProporcao,
+  Botao,
+  BotaoLink,
+  CampoNumero,
+  Cartao,
+  DialogoConfirmacao,
+  Esqueleto,
+  EstadoErro,
+  EstadoVazio,
+  GrupoBotoes,
+  ListaMetricas,
+  Metrica,
+  NumeroGrande,
+  SeletorSegmentado,
+  Selo,
+  SeloModo,
+  Tabela,
+  type ColunaTabela,
+  type OpcaoSegmento,
+} from '../componentes';
 import { useTituloPagina } from '../hooks/titulo-pagina';
+import {
+  enderecoComEstado,
+  modoDeReferencia,
+  useEstadoUrl,
+  type EstadoUrl,
+  type ModoTela,
+  type OpcoesEstadoUrl,
+} from '../hooks/useEstadoUrl';
+import { juntarClasses } from '../utilitarios/classes';
+import { formatarInteiro, formatarTempoNs, rotuloModo } from '../utilitarios/formatar';
+import { validarInteiro } from '../utilitarios/validacao';
 
-export function PaginaCalcular() {
-  useTituloPagina('Calcular');
+const OPCOES_URL: OpcoesEstadoUrl = {};
+
+const OPCOES_SEQUENCIA: ReadonlyArray<OpcaoSegmento<Sequencia>> = SEQUENCIAS.map((id) => ({
+  valor: id,
+  rotulo: DESCRICAO_SEQUENCIAS[id].nome,
+}));
+
+const OPCOES_MODO: ReadonlyArray<OpcaoSegmento<ModoTela>> = [
+  { valor: 'sem_cache', rotulo: 'Sem cache', marca: 'sem-cache' },
+  { valor: 'com_cache', rotulo: 'Com cache', marca: 'com-cache' },
+  { valor: 'comparar', rotulo: 'Comparar os dois', icone: 'comparar' },
+];
+
+const CLASSES_MARCA: Record<Modo, string> = {
+  sem_cache: 'bg-serie-sem-cache',
+  com_cache: 'bg-serie-com-cache',
+};
+
+interface DescricaoMetrica {
+  chave: string;
+  rotulo: string;
+  detalhe: string;
+  valor: (metricas: Metricas) => number;
+}
+
+function metricasDaExecucao(modo: Modo): DescricaoMetrica[] {
+  const comCache = modo === 'com_cache';
+  return [
+    {
+      chave: 'invocacoes',
+      rotulo: 'Invocações',
+      detalhe: 'Conta a chamada raiz, os casos base e os acertos de cache.',
+      valor: (metricas) => metricas.invocacoes,
+    },
+    {
+      chave: 'recursivas',
+      rotulo: 'Chamadas recursivas',
+      detalhe: 'As invocações menos a chamada raiz.',
+      valor: (metricas) => metricas.chamadas_recursivas,
+    },
+    {
+      chave: 'casos_base',
+      rotulo: 'Casos base',
+      detalhe: 'Chamadas que já tinham resposta na definição e pararam ali.',
+      valor: (metricas) => metricas.casos_base,
+    },
+    {
+      chave: 'calculados',
+      rotulo: comCache ? 'Calculados (faltas de cache)' : 'Calculados',
+      detalhe: comCache
+        ? 'Chamadas que não estavam no cache e executaram a fórmula.'
+        : 'Chamadas que executaram a fórmula.',
+      valor: (metricas) => metricas.calculados,
+    },
+    {
+      chave: 'acertos',
+      rotulo: 'Acertos de cache',
+      detalhe: comCache
+        ? 'Chamadas que encontraram o valor pronto e não desceram.'
+        : 'Sem cache nada é reaproveitado.',
+      valor: (metricas) => metricas.acertos_cache,
+    },
+    {
+      chave: 'entradas',
+      rotulo: 'Entradas no cache',
+      detalhe: comCache
+        ? 'Valores guardados ao fim da execução; casos base não entram.'
+        : 'Sem cache nada é guardado.',
+      valor: (metricas) => metricas.entradas_cache,
+    },
+    {
+      chave: 'profundidade',
+      rotulo: 'Profundidade máxima',
+      detalhe: 'Maior número de chamadas ao mesmo tempo na pilha, contando a raiz.',
+      valor: (metricas) => metricas.profundidade_maxima,
+    },
+  ];
+}
+
+function MetricasExecucao({ resposta }: { resposta: CalcularResposta }) {
+  return (
+    <ListaMetricas colunas={4}>
+      {metricasDaExecucao(resposta.modo).map((descricao, indice) => (
+        <Metrica
+          key={descricao.chave}
+          rotulo={descricao.rotulo}
+          valor={formatarInteiro(descricao.valor(resposta.metricas))}
+          detalhe={descricao.detalhe}
+          marca={
+            indice === 0 ? (resposta.modo === 'sem_cache' ? 'sem-cache' : 'com-cache') : undefined
+          }
+          destaque={indice === 0}
+        />
+      ))}
+    </ListaMetricas>
+  );
+}
+
+function CabecalhoSerie({ modo }: { modo: Modo }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span
+        aria-hidden="true"
+        className={juntarClasses('h-1 w-4 rounded-full', CLASSES_MARCA[modo])}
+      />
+      {rotuloModo(modo)}
+    </span>
+  );
+}
+
+interface LinhaArgumento {
+  argumento: number;
+  valores: number[];
+}
+
+function TabelaArgumentos({ respostas }: { respostas: CalcularResposta[] }) {
+  const modos = respostas.map((resposta) => resposta.modo);
+  const contagens = respostas.map(
+    (resposta) =>
+      new Map(
+        resposta.metricas.invocacoes_por_argumento.map((item) => [item.argumento, item.invocacoes]),
+      ),
+  );
+  const argumentos = [...new Set(contagens.flatMap((mapa) => [...mapa.keys()]))].sort(
+    (a, b) => b - a,
+  );
+  const linhas: LinhaArgumento[] = argumentos.map((argumento) => ({
+    argumento,
+    valores: contagens.map((mapa) => mapa.get(argumento) ?? 0),
+  }));
+  const maximo = Math.max(1, ...linhas.flatMap((linha) => linha.valores));
+
+  const colunas: ColunaTabela<LinhaArgumento>[] = [
+    {
+      chave: 'argumento',
+      rotulo: 'Argumento',
+      cabecalhoDeLinha: true,
+      conteudo: (linha) => <span className="font-mono">f({linha.argumento})</span>,
+    },
+  ];
+  modos.forEach((modo, indice) => {
+    colunas.push({
+      chave: `invocacoes-${modo}`,
+      rotulo: modos.length > 1 ? <CabecalhoSerie modo={modo} /> : 'Invocações',
+      numerico: true,
+      conteudo: (linha) => formatarInteiro(linha.valores[indice] ?? 0),
+    });
+    colunas.push({
+      chave: `barra-${modo}`,
+      rotulo: <span className="sr-only">Proporção {rotuloModo(modo)}</span>,
+      className: 'w-40',
+      conteudo: (linha) => (
+        <BarraProporcao valor={linha.valores[indice] ?? 0} maximo={maximo} modo={modo} />
+      ),
+    });
+  });
+
+  const totais = respostas
+    .map(
+      (resposta) => `${formatarInteiro(resposta.metricas.invocacoes)} ${rotuloModo(resposta.modo)}`,
+    )
+    .join(' e ');
 
   return (
-    <section aria-labelledby="titulo-pagina">
-      <h1 id="titulo-pagina" className="text-2xl font-semibold">
-        Calcular
-      </h1>
-      <p className="mt-2 text-texto-suave">Escolha a sequência, o valor de n e o modo.</p>
-    </section>
+    <Tabela
+      legenda="Invocações por argumento, do maior para o menor"
+      legendaVisivel
+      colunas={colunas}
+      linhas={linhas}
+      chave={(linha) => linha.argumento}
+      alturaMaxima="28rem"
+      rodape={`Somando todos os argumentos: ${totais}.`}
+    />
+  );
+}
+
+function entradaPara(execucao: EstadoUrl | null, alvo: Modo): CalcularEntrada | null {
+  if (execucao === null) return null;
+  if (execucao.modo !== 'comparar' && execucao.modo !== alvo) return null;
+  return { sequencia: execucao.sequencia, n: execucao.n, modo: alvo };
+}
+
+function mesmoPedido(a: EstadoUrl | null, b: EstadoUrl): boolean {
+  return a !== null && a.sequencia === b.sequencia && a.n === b.n && a.modo === b.modo;
+}
+
+export function PaginaCalcular() {
+  const { estado, definir } = useEstadoUrl(OPCOES_URL);
+  const { sequencia, n, modo } = estado;
+  const nome = DESCRICAO_SEQUENCIAS[sequencia].nome;
+  useTituloPagina(`Calcular ${nome} f(${n})`);
+
+  const clienteConsultas = useQueryClient();
+  const sequencias = useSequencias();
+  const info = sequencias.data?.sequencias.find((item) => item.id === sequencia);
+  const modoReferencia = modoDeReferencia(modo);
+  const limite = info?.limites[modoReferencia];
+
+  const [rascunho, setRascunho] = useState(() => String(n));
+  const [nEcoado, setNEcoado] = useState(n);
+  if (n !== nEcoado) {
+    setNEcoado(n);
+    setRascunho(String(n));
+  }
+
+  const [execucao, setExecucao] = useState<EstadoUrl | null>(null);
+  const [confirmando, setConfirmando] = useState(false);
+  const [verificando, setVerificando] = useState(false);
+  const [cancelado, setCancelado] = useState(false);
+
+  const consultaEstimativa = useMemo(
+    () => ({ sequencia, n, modo: modoReferencia }),
+    [sequencia, n, modoReferencia],
+  );
+  const estimativa = useEstimativa(consultaEstimativa);
+  const previsao = estimativa.data;
+
+  const entradaSemCache = useMemo(() => entradaPara(execucao, 'sem_cache'), [execucao]);
+  const entradaComCache = useMemo(() => entradaPara(execucao, 'com_cache'), [execucao]);
+  const calculoSemCache = useCalcular(entradaSemCache);
+  const calculoComCache = useCalcular(entradaComCache);
+
+  const consultas = [
+    { entrada: entradaSemCache, consulta: calculoSemCache },
+    { entrada: entradaComCache, consulta: calculoComCache },
+  ].filter((item) => item.entrada !== null);
+
+  const carregando = consultas.some((item) => item.consulta.isFetching);
+  const erro = consultas.find((item) => item.consulta.error)?.consulta.error ?? null;
+  const respostas = consultas.flatMap((item) => (item.consulta.data ? [item.consulta.data] : []));
+  const prontos = !carregando && erro === null && respostas.length === consultas.length;
+  const resultado = prontos && respostas.length > 0 ? respostas : null;
+  const primeira = resultado?.[0];
+
+  const rascunhoValido = validarInteiro(rascunho, {
+    minimo: 0,
+    maximo: N_MAXIMO_ESTIMATIVA,
+  }).valido;
+  const limiteExibido = previsao?.limite_n ?? limite;
+  const bloqueado = previsao?.dentro_do_limite === false || (limite !== undefined && n > limite);
+  const podeCalcular = rascunhoValido && !bloqueado && !carregando && !verificando;
+  const desatualizado = execucao !== null && !mesmoPedido(execucao, estado);
+
+  function iniciar() {
+    setCancelado(false);
+    setConfirmando(false);
+    if (mesmoPedido(execucao, estado)) {
+      void calculoSemCache.refetch();
+      void calculoComCache.refetch();
+      return;
+    }
+    setExecucao({ sequencia, n, modo });
+  }
+
+  async function enviar(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    if (!podeCalcular) return;
+    setVerificando(true);
+    try {
+      const prevista = await clienteConsultas.fetchQuery(opcoesEstimativa(consultaEstimativa));
+      if (!prevista.dentro_do_limite) return;
+      if (prevista.pesado) {
+        setConfirmando(true);
+        return;
+      }
+      iniciar();
+    } catch {
+      iniciar();
+    } finally {
+      setVerificando(false);
+    }
+  }
+
+  async function cancelar() {
+    await Promise.all(
+      consultas.map((item) =>
+        clienteConsultas.cancelQueries({
+          queryKey: chaves.calcular(item.entrada as CalcularEntrada),
+        }),
+      ),
+    );
+    setExecucao(null);
+    setCancelado(true);
+  }
+
+  function aoMudarN(texto: string) {
+    setRascunho(texto);
+    const conferido = validarInteiro(texto, { minimo: 0, maximo: N_MAXIMO_ESTIMATIVA });
+    if (conferido.valido) {
+      setNEcoado(conferido.valor);
+      definir({ n: conferido.valor }, { substituir: true });
+    }
+  }
+
+  const resumoAcessivel = resultado
+    ? `${nome} f(${n}) = ${resultado[0]?.metricas.valor}. ${resultado
+        .map(
+          (item) =>
+            `${formatarInteiro(item.metricas.invocacoes)} invocações ${rotuloModo(item.modo)}`,
+        )
+        .join(', ')}.`
+    : '';
+
+  return (
+    <div className="space-y-6">
+      <section aria-labelledby="titulo-pagina">
+        <h1 id="titulo-pagina" className="text-3xl font-semibold">
+          Calcular
+        </h1>
+        <p className="mt-2 max-w-prose text-texto-suave">
+          Escolha a sequência, o valor de n e o modo. O resultado traz o valor exato e a contagem de
+          invocações da execução instrumentada.
+        </p>
+      </section>
+
+      <p role="status" aria-live="polite" className="sr-only">
+        {resumoAcessivel}
+      </p>
+
+      <Cartao as="section" titulo="O que calcular" nivelTitulo={2}>
+        <form onSubmit={(evento) => void enviar(evento)} className="grid gap-5 md:grid-cols-2">
+          <SeletorSegmentado
+            rotulo="Sequência"
+            valor={sequencia}
+            aoMudar={(valor) => definir({ sequencia: valor })}
+            opcoes={OPCOES_SEQUENCIA}
+          />
+          <SeletorSegmentado
+            rotulo="Modo"
+            valor={modo}
+            aoMudar={(valor) => definir({ modo: valor })}
+            opcoes={OPCOES_MODO}
+            empilharNoCelular
+          />
+          <CampoNumero
+            rotulo="n"
+            valor={rascunho}
+            aoMudar={aoMudarN}
+            minimo={0}
+            maximo={limite}
+            ajuda={
+              modo === 'comparar'
+                ? 'O limite segue o modo sem cache, que é o mais caro.'
+                : undefined
+            }
+          />
+          <div className="flex flex-col justify-end gap-2">
+            <GrupoBotoes>
+              <Botao
+                type="submit"
+                tamanho="grande"
+                icone="calcular"
+                carregando={carregando || verificando}
+                rotuloCarregando={carregando ? 'Calculando' : 'Conferindo o tamanho'}
+                disabled={!podeCalcular}
+              >
+                Calcular
+              </Botao>
+              {carregando ? (
+                <Botao
+                  variante="neutra"
+                  tamanho="grande"
+                  icone="cancelar"
+                  onClick={() => void cancelar()}
+                >
+                  Cancelar
+                </Botao>
+              ) : null}
+            </GrupoBotoes>
+            <p className="min-h-10 text-sm text-texto-suave">
+              {previsao
+                ? `Previsão para f(${previsao.n}) ${rotuloModo(previsao.modo)}: ${formatarInteiro(previsao.invocacoes_previstas)} invocações e profundidade ${formatarInteiro(previsao.profundidade_prevista)}.`
+                : null}
+            </p>
+          </div>
+        </form>
+      </Cartao>
+
+      {bloqueado ? (
+        <Alerta
+          tipo="erro"
+          titulo="Esse n passa do limite desta demonstração"
+          acoes={
+            limiteExibido !== undefined ? (
+              <Botao
+                variante="secundaria"
+                tamanho="pequeno"
+                icone="reduzir"
+                onClick={() => definir({ n: limiteExibido })}
+              >
+                Usar n = {formatarInteiro(limiteExibido)}
+              </Botao>
+            ) : null
+          }
+        >
+          <p>
+            Para {nome} {rotuloModo(modoReferencia)}, o maior n permitido é{' '}
+            {limiteExibido === undefined ? 'menor que o pedido' : formatarInteiro(limiteExibido)}.
+            Acima disso a recursão passa do tempo e da pilha disponíveis.
+          </p>
+        </Alerta>
+      ) : null}
+
+      {!bloqueado && previsao?.aviso ? (
+        <Alerta tipo="alerta" titulo="Cálculo pesado">
+          <p>{previsao.aviso}</p>
+        </Alerta>
+      ) : null}
+
+      {cancelado ? (
+        <Alerta tipo="alerta" titulo="Cálculo cancelado">
+          <p>Nada foi medido. Ajuste o n ou o modo e calcule de novo.</p>
+        </Alerta>
+      ) : null}
+
+      {erro !== null ? (
+        <EstadoErro
+          erro={erro}
+          aoTentarDeNovo={() => iniciar()}
+          aoReduzirN={limiteExibido === undefined ? undefined : () => definir({ n: limiteExibido })}
+        />
+      ) : null}
+
+      <section aria-labelledby="titulo-resultado" className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="titulo-resultado" className="text-xl font-semibold">
+            Resultado
+          </h2>
+          {execucao ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <Selo>
+                {DESCRICAO_SEQUENCIAS[execucao.sequencia].nome} f({execucao.n})
+              </Selo>
+              {respostas.map((resposta) => (
+                <SeloModo key={resposta.modo} modo={resposta.modo} />
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        {carregando ? <Esqueleto linhas={4} altura="h-16" rotulo="Calculando" /> : null}
+
+        {execucao === null && !carregando ? (
+          <EstadoVazio
+            icone="calcular"
+            titulo="Nenhum cálculo ainda"
+            descricao="Escolha a sequência, o n e o modo, depois toque em Calcular. Aparecem aqui o valor exato, as métricas de contagem e as invocações por argumento."
+          />
+        ) : null}
+
+        {resultado && primeira ? (
+          <div className="space-y-6">
+            {desatualizado ? (
+              <p className="text-sm text-texto-suave">
+                O formulário mudou depois deste resultado. Toque em Calcular para atualizar.
+              </p>
+            ) : null}
+
+            <NumeroGrande
+              valor={primeira.metricas.valor}
+              rotulo={`${DESCRICAO_SEQUENCIAS[primeira.sequencia].nome} f(${primeira.n}) vale`}
+              nome={`f(${primeira.n})`}
+              descricao={
+                resultado.length > 1
+                  ? 'Os dois modos chegam ao mesmo valor: o cache muda o caminho, nunca o resultado.'
+                  : undefined
+              }
+            />
+
+            {resultado.map((resposta) => (
+              <section key={resposta.modo} aria-label={`Métricas ${rotuloModo(resposta.modo)}`}>
+                {resultado.length > 1 ? (
+                  <h3 className="mb-3 text-lg font-semibold">
+                    <CabecalhoSerie modo={resposta.modo} />
+                  </h3>
+                ) : null}
+                <MetricasExecucao resposta={resposta} />
+              </section>
+            ))}
+
+            <TabelaArgumentos respostas={resultado} />
+
+            <p className="flex flex-wrap gap-x-2 text-sm text-texto-suave">
+              <span>
+                Duração desta execução:{' '}
+                {resultado
+                  .map(
+                    (resposta) =>
+                      `${formatarTempoNs(resposta.duracao_ms * 1_000_000)} ${rotuloModo(resposta.modo)}`,
+                  )
+                  .join(' e ')}
+                .
+              </span>
+              <span>
+                É uma medida única, só para dar ordem de grandeza: não é benchmark. A tela Comparar
+                repete a execução e mostra mediana, desvio e memória.
+              </span>
+            </p>
+
+            <GrupoBotoes>
+              {resultado.map((resposta) => (
+                <BotaoLink
+                  key={resposta.modo}
+                  variante="secundaria"
+                  icone="arvore"
+                  to={enderecoComEstado('/arvore', {
+                    sequencia: resposta.sequencia,
+                    n: resposta.n,
+                    modo: resposta.modo,
+                  })}
+                >
+                  {resultado.length > 1
+                    ? `Ver árvore ${rotuloModo(resposta.modo)}`
+                    : 'Ver árvore desta execução'}
+                </BotaoLink>
+              ))}
+            </GrupoBotoes>
+          </div>
+        ) : null}
+      </section>
+
+      <DialogoConfirmacao
+        aberto={confirmando}
+        aoFechar={() => setConfirmando(false)}
+        aoConfirmar={() => iniciar()}
+        titulo="Este cálculo é pesado"
+        descricao={
+          previsao
+            ? `${nome} f(${previsao.n}) ${rotuloModo(previsao.modo)} deve fazer ${formatarInteiro(previsao.invocacoes_previstas)} invocações.`
+            : undefined
+        }
+        rotuloConfirmar="Calcular mesmo assim"
+        rotuloCancelar="Voltar e ajustar"
+      >
+        <p className="text-texto-suave">
+          A tela pode ficar parada por alguns segundos. Reduzir o n ou usar o modo com cache traz o
+          mesmo valor bem mais rápido.
+        </p>
+      </DialogoConfirmacao>
+    </div>
   );
 }

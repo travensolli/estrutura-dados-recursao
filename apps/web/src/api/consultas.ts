@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { queryOptions, useQuery } from '@tanstack/react-query';
 import {
   api,
   type ArvoreEntrada,
@@ -21,6 +21,15 @@ export function useSequencias() {
   return useQuery({
     queryKey: chaves.sequencias,
     queryFn: ({ signal }) => api.sequencias(signal),
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+}
+
+/** Opções reusadas pelo gancho e por quem precisa da estimativa fora da renderização. */
+export function opcoesEstimativa(entrada: EstimativaEntrada) {
+  return queryOptions({
+    queryKey: chaves.estimativa(entrada),
+    queryFn: ({ signal }) => api.estimativa(entrada, signal),
     staleTime: Number.POSITIVE_INFINITY,
   });
 }
