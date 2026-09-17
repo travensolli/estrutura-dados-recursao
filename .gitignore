@@ -1,0 +1,24 @@
+# dependências e builds
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.vite/
+.turbo/
+
+# ambiente
+.claude/
+.env
+.env.*.local
+*.log
+.DS_Store
+
+# testes
+playwright-report/
+test-results/
+blob-report/
+apps/web/playwright/.cache/
+
+# artefatos temporários
+tmp/
