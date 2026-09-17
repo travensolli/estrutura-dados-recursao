@@ -54,8 +54,10 @@ function estiloCalculado(elemento: Element): CSSStyleDeclaration | null {
 export function serializarSvg({ svg, caixa, titulo }: OpcoesExportacao): string {
   const estilo = estiloCalculado(svg);
   const resolver = criarResolvedor(estilo);
-  const fonteTexto = resolver('var(--font-sans)', FONTE_ALTERNATIVA);
-  const fonteMono = resolver('var(--font-mono)', FONTE_MONO_ALTERNATIVA);
+  const fonte = (variavel: string, alternativa: string) =>
+    resolver(variavel, alternativa).replace(/\s+/g, ' ').trim();
+  const fonteTexto = fonte('var(--font-sans)', FONTE_ALTERNATIVA);
+  const fonteMono = fonte('var(--font-mono)', FONTE_MONO_ALTERNATIVA);
 
   const copia = svg.cloneNode(true) as SVGSVGElement;
   const largura = Math.max(1, Math.round(caixa.largura));

@@ -55,6 +55,7 @@ export function VisaoArvore({ resposta, podasPorAcerto }: VisaoArvoreProps) {
         nosExibidos={resposta.nos_exibidos}
         passo={passo}
         animacaoReduzida={relogio.animacaoReduzida}
+        compacto={reproduzindo}
       />
     );
 

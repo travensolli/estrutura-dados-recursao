@@ -41,6 +41,8 @@ export interface ArvoreSvgProps {
   passo?: number | null;
   /** prefers-reduced-motion: sem transições. */
   animacaoReduzida?: boolean;
+  /** Esconde contadores e dicas para sobrar altura na reprodução. */
+  compacto?: boolean;
 }
 
 interface Dica {
@@ -65,6 +67,7 @@ export function ArvoreSvg({
   nosExibidos,
   passo = null,
   animacaoReduzida = false,
+  compacto = false,
 }: ArvoreSvgProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const comportamentoRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
@@ -272,7 +275,7 @@ export function ArvoreSvg({
 
   return (
     <figure className="m-0 flex flex-col gap-3">
-      <Contadores metricas={metricas} nosExibidos={nosExibidos} />
+      {!compacto && <Contadores metricas={metricas} nosExibidos={nosExibidos} />}
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-1" role="group" aria-label="Zoom da árvore">
@@ -306,9 +309,11 @@ export function ArvoreSvg({
             Abrir os {formatarInteiro(recolhidos.size)} nós recolhidos
           </button>
         )}
-        <p className="ml-auto text-sm text-texto-suave">
-          Arraste para mover, role para aproximar, clique num nó para recolher.
-        </p>
+        {!compacto && (
+          <p className="ml-auto text-sm text-texto-suave">
+            Arraste para mover, role para aproximar, clique num nó para recolher.
+          </p>
+        )}
         {erroExportacao && (
           <p role="alert" className="basis-full text-sm text-erro">
             {erroExportacao}
