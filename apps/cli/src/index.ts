@@ -1,6 +1,6 @@
-const uso = `Uso: pnpm cli <sequencia> <n> [--modo sem_cache|com_cache] [--arvore]
+import { executarCli } from './cli';
 
-Sequências: fatorial, fibonacci, tribonacci
-Exemplo:    pnpm cli tribonacci 7 --modo sem_cache --arvore`;
-
-console.log(uso);
+const { saida, codigo } = executarCli(process.argv.slice(2));
+if (codigo === 0) console.log(saida);
+else console.error(saida);
+process.exitCode = codigo;
