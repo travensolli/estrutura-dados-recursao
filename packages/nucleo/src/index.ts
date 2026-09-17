@@ -1,1 +1,8 @@
-export const VERSAO_NUCLEO = '0.1.0';
+export {
+  fatorialComCache,
+  fatorialSemCache,
+  fibonacciComCache,
+  fibonacciSemCache,
+  tribonacciComCache,
+  tribonacciSemCache,
+} from './puros';
