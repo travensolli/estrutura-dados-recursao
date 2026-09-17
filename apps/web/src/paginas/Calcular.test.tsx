@@ -30,17 +30,21 @@ function regiaoMetricas(modo: 'sem cache' | 'com cache'): HTMLElement {
 }
 
 /** Cartão de métrica a partir do seu rótulo: o valor é irmão da linha do rótulo. */
-function cartaoMetrica(regiao: HTMLElement, rotulo: string): HTMLElement {
+function cartaoMetrica(regiao: HTMLElement, rotulo: string | RegExp): HTMLElement {
   const cartao = within(regiao).getByText(rotulo).closest('div')?.parentElement;
   if (cartao === null || cartao === undefined) throw new Error(`cartão ${rotulo} não encontrado`);
   return cartao;
 }
 
-function linhaDoArgumento(argumento: number): HTMLElement {
-  const celula = screen.getByRole('rowheader', { name: `f(${argumento})` });
+function linhaDaTabela(nome: RegExp | string): HTMLElement {
+  const celula = screen.getByRole('rowheader', { name: nome });
   const linha = celula.closest('tr');
-  if (linha === null) throw new Error(`linha de f(${argumento}) não encontrada`);
+  if (linha === null) throw new Error(`linha ${String(nome)} não encontrada`);
   return linha;
+}
+
+function linhaDoArgumento(argumento: number): HTMLElement {
+  return linhaDaTabela(`f(${argumento})`);
 }
 
 describe('Página calcular', () => {
@@ -122,14 +126,13 @@ describe('Página calcular', () => {
     await usuario.click(botaoCalcular());
     await valorHeroi('Tribonacci f(7) vale');
 
-    const semCache = regiaoMetricas('sem cache');
-    const comCache = regiaoMetricas('com cache');
-    expect(within(cartaoMetrica(semCache, 'Invocações')).getByText('46')).toBeInTheDocument();
-    expect(within(cartaoMetrica(comCache, 'Invocações')).getByText('16')).toBeInTheDocument();
-    expect(within(cartaoMetrica(comCache, 'Acertos de cache')).getByText('5')).toBeInTheDocument();
-    expect(
-      within(cartaoMetrica(comCache, 'Calculados (faltas de cache)')).getByText('5'),
-    ).toBeInTheDocument();
+    const invocacoes = linhaDaTabela(/^Invocações/);
+    expect(within(invocacoes).getByText('46')).toBeInTheDocument();
+    expect(within(invocacoes).getByText('16')).toBeInTheDocument();
+
+    const acertos = linhaDaTabela(/^Acertos de cache/);
+    expect(within(acertos).getByText('0')).toBeInTheDocument();
+    expect(within(acertos).getByText('5')).toBeInTheDocument();
 
     const linha = linhaDoArgumento(3);
     expect(within(linha).getByText('7')).toBeInTheDocument();
@@ -137,6 +140,28 @@ describe('Página calcular', () => {
     expect(
       screen.getByText('Somando todos os argumentos: 46 sem cache e 16 com cache.'),
     ).toBeInTheDocument();
+  });
+
+  it('destaca as chamadas evitadas pelo cache', async () => {
+    const usuario = await abrir('/calcular?sequencia=tribonacci&n=7&modo=comparar');
+    await usuario.click(botaoCalcular());
+    await valorHeroi('Tribonacci f(7) vale');
+
+    const cartao = cartaoMetrica(document.body, 'Chamadas evitadas pelo cache');
+    expect(within(cartao).getByText('30')).toBeInTheDocument();
+    expect(within(cartao).getByText('46 invocações sem cache contra 16 com cache.')).toBeVisible();
+  });
+
+  it('não força ganho onde não existe: fatorial evita zero chamadas', async () => {
+    const usuario = await abrir('/calcular?sequencia=fatorial&n=10&modo=comparar');
+    await usuario.click(botaoCalcular());
+    await valorHeroi('Fatorial f(10) vale');
+
+    const invocacoes = linhaDaTabela(/^Invocações/);
+    expect(within(invocacoes).getAllByText('10')).toHaveLength(2);
+    const cartao = cartaoMetrica(document.body, 'Chamadas evitadas pelo cache');
+    expect(within(cartao).getByText('0')).toBeInTheDocument();
+    expect(within(cartao).getByText(/Nenhum argumento se repetiu/)).toBeInTheDocument();
   });
 
   it('pede confirmação quando a estimativa diz que o cálculo é pesado', async () => {
@@ -175,6 +200,7 @@ describe('Página calcular', () => {
     await usuario.click(botaoCalcular());
 
     expect(await screen.findByText('26 dígitos')).toBeInTheDocument();
+    expect(screen.getByText('Calculados (faltas de cache)')).toBeInTheDocument();
     await usuario.click(screen.getByRole('button', { name: 'Ver valor completo' }));
     expect(screen.getByText('15511210043330985984000000')).toBeVisible();
   });

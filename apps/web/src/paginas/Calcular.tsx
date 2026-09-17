@@ -19,6 +19,7 @@ import {
 } from '../api/consultas';
 import {
   Alerta,
+  BarraComparativa,
   BarraProporcao,
   Botao,
   BotaoLink,
@@ -62,7 +63,7 @@ const OPCOES_SEQUENCIA: ReadonlyArray<OpcaoSegmento<Sequencia>> = SEQUENCIAS.map
 const OPCOES_MODO: ReadonlyArray<OpcaoSegmento<ModoTela>> = [
   { valor: 'sem_cache', rotulo: 'Sem cache', marca: 'sem-cache' },
   { valor: 'com_cache', rotulo: 'Com cache', marca: 'com-cache' },
-  { valor: 'comparar', rotulo: 'Comparar os dois', icone: 'comparar' },
+  { valor: 'comparar', rotulo: 'Comparar', icone: 'comparar' },
 ];
 
 const CLASSES_MARCA: Record<Modo, string> = {
@@ -73,73 +74,81 @@ const CLASSES_MARCA: Record<Modo, string> = {
 interface DescricaoMetrica {
   chave: string;
   rotulo: string;
+  rotuloComCache?: string;
   detalhe: string;
+  detalheSemCache?: string;
+  detalheComCache?: string;
   valor: (metricas: Metricas) => number;
 }
 
-function metricasDaExecucao(modo: Modo): DescricaoMetrica[] {
-  const comCache = modo === 'com_cache';
-  return [
-    {
-      chave: 'invocacoes',
-      rotulo: 'Invocações',
-      detalhe: 'Conta a chamada raiz, os casos base e os acertos de cache.',
-      valor: (metricas) => metricas.invocacoes,
-    },
-    {
-      chave: 'recursivas',
-      rotulo: 'Chamadas recursivas',
-      detalhe: 'As invocações menos a chamada raiz.',
-      valor: (metricas) => metricas.chamadas_recursivas,
-    },
-    {
-      chave: 'casos_base',
-      rotulo: 'Casos base',
-      detalhe: 'Chamadas que já tinham resposta na definição e pararam ali.',
-      valor: (metricas) => metricas.casos_base,
-    },
-    {
-      chave: 'calculados',
-      rotulo: comCache ? 'Calculados (faltas de cache)' : 'Calculados',
-      detalhe: comCache
-        ? 'Chamadas que não estavam no cache e executaram a fórmula.'
-        : 'Chamadas que executaram a fórmula.',
-      valor: (metricas) => metricas.calculados,
-    },
-    {
-      chave: 'acertos',
-      rotulo: 'Acertos de cache',
-      detalhe: comCache
-        ? 'Chamadas que encontraram o valor pronto e não desceram.'
-        : 'Sem cache nada é reaproveitado.',
-      valor: (metricas) => metricas.acertos_cache,
-    },
-    {
-      chave: 'entradas',
-      rotulo: 'Entradas no cache',
-      detalhe: comCache
-        ? 'Valores guardados ao fim da execução; casos base não entram.'
-        : 'Sem cache nada é guardado.',
-      valor: (metricas) => metricas.entradas_cache,
-    },
-    {
-      chave: 'profundidade',
-      rotulo: 'Profundidade máxima',
-      detalhe: 'Maior número de chamadas ao mesmo tempo na pilha, contando a raiz.',
-      valor: (metricas) => metricas.profundidade_maxima,
-    },
-  ];
+const METRICAS: DescricaoMetrica[] = [
+  {
+    chave: 'invocacoes',
+    rotulo: 'Invocações',
+    detalhe: 'Conta a chamada raiz, os casos base e os acertos de cache.',
+    valor: (metricas) => metricas.invocacoes,
+  },
+  {
+    chave: 'recursivas',
+    rotulo: 'Chamadas recursivas',
+    detalhe: 'As invocações menos a chamada raiz.',
+    valor: (metricas) => metricas.chamadas_recursivas,
+  },
+  {
+    chave: 'casos_base',
+    rotulo: 'Casos base',
+    detalhe: 'Chamadas que já tinham resposta na definição e pararam ali.',
+    valor: (metricas) => metricas.casos_base,
+  },
+  {
+    chave: 'calculados',
+    rotulo: 'Calculados',
+    rotuloComCache: 'Calculados (faltas de cache)',
+    detalhe: 'Chamadas que executaram a fórmula; com cache, as faltas de cache.',
+    detalheSemCache: 'Chamadas que executaram a fórmula.',
+    detalheComCache: 'Chamadas que não estavam no cache e executaram a fórmula.',
+    valor: (metricas) => metricas.calculados,
+  },
+  {
+    chave: 'acertos',
+    rotulo: 'Acertos de cache',
+    detalhe: 'Chamadas que encontraram o valor pronto e não desceram.',
+    detalheSemCache: 'Sem cache nada é reaproveitado.',
+    valor: (metricas) => metricas.acertos_cache,
+  },
+  {
+    chave: 'entradas',
+    rotulo: 'Entradas no cache',
+    detalhe: 'Valores guardados ao fim da execução; casos base não entram.',
+    detalheSemCache: 'Sem cache nada é guardado.',
+    valor: (metricas) => metricas.entradas_cache,
+  },
+  {
+    chave: 'profundidade',
+    rotulo: 'Profundidade máxima',
+    detalhe: 'Maior número de chamadas ao mesmo tempo na pilha, contando a raiz.',
+    valor: (metricas) => metricas.profundidade_maxima,
+  },
+];
+
+function rotuloMetrica(descricao: DescricaoMetrica, modo: Modo): string {
+  return modo === 'com_cache' ? (descricao.rotuloComCache ?? descricao.rotulo) : descricao.rotulo;
+}
+
+function detalheMetrica(descricao: DescricaoMetrica, modo: Modo): string {
+  const especifico = modo === 'com_cache' ? descricao.detalheComCache : descricao.detalheSemCache;
+  return especifico ?? descricao.detalhe;
 }
 
 function MetricasExecucao({ resposta }: { resposta: CalcularResposta }) {
   return (
     <ListaMetricas colunas={4}>
-      {metricasDaExecucao(resposta.modo).map((descricao, indice) => (
+      {METRICAS.map((descricao, indice) => (
         <Metrica
           key={descricao.chave}
-          rotulo={descricao.rotulo}
+          rotulo={rotuloMetrica(descricao, resposta.modo)}
           valor={formatarInteiro(descricao.valor(resposta.metricas))}
-          detalhe={descricao.detalhe}
+          detalhe={detalheMetrica(descricao, resposta.modo)}
           marca={
             indice === 0 ? (resposta.modo === 'sem_cache' ? 'sem-cache' : 'com-cache') : undefined
           }
@@ -147,6 +156,41 @@ function MetricasExecucao({ resposta }: { resposta: CalcularResposta }) {
         />
       ))}
     </ListaMetricas>
+  );
+}
+
+function TabelaMetricas({ respostas }: { respostas: CalcularResposta[] }) {
+  const colunas: ColunaTabela<DescricaoMetrica>[] = [
+    {
+      chave: 'metrica',
+      rotulo: 'Métrica',
+      cabecalhoDeLinha: true,
+      conteudo: (linha) => (
+        <>
+          <span className="block">{linha.rotulo}</span>
+          <span className="hidden text-xs font-normal text-texto-suave sm:block">
+            {linha.detalhe}
+          </span>
+        </>
+      ),
+    },
+    ...respostas.map((resposta) => ({
+      chave: resposta.modo,
+      rotulo: <CabecalhoSerie modo={resposta.modo} />,
+      numerico: true,
+      className: 'w-20 sm:w-28',
+      conteudo: (linha: DescricaoMetrica) => formatarInteiro(linha.valor(resposta.metricas)),
+    })),
+  ];
+  return (
+    <Tabela
+      legenda="Métricas de contagem nos dois modos"
+      legendaVisivel
+      colunas={colunas}
+      linhas={METRICAS}
+      chave={(linha) => linha.chave}
+      destacar={(linha) => linha.chave === 'invocacoes'}
+    />
   );
 }
 
@@ -182,13 +226,17 @@ function TabelaArgumentos({ respostas }: { respostas: CalcularResposta[] }) {
     argumento,
     valores: contagens.map((mapa) => mapa.get(argumento) ?? 0),
   }));
-  const maximo = Math.max(1, ...linhas.flatMap((linha) => linha.valores));
+  const todos = linhas.flatMap((linha) => linha.valores);
+  const maximo = Math.max(1, ...todos);
+  // Barra só informa quando há diferença entre os argumentos.
+  const comBarras = todos.some((valor) => valor !== maximo);
 
   const colunas: ColunaTabela<LinhaArgumento>[] = [
     {
       chave: 'argumento',
       rotulo: 'Argumento',
       cabecalhoDeLinha: true,
+      className: 'w-20 sm:w-28',
       conteudo: (linha) => <span className="font-mono">f({linha.argumento})</span>,
     },
   ];
@@ -197,12 +245,14 @@ function TabelaArgumentos({ respostas }: { respostas: CalcularResposta[] }) {
       chave: `invocacoes-${modo}`,
       rotulo: modos.length > 1 ? <CabecalhoSerie modo={modo} /> : 'Invocações',
       numerico: true,
+      className: 'w-20 sm:w-28',
       conteudo: (linha) => formatarInteiro(linha.valores[indice] ?? 0),
     });
+    if (!comBarras) return;
     colunas.push({
       chave: `barra-${modo}`,
       rotulo: <span className="sr-only">Proporção {rotuloModo(modo)}</span>,
-      className: 'w-40',
+      className: 'w-full',
       conteudo: (linha) => (
         <BarraProporcao valor={linha.valores[indice] ?? 0} maximo={maximo} modo={modo} />
       ),
@@ -216,16 +266,25 @@ function TabelaArgumentos({ respostas }: { respostas: CalcularResposta[] }) {
     .join(' e ');
 
   return (
-    <Tabela
-      legenda="Invocações por argumento, do maior para o menor"
-      legendaVisivel
-      colunas={colunas}
-      linhas={linhas}
-      chave={(linha) => linha.argumento}
-      alturaMaxima="28rem"
-      rodape={`Somando todos os argumentos: ${totais}.`}
-    />
+    <div>
+      <Tabela
+        legenda="Invocações por argumento, do maior para o menor"
+        legendaVisivel
+        colunas={colunas}
+        linhas={linhas}
+        chave={(linha) => linha.argumento}
+        alturaMaxima={linhas.length > 14 ? '30rem' : undefined}
+      />
+      <p className="mt-2 text-sm text-texto-suave">Somando todos os argumentos: {totais}.</p>
+    </div>
   );
+}
+
+/** Relógios do navegador arredondam para baixo; zero vira texto em vez de "0 ns". */
+function duracaoLegivel(duracaoMs: number): string {
+  return duracaoMs > 0
+    ? formatarTempoNs(duracaoMs * 1_000_000)
+    : 'menos que a resolução do relógio';
 }
 
 function entradaPara(execucao: EstadoUrl | null, alvo: Modo): CalcularEntrada | null {
@@ -285,6 +344,9 @@ export function PaginaCalcular() {
   const prontos = !carregando && erro === null && respostas.length === consultas.length;
   const resultado = prontos && respostas.length > 0 ? respostas : null;
   const primeira = resultado?.[0];
+  const segunda = resultado?.[1];
+  const evitadas =
+    primeira && segunda ? primeira.metricas.invocacoes - segunda.metricas.invocacoes : 0;
 
   const rascunhoValido = validarInteiro(rascunho, {
     minimo: 0,
@@ -372,14 +434,16 @@ export function PaginaCalcular() {
       </p>
 
       <Cartao as="section" titulo="O que calcular" nivelTitulo={2}>
-        <form onSubmit={(evento) => void enviar(evento)} className="grid gap-5 md:grid-cols-2">
+        <form onSubmit={(evento) => void enviar(evento)} className="grid gap-5 lg:grid-cols-2">
           <SeletorSegmentado
+            className="min-w-0"
             rotulo="Sequência"
             valor={sequencia}
             aoMudar={(valor) => definir({ sequencia: valor })}
             opcoes={OPCOES_SEQUENCIA}
           />
           <SeletorSegmentado
+            className="min-w-0"
             rotulo="Modo"
             valor={modo}
             aoMudar={(valor) => definir({ modo: valor })}
@@ -387,6 +451,7 @@ export function PaginaCalcular() {
             empilharNoCelular
           />
           <CampoNumero
+            className="max-w-xs"
             rotulo="n"
             valor={rascunho}
             aoMudar={aoMudarN}
@@ -521,16 +586,44 @@ export function PaginaCalcular() {
               }
             />
 
-            {resultado.map((resposta) => (
-              <section key={resposta.modo} aria-label={`Métricas ${rotuloModo(resposta.modo)}`}>
-                {resultado.length > 1 ? (
-                  <h3 className="mb-3 text-lg font-semibold">
-                    <CabecalhoSerie modo={resposta.modo} />
-                  </h3>
-                ) : null}
-                <MetricasExecucao resposta={resposta} />
+            {segunda ? (
+              <div className="space-y-5">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Metrica
+                    rotulo="Chamadas evitadas pelo cache"
+                    valor={formatarInteiro(evitadas)}
+                    destaque
+                    detalhe={
+                      evitadas > 0
+                        ? `${formatarInteiro(primeira.metricas.invocacoes)} invocações sem cache contra ${formatarInteiro(segunda.metricas.invocacoes)} com cache.`
+                        : 'Nenhum argumento se repetiu nesta execução, então não havia o que reaproveitar.'
+                    }
+                  />
+                  <div className="rounded-xl border border-borda bg-superficie p-4">
+                    <BarraComparativa
+                      titulo="Invocações por modo"
+                      series={[
+                        {
+                          modo: 'sem_cache',
+                          valor: primeira.metricas.invocacoes,
+                          texto: formatarInteiro(primeira.metricas.invocacoes),
+                        },
+                        {
+                          modo: 'com_cache',
+                          valor: segunda.metricas.invocacoes,
+                          texto: formatarInteiro(segunda.metricas.invocacoes),
+                        },
+                      ]}
+                    />
+                  </div>
+                </div>
+                <TabelaMetricas respostas={resultado} />
+              </div>
+            ) : (
+              <section aria-label={`Métricas ${rotuloModo(primeira.modo)}`}>
+                <MetricasExecucao resposta={primeira} />
               </section>
-            ))}
+            )}
 
             <TabelaArgumentos respostas={resultado} />
 
@@ -540,7 +633,7 @@ export function PaginaCalcular() {
                 {resultado
                   .map(
                     (resposta) =>
-                      `${formatarTempoNs(resposta.duracao_ms * 1_000_000)} ${rotuloModo(resposta.modo)}`,
+                      `${duracaoLegivel(resposta.duracao_ms)} ${rotuloModo(resposta.modo)}`,
                   )
                   .join(' e ')}
                 .
