@@ -24,6 +24,7 @@ export interface RespostaCalculo {
   metricas: Metricas;
   raiz: No | null;
   truncada: boolean;
+  nos_exibidos: number;
   /** Indicativo: no navegador o relógio tem precisão reduzida. */
   duracao_ms: number;
 }

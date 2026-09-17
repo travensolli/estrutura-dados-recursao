@@ -1,15 +1,11 @@
-import type { MensagemDoTrabalhador, MensagemParaTrabalhador } from '../plano-b/mensagens';
+import type { MensagemParaTrabalhador } from '../plano-b/mensagens';
+import { processarPedido } from '../plano-b/processar';
 
 const escopo = self as unknown as DedicatedWorkerGlobalScope;
 
+// Cancelamento: a interface encerra este worker e cria outro; aqui só se ignora.
 escopo.onmessage = (evento: MessageEvent<MensagemParaTrabalhador>) => {
   const pedido = evento.data;
   if (pedido.tipo !== 'calcular') return;
-  const resposta: MensagemDoTrabalhador = {
-    tipo: 'erro',
-    id: pedido.id,
-    codigo: 'NAO_IMPLEMENTADO',
-    mensagem: 'O cálculo offline ainda não está disponível.',
-  };
-  escopo.postMessage(resposta);
+  escopo.postMessage(processarPedido(pedido));
 };
