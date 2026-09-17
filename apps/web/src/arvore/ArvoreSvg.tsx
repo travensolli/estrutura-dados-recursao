@@ -3,7 +3,12 @@ import { DESCRICAO_SEQUENCIAS } from '@sequencias/contrato';
 import { select } from 'd3-selection';
 import { zoom, zoomIdentity, type ZoomBehavior, type ZoomTransform } from 'd3-zoom';
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
-import { abreviarValor, corDoArgumento, formatarInteiro } from '../utilitarios/formatar';
+import {
+  abreviarValor,
+  corDoArgumento,
+  formatarInteiro,
+  rotuloModo,
+} from '../utilitarios/formatar';
 import { baixarPng, baixarSvg, type Extensao } from './exportar';
 import { estiloDoTipo } from './formas';
 import { calcularLayout, DIMENSOES, enquadrar, larguraDoNo, type NoPosicionado } from './layout';
@@ -44,6 +49,18 @@ export interface ArvoreSvgProps {
   animacaoReduzida?: boolean;
   /** Esconde contadores e dicas para sobrar altura na reprodução. */
   compacto?: boolean;
+  /** Realce vindo de fora, de uma tabela por exemplo; o ponteiro tem prioridade. */
+  argumentoRealcado?: number | null;
+  /** Avisa qual argumento o ponteiro ou o foco está realçando. */
+  aoRealcarArgumento?: (argumento: number | null) => void;
+  /** Nós desenhados como subárvore evitada: esmaecidos e tracejados. */
+  fantasmas?: ReadonlySet<number>;
+  /** Selo próprio por nó, no lugar do selo de descendentes ocultos. */
+  selos?: ReadonlyMap<number, string>;
+  /** Piso do enquadramento automático: abaixo do padrão cabe árvore maior. */
+  enquadreMinimo?: number;
+  /** Classes de altura do desenho. */
+  classeAltura?: string;
 }
 
 interface Dica {
@@ -69,6 +86,12 @@ export function ArvoreSvg({
   passo = null,
   animacaoReduzida = false,
   compacto = false,
+  argumentoRealcado = null,
+  aoRealcarArgumento,
+  fantasmas,
+  selos,
+  enquadreMinimo = ENQUADRE_MINIMO,
+  classeAltura = 'max-h-[680px] min-h-[320px]',
 }: ArvoreSvgProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const comportamentoRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
@@ -106,11 +129,11 @@ export function ArvoreSvg({
       layoutRef.current.raizX,
       svg.clientWidth,
       svg.clientHeight,
-      ENQUADRE_MINIMO,
+      enquadreMinimo,
       ENQUADRE_MAXIMO,
     );
     comportamento.transform(select(svg), zoomIdentity.translate(x, y).scale(k));
-  }, []);
+  }, [enquadreMinimo]);
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -223,22 +246,30 @@ export function ArvoreSvg({
   );
 
   const posicionadoDica = idDica === null ? null : (layout.porId.get(idDica) ?? null);
-  const argumentoFoco = posicionadoDica?.no.argumento ?? null;
+  const argumentoInterno = posicionadoDica?.no.argumento ?? null;
+  const argumentoFoco = argumentoInterno ?? argumentoRealcado;
+
+  useEffect(() => {
+    aoRealcarArgumento?.(argumentoInterno);
+  }, [aoRealcarArgumento, argumentoInterno]);
 
   const dica: Dica | null = useMemo(() => {
     if (!posicionadoDica) return null;
     const { no, ocultos, podadoPorOrcamento } = posicionadoDica;
     const valor = abreviarValor(no.valor, 24);
     const total = ocorrencias.get(no.argumento) ?? 1;
-    const linhas = [
-      rotuloTipo(no.tipo),
-      `profundidade ${no.profundidade}`,
-      `entra no passo ${no.ordem_entrada} e sai no passo ${no.ordem_saida}`,
-      total === 1
-        ? 'aparece 1 vez na execução'
-        : `aparece ${formatarInteiro(total)} vezes na execução`,
-    ];
-    if (ocultos > 0) {
+    const evitado = fantasmas?.has(no.id) ?? false;
+    const linhas = evitado
+      ? ['chamada evitada pelo cache', 'esta subárvore não chegou a ser executada']
+      : [
+          rotuloTipo(no.tipo),
+          `profundidade ${no.profundidade}`,
+          `entra no passo ${no.ordem_entrada} e sai no passo ${no.ordem_saida}`,
+          total === 1
+            ? 'aparece 1 vez na execução'
+            : `aparece ${formatarInteiro(total)} vezes na execução`,
+        ];
+    if (!evitado && ocultos > 0) {
       linhas.push(
         podadoPorOrcamento
           ? `${formatarInteiro(ocultos)} descendentes fora do limite de nós`
@@ -249,13 +280,15 @@ export function ArvoreSvg({
     const base = transformacao.y + transformacao.k * (posicionadoDica.y + A / 2);
     const abaixo = topo < ALTURA_DICA;
     return {
-      titulo: `f(${no.argumento}) = ${valor.abreviado}${valor.foiAbreviado ? ` (${valor.digitos} dígitos)` : ''}`,
+      titulo: evitado
+        ? `f(${no.argumento}): não foi chamada`
+        : `f(${no.argumento}) = ${valor.abreviado}${valor.foiAbreviado ? ` (${valor.digitos} dígitos)` : ''}`,
       linhas,
       x: transformacao.x + transformacao.k * posicionadoDica.x,
       y: abaixo ? base + 12 : topo - 12,
       abaixo,
     };
-  }, [ocorrencias, posicionadoDica, transformacao]);
+  }, [fantasmas, ocorrencias, posicionadoDica, transformacao]);
 
   const descricao = useMemo(() => {
     const base = descreverArvore(DESCRICAO_SEQUENCIAS[sequencia].nome, n, modo, metricas);
@@ -301,7 +334,11 @@ export function ArvoreSvg({
       {!compacto && <Contadores metricas={metricas} nosExibidos={nosExibidos} />}
 
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-1" role="group" aria-label="Zoom da árvore">
+        <div
+          className="flex items-center gap-1"
+          role="group"
+          aria-label={`Zoom da árvore ${rotuloModo(modo)}`}
+        >
           <button type="button" className={BOTAO} onClick={() => aplicarZoom(PASSO_ZOOM)}>
             <span aria-hidden="true">+</span>
             <span className="sr-only">Aproximar</span>
@@ -314,7 +351,11 @@ export function ArvoreSvg({
             Ajustar à tela
           </button>
         </div>
-        <div className="flex items-center gap-1" role="group" aria-label="Exportar a árvore">
+        <div
+          className="flex items-center gap-1"
+          role="group"
+          aria-label={`Exportar a árvore ${rotuloModo(modo)}`}
+        >
           <button type="button" className={BOTAO} onClick={() => void exportarArquivo('svg')}>
             Baixar SVG
           </button>
@@ -349,7 +390,7 @@ export function ArvoreSvg({
           ref={svgRef}
           role="group"
           aria-label={descricao}
-          className="block h-auto max-h-[680px] min-h-[320px] w-full touch-none"
+          className={`block h-auto w-full touch-none ${classeAltura}`}
           style={{ aspectRatio: `${layout.caixa.largura} / ${layout.caixa.altura}` }}
         >
           <g
@@ -365,11 +406,13 @@ export function ArvoreSvg({
                   estadoDoNoNoPasso(destino.no, passo) === 'futuro';
                 const realcada =
                   argumentoFoco === null || argumentoFoco === ligacao.argumentoDestino;
+                const fantasma = fantasmas?.has(ligacao.idDestino) ?? false;
                 return (
                   <path
                     key={ligacao.id}
                     d={ligacao.caminho}
-                    opacity={futura ? 0.12 : realcada ? 0.9 : 0.2}
+                    strokeDasharray={fantasma ? '6 4' : undefined}
+                    opacity={futura ? 0.12 : fantasma ? 0.4 : realcada ? 0.9 : 0.2}
                   />
                 );
               })}
@@ -388,6 +431,8 @@ export function ArvoreSvg({
                 estado={passo === null ? null : estadoDoNoNoPasso(posicionado.no, passo)}
                 emFoco={posicionado.no.id === idEvento}
                 ativo={posicionado.no.id === idAtivo}
+                fantasma={fantasmas?.has(posicionado.no.id) ?? false}
+                selo={selos?.get(posicionado.no.id) ?? null}
                 animacaoReduzida={animacaoReduzida}
                 registrar={registrar}
                 aoFocar={aoFocar}
@@ -434,6 +479,10 @@ interface NoDesenhadoProps {
   /** Nó do evento do instante atual. */
   emFoco: boolean;
   ativo: boolean;
+  /** Nó que só existe como subárvore evitada pelo cache. */
+  fantasma: boolean;
+  /** Selo próprio, no lugar do selo de descendentes ocultos. */
+  selo: string | null;
   animacaoReduzida: boolean;
   registrar: (id: number, elemento: SVGGElement | null) => void;
   aoFocar: (id: number) => void;
@@ -451,6 +500,8 @@ const NoDesenhado = memo(function NoDesenhado({
   estado,
   emFoco,
   ativo,
+  fantasma,
+  selo: seloProprio,
   animacaoReduzida,
   registrar,
   aoFocar,
@@ -472,12 +523,13 @@ const NoDesenhado = memo(function NoDesenhado({
   const apagado = realce === 'nao';
   const futuro = estado === 'futuro';
   const valor = abreviarValor(no.valor, 9);
-  const selo =
+  const seloDeOcultos =
     posicionado.ocultos > 0
       ? posicionado.podadoPorOrcamento
         ? `+${formatarInteiro(posicionado.ocultos)} ocultos`
         : `+${formatarInteiro(posicionado.ocultos)}`
       : null;
+  const selo = seloProprio ?? seloDeOcultos;
 
   return (
     <g
@@ -487,13 +539,14 @@ const NoDesenhado = memo(function NoDesenhado({
       data-tipo={no.tipo}
       data-realce={realce}
       data-estado={estado ?? 'inteira'}
+      data-fantasma={fantasma ? 'sim' : 'nao'}
       transform={`translate(${posicionado.x}, ${posicionado.y})`}
       tabIndex={ativo ? 0 : -1}
       role="button"
-      aria-label={rotuloAcessivel(posicionado)}
+      aria-label={rotuloAcessivel(posicionado, fantasma)}
       aria-expanded={no.filhos.length > 0 ? !posicionado.recolhido : undefined}
       className={animacaoReduzida ? 'cursor-pointer' : 'cursor-pointer transition-opacity'}
-      opacity={futuro ? 0.16 : apagado ? 0.25 : 1}
+      opacity={futuro ? 0.16 : apagado ? 0.25 : fantasma ? 0.5 : 1}
       onFocus={() => aoFocar(no.id)}
       onBlur={() => aoDesfocar(no.id)}
       onPointerEnter={() => aoApontar(no.id)}
@@ -507,10 +560,10 @@ const NoDesenhado = memo(function NoDesenhado({
       <path
         d={estilo.caminho}
         fill={cor}
-        fillOpacity={realcado || emFoco ? 0.34 : 0.22}
+        fillOpacity={fantasma ? 0.08 : realcado || emFoco ? 0.34 : 0.22}
         stroke={cor}
-        strokeWidth={realcado || emFoco ? 3 : 2}
-        strokeDasharray={estilo.tracejado}
+        strokeWidth={fantasma ? 1.5 : realcado || emFoco ? 3 : 2}
+        strokeDasharray={fantasma ? '6 4' : estilo.tracejado}
       />
       <path
         d={estilo.marca}
@@ -567,15 +620,17 @@ const NoDesenhado = memo(function NoDesenhado({
   );
 });
 
-function rotuloAcessivel(posicionado: NoPosicionado): string {
+function rotuloAcessivel(posicionado: NoPosicionado, fantasma = false): string {
   const { no, ocultos, podadoPorOrcamento } = posicionado;
   const valor = abreviarValor(no.valor, 24);
-  const partes = [
-    `f(${no.argumento}) igual a ${valor.abreviado}`,
-    rotuloTipo(no.tipo),
-    `profundidade ${no.profundidade}`,
-    `entra no passo ${no.ordem_entrada}, sai no passo ${no.ordem_saida}`,
-  ];
+  const partes = fantasma
+    ? [`f(${no.argumento}): chamada evitada pelo cache`, rotuloTipo(no.tipo)]
+    : [
+        `f(${no.argumento}) igual a ${valor.abreviado}`,
+        rotuloTipo(no.tipo),
+        `profundidade ${no.profundidade}`,
+        `entra no passo ${no.ordem_entrada}, sai no passo ${no.ordem_saida}`,
+      ];
   if (ocultos > 0) {
     partes.push(
       podadoPorOrcamento

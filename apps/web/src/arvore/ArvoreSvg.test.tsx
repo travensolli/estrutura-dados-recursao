@@ -3,11 +3,22 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { act } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { executarInstrumentado } from '../plano-b/nucleo-adaptador';
-import { ArvoreSvg } from './ArvoreSvg';
+import { montarArvoreComEvitadas } from './apresentacao/evitadas';
+import { ArvoreSvg, type ArvoreSvgProps } from './ArvoreSvg';
 
-function desenhar(modo: Modo, limiteNos?: number, passo?: number) {
+function executar(modo: Modo, limiteNos?: number) {
   const execucao = executarInstrumentado('tribonacci', 7, modo, { comArvore: true, limiteNos });
   if (!execucao.raiz) throw new Error('execução sem árvore');
+  return { ...execucao, raiz: execucao.raiz };
+}
+
+function desenhar(
+  modo: Modo,
+  limiteNos?: number,
+  passo?: number,
+  extras: Partial<ArvoreSvgProps> = {},
+) {
+  const execucao = executar(modo, limiteNos);
   render(
     <ArvoreSvg
       raiz={execucao.raiz}
@@ -18,6 +29,7 @@ function desenhar(modo: Modo, limiteNos?: number, passo?: number) {
       truncada={execucao.truncada}
       nosExibidos={execucao.nosExibidos}
       passo={passo ?? null}
+      {...extras}
     />,
   );
   return execucao;
@@ -141,6 +153,44 @@ describe('ArvoreSvg', () => {
 
     expect(clicar).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('button', { name: 'Baixar PNG' })).toBeEnabled();
+  });
+
+  it('aceita realce vindo de fora e avisa o realce do ponteiro', () => {
+    const aoRealcar = vi.fn();
+    desenhar('sem_cache', undefined, undefined, {
+      argumentoRealcado: 3,
+      aoRealcarArgumento: aoRealcar,
+    });
+    expect(nos().filter((no) => no.dataset.realce === 'sim')).toHaveLength(7);
+    expect(aoRealcar).toHaveBeenLastCalledWith(null);
+
+    const alvo = nos().find((no) => no.dataset.argumento === '6');
+    act(() => alvo!.focus());
+    expect(aoRealcar).toHaveBeenLastCalledWith(6);
+    expect(nos().filter((no) => no.dataset.realce === 'sim')).toHaveLength(1);
+  });
+
+  it('desenha as subárvores evitadas tracejadas e com a quantidade podada', () => {
+    const sem = executar('sem_cache');
+    const com = executar('com_cache');
+    const evitada = montarArvoreComEvitadas(sem.raiz, com.raiz);
+    render(
+      <ArvoreSvg
+        raiz={evitada.raiz}
+        metricas={com.metricas}
+        sequencia="tribonacci"
+        n={7}
+        modo="com_cache"
+        fantasmas={evitada.fantasmas}
+        selos={evitada.selos}
+      />,
+    );
+
+    expect(nos()).toHaveLength(sem.metricas.invocacoes);
+    expect(nos().filter((no) => no.dataset.fantasma === 'sim')).toHaveLength(30);
+    expect(screen.getByText('evita 12 chamadas')).toBeInTheDocument();
+    expect(screen.getAllByText('evita 6 chamadas')).toHaveLength(2);
+    expect(screen.getAllByText('evita 3 chamadas')).toHaveLength(2);
   });
 
   it('marca com selo os nós colapsados pelo orçamento', () => {
