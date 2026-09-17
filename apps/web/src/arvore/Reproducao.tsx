@@ -282,16 +282,20 @@ function Dicionario({ modo, entradas, argumentoUsado }: DicionarioProps) {
                   usada ? 'bg-primaria-suave ring-2 ring-primaria' : ''
                 }`}
               >
-                <span
-                  aria-hidden="true"
-                  className="size-3 shrink-0 rounded-full"
-                  style={{ backgroundColor: corDoArgumento(entrada.argumento) }}
-                />
-                <dt className="font-mono text-base">f({entrada.argumento})</dt>
-                <dd className="font-mono text-base break-all">= {valor.abreviado}</dd>
-                {usada && (
-                  <span className="ml-auto shrink-0 text-xs text-primaria">usada agora</span>
-                )}
+                <dt className="flex items-center gap-2 font-mono text-base">
+                  <span
+                    aria-hidden="true"
+                    className="size-3 shrink-0 rounded-full"
+                    style={{ backgroundColor: corDoArgumento(entrada.argumento) }}
+                  />
+                  f({entrada.argumento})
+                </dt>
+                <dd className="flex min-w-0 flex-1 items-center gap-2 font-mono text-base">
+                  <span className="break-all">= {valor.abreviado}</span>
+                  {usada && (
+                    <span className="ml-auto shrink-0 text-xs text-primaria">usada agora</span>
+                  )}
+                </dd>
               </div>
             );
           })}

@@ -324,7 +324,7 @@ export function ArvoreSvg({
       <div className="relative overflow-hidden rounded-lg border border-borda bg-superficie">
         <svg
           ref={svgRef}
-          role="img"
+          role="group"
           aria-label={descricao}
           className="block h-auto max-h-[680px] min-h-[320px] w-full touch-none"
           style={{ aspectRatio: `${layout.caixa.largura} / ${layout.caixa.altura}` }}

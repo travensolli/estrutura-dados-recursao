@@ -29,7 +29,7 @@ function nos() {
 
 /** O desenho, sem os contadores em volta. */
 function figura() {
-  return within(screen.getByRole('img'));
+  return within(screen.getByRole('group', { name: /Árvore de chamadas/ }));
 }
 
 afterEach(() => {
@@ -58,7 +58,7 @@ describe('ArvoreSvg', () => {
 
   it('mostra a descrição textual e os contadores da execução', () => {
     desenhar('sem_cache');
-    expect(screen.getByRole('img')).toHaveAttribute(
+    expect(screen.getByRole('group', { name: /Árvore de chamadas/ })).toHaveAttribute(
       'aria-label',
       'Árvore de chamadas de Tribonacci f(7) sem cache: 46 invocações, 31 casos base, 15 calculados, 0 acertos de cache, profundidade máxima 6.',
     );

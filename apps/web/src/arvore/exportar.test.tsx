@@ -17,7 +17,7 @@ function desenhar() {
       modo="sem_cache"
     />,
   );
-  const svg = screen.getByRole('img') as unknown as SVGSVGElement;
+  const svg = screen.getByRole('group', { name: /Árvore de chamadas/ }) as unknown as SVGSVGElement;
   const { caixa } = calcularLayout(execucao.raiz, new Set<number>());
   return { svg, caixa };
 }
