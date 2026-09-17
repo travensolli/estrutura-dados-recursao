@@ -1,3 +1,4 @@
+import { LIMITE_N_PILHA_PADRAO, limitesNCli } from '@sequencias/contrato';
 import { executarInstrumentado } from '@sequencias/nucleo';
 import { describe, expect, it } from 'vitest';
 import { executarCli } from './cli';
@@ -174,7 +175,10 @@ describe('entradas inválidas', () => {
     const { saida, codigo } = rodar('tribonacci 31');
     expect(codigo).toBe(1);
     expect(saida).toContain('n não pode passar de 30');
-    expect(saida).toContain('Tribonacci vai até n = 30 sem cache e n = 5000 com cache');
+    const { sem_cache, com_cache } = limitesNCli('tribonacci');
+    expect(saida).toContain(
+      `Tribonacci vai até n = ${sem_cache} sem cache e n = ${com_cache} com cache`,
+    );
     expect(rodar('tribonacci 31 --modo com_cache').codigo).toBe(0);
     expect(rodar('fibonacci 36').codigo).toBe(1);
     expect(rodar('fibonacci 35').codigo).toBe(0);
@@ -205,5 +209,18 @@ describe('--ajuda', () => {
     const { saida, codigo } = rodar('tribonacci 999999 --ajuda');
     expect(codigo).toBe(0);
     expect(saida).toContain('Uso: pnpm cli');
+  });
+
+  it('roda de verdade no maior n que a ajuda anuncia', () => {
+    const limite = limitesNCli('fatorial').com_cache;
+    const r = executarCli(['fatorial', String(limite), '--modo', 'com_cache']);
+    expect(r.codigo).toBe(0);
+    expect(r.saida).toContain('dígitos');
+  });
+
+  it('recusa n acima do teto da pilha padrão com mensagem clara', () => {
+    const r = executarCli(['fatorial', String(LIMITE_N_PILHA_PADRAO + 1), '--modo', 'com_cache']);
+    expect(r.codigo).toBe(1);
+    expect(r.saida).toContain(String(LIMITE_N_PILHA_PADRAO));
   });
 });

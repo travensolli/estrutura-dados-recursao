@@ -2,11 +2,10 @@ import { parseArgs } from 'node:util';
 import {
   DESCRICAO_SEQUENCIAS,
   ErroSequencia,
-  LIMITES_N,
   LIMITE_NOS_ARVORE_PADRAO,
   MODOS,
   SEQUENCIAS,
-  limiteN,
+  limitesNCli,
   type Modo,
   type Sequencia,
 } from '@sequencias/contrato';
@@ -41,8 +40,6 @@ interface Pedido {
   json: boolean;
 }
 
-const AMBIENTE = 'node';
-
 const OPCOES = {
   modo: { type: 'string', default: 'sem_cache' },
   arvore: { type: 'boolean', default: false },
@@ -53,7 +50,7 @@ const OPCOES = {
 
 export function textoAjuda(): string {
   const limites = SEQUENCIAS.map((sequencia) => {
-    const { sem_cache, com_cache } = LIMITES_N[AMBIENTE][sequencia];
+    const { sem_cache, com_cache } = limitesNCli(sequencia);
     const nome = DESCRICAO_SEQUENCIAS[sequencia].nome.padEnd(11);
     return `  ${nome}sem cache até ${String(sem_cache).padEnd(6)}com cache até ${com_cache}`;
   });
@@ -147,10 +144,10 @@ function validarLimiteNos(texto: string): number {
 
 function validarNComDica(n: number, sequencia: Sequencia, modo: Modo): void {
   try {
-    validarN(n, limiteN(AMBIENTE, sequencia, modo));
+    validarN(n, limitesNCli(sequencia)[modo]);
   } catch (erro) {
     if (erro instanceof ErroSequencia && erro.codigo === 'LIMITE_EXCEDIDO') {
-      const { sem_cache, com_cache } = LIMITES_N[AMBIENTE][sequencia];
+      const { sem_cache, com_cache } = limitesNCli(sequencia);
       const nome = DESCRICAO_SEQUENCIAS[sequencia].nome;
       throw new ErroSequencia(
         'LIMITE_EXCEDIDO',

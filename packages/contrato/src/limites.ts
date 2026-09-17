@@ -25,6 +25,22 @@ export const LIMITES_N: Record<Ambiente, Record<Sequencia, LimitesN>> = {
   },
 };
 
+/**
+ * Teto de n na linha de comando. Ali a recursão roda na pilha padrão do
+ * processo, bem menor que a pilha ampliada do worker da API: acima disso o V8
+ * estoura. Medido nesta máquina entre 3000 e 3500, com margem para variação.
+ */
+export const LIMITE_N_PILHA_PADRAO = 2500;
+
+/** Limites que a linha de comando consegue honrar de fato. */
+export function limitesNCli(sequencia: Sequencia): LimitesN {
+  const base = LIMITES_N.node[sequencia];
+  return {
+    sem_cache: Math.min(base.sem_cache, LIMITE_N_PILHA_PADRAO),
+    com_cache: Math.min(base.com_cache, LIMITE_N_PILHA_PADRAO),
+  };
+}
+
 export function limiteN(ambiente: Ambiente, sequencia: Sequencia, modo: Modo): number {
   return LIMITES_N[ambiente][sequencia][modo];
 }
