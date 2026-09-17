@@ -1,20 +1,16 @@
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router';
+import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { App } from './App';
+import { renderizarComProvedores } from './testes/renderizar';
 
 function renderizarEm(caminho: string) {
-  return render(
-    <MemoryRouter initialEntries={[caminho]}>
-      <App />
-    </MemoryRouter>,
-  );
+  return renderizarComProvedores(<App />, { rota: caminho });
 }
 
 describe('App', () => {
   it('renderiza a página inicial com navegação', () => {
     renderizarEm('/');
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Início');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Recursão com e sem cache');
     expect(screen.getByRole('navigation', { name: 'Principal' })).toBeInTheDocument();
   });
 

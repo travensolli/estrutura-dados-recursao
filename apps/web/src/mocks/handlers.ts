@@ -27,7 +27,7 @@ import {
 } from '@sequencias/contrato';
 import { HttpResponse, delay, http } from 'msw';
 import type { z } from 'zod';
-import { executarMock, tempoSimuladoNs, truncarArvore } from './referencia-mock';
+import { executarMock, metricasMock, tempoSimuladoNs, truncarArvore } from './referencia-mock';
 
 const ambienteMock: AmbienteExecucao = {
   node: 'mock',
@@ -130,7 +130,7 @@ export const handlers = [
     // No mock, executa de fato só quando cabe no limite; acima disso estima por crescimento.
     const previstas =
       n <= Math.min(limite, 25)
-        ? BigInt(executarMock(sequencia, n, modo).metricas.invocacoes)
+        ? BigInt(metricasMock(sequencia, n, modo).invocacoes)
         : modo === 'com_cache' || sequencia === 'fatorial'
           ? BigInt(
               Math.max(
@@ -162,7 +162,7 @@ export const handlers = [
     if (bloqueio) return bloqueio;
     await delay(150);
     const inicio = performance.now();
-    const { metricas } = executarMock(sequencia, n, modo);
+    const metricas = metricasMock(sequencia, n, modo);
     const corpo: CalcularResposta = {
       sequencia,
       n,
@@ -180,8 +180,8 @@ export const handlers = [
     const bloqueio = conferirLimite(sequencia, n, 'sem_cache');
     if (bloqueio) return bloqueio;
     await delay(400);
-    const sem = executarMock(sequencia, n, 'sem_cache').metricas;
-    const com = executarMock(sequencia, n, 'com_cache').metricas;
+    const sem = metricasMock(sequencia, n, 'sem_cache');
+    const com = metricasMock(sequencia, n, 'com_cache');
     const tempoSem = tempoSimuladoNs(sem.invocacoes, sem.digitos);
     const tempoCom = tempoSimuladoNs(com.invocacoes, com.digitos) + 40 * com.entradas_cache;
     const memSem = memoria(0, sem.profundidade_maxima, repeticoes);
@@ -215,9 +215,9 @@ export const handlers = [
     const limiteSem = limiteN('node', sequencia, 'sem_cache');
     const pontos: PontoSerie[] = [];
     for (let n = n_inicial; n <= n_final; n += passo) {
-      const com = executarMock(sequencia, n, 'com_cache').metricas;
+      const com = metricasMock(sequencia, n, 'com_cache');
       const semDisponivel = n <= limiteSem;
-      const sem = semDisponivel ? executarMock(sequencia, n, 'sem_cache').metricas : null;
+      const sem = semDisponivel ? metricasMock(sequencia, n, 'sem_cache') : null;
       pontos.push({
         n,
         digitos: com.digitos,

@@ -10,6 +10,13 @@ export function formatarInteiro(valor: number | bigint | string): string {
   return grande.toLocaleString(LOCALE);
 }
 
+/** Forma curta para marcas de eixo, onde não cabe o separador de milhar. */
+export function formatarCompacto(valor: number): string {
+  if (!Number.isFinite(valor)) return '–';
+  if (Math.abs(valor) < 10_000) return formatarInteiro(valor);
+  return valor.toLocaleString(LOCALE, { notation: 'compact', maximumFractionDigits: 1 });
+}
+
 export function formatarDecimal(valor: number, casas = 1): string {
   return valor.toLocaleString(LOCALE, {
     minimumFractionDigits: casas,

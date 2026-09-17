@@ -1,0 +1,83 @@
+import { screen, within } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
+import { describe, expect, it } from 'vitest';
+import { servidorMock } from '../mocks/servidor';
+import { renderizarComProvedores } from '../testes/renderizar';
+import { PaginaInicio } from './Inicio';
+
+async function renderizar() {
+  const resultado = renderizarComProvedores(<PaginaInicio />, { rota: '/' });
+  await screen.findByRole('article', { name: 'Tribonacci' });
+  return resultado;
+}
+
+describe('Página inicial', () => {
+  it('lista as três sequências com fórmula, casos base e primeiros termos', async () => {
+    await renderizar();
+    const cartoes = screen.getAllByRole('article');
+    expect(cartoes.map((cartao) => within(cartao).getByRole('heading').textContent)).toEqual([
+      'Fatorial',
+      'Fibonacci',
+      'Tribonacci',
+    ]);
+
+    const tribonacci = screen.getByRole('article', { name: 'Tribonacci' });
+    expect(within(tribonacci).getByText('f(n) = f(n-1) + f(n-2) + f(n-3)')).toBeInTheDocument();
+    expect(within(tribonacci).getByText('f(0) = f(1) = f(2) = 1')).toBeInTheDocument();
+    expect(within(tribonacci).getByText('1, 1, 1, 3, 5, 9, 17, 31')).toBeInTheDocument();
+    expect(within(tribonacci).getByText(/linear: 3n - 5 invocações/)).toBeInTheDocument();
+  });
+
+  it('diz que o fatorial não ganha nada com o cache', async () => {
+    await renderizar();
+    const fatorial = screen.getByRole('article', { name: 'Fatorial' });
+    expect(within(fatorial).getByText(/o cache não evita nenhuma chamada/)).toBeInTheDocument();
+  });
+
+  it('leva a cada tela com a sequência no endereço', async () => {
+    await renderizar();
+    const fibonacci = screen.getByRole('article', { name: 'Fibonacci' });
+    expect(within(fibonacci).getByRole('link', { name: 'Calcular' })).toHaveAttribute(
+      'href',
+      '/calcular?sequencia=fibonacci',
+    );
+    expect(within(fibonacci).getByRole('link', { name: 'Comparar' })).toHaveAttribute(
+      'href',
+      '/comparar?sequencia=fibonacci',
+    );
+    expect(within(fibonacci).getByRole('link', { name: 'Ver árvore' })).toHaveAttribute(
+      'href',
+      '/arvore?sequencia=fibonacci',
+    );
+  });
+
+  it('mostra os limites de n vindos da API', async () => {
+    await renderizar();
+    const tribonacci = screen.getByRole('article', { name: 'Tribonacci' });
+    expect(
+      within(tribonacci).getByText('Nesta demonstração n vai até 30 sem cache e 5.000 com cache.'),
+    ).toBeInTheDocument();
+  });
+
+  it('destaca o atalho para o modo apresentação', async () => {
+    await renderizar();
+    expect(screen.getByRole('link', { name: 'Abrir modo apresentação' })).toHaveAttribute(
+      'href',
+      '/apresentacao',
+    );
+  });
+
+  it('mostra erro com ação de tentar de novo quando a API falha', async () => {
+    servidorMock.use(
+      http.get('/api/sequencias', () =>
+        HttpResponse.json(
+          { codigo: 'ERRO_INTERNO', mensagem: 'Falha ao listar.' },
+          { status: 500 },
+        ),
+      ),
+    );
+    renderizarComProvedores(<PaginaInicio />, { rota: '/' });
+    expect(await screen.findByRole('alert')).toHaveTextContent('Falha ao listar.');
+    expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument();
+  });
+});
