@@ -6,17 +6,20 @@ import {
   type CalcularResposta,
   type CompararResposta,
   type EstimativaResposta,
+  type SerieResposta,
 } from '@sequencias/contrato';
 import { executarInstrumentado, executarProtegido, validarN } from '@sequencias/nucleo';
 import { config } from '../config';
 import { compararModos } from '../medicao/comparacao';
 import { montarEstimativa } from '../medicao/estimativa';
+import { medirSerie } from '../medicao/serie';
 import {
   type Pedido,
   type PedidoArvore,
   type PedidoCalcular,
   type PedidoComparar,
   type PedidoEstimativa,
+  type PedidoSerie,
   type RespostaDoPedido,
 } from './mensagens';
 
@@ -62,6 +65,14 @@ function comparar(pedido: PedidoComparar): CompararResposta {
   });
 }
 
+/** A série mede todos os n pedidos, então vale o limite do modo com cache. */
+function serie(pedido: PedidoSerie): SerieResposta {
+  const { sequencia, n_inicial, n_final, passo, repeticoes } = pedido;
+  validarN(n_inicial);
+  validarN(n_final, limiteN('node', sequencia, 'com_cache'));
+  return medirSerie(sequencia, { n_inicial, n_final, passo, repeticoes });
+}
+
 /** A estimativa sem cache recorre até o caso base, por isso pede a pilha ampliada. */
 function estimar(pedido: PedidoEstimativa): EstimativaResposta {
   const { sequencia, n, modo } = pedido;
@@ -79,6 +90,8 @@ export function executarPedido<P extends Pedido>(pedido: P): RespostaDoPedido<P>
         return montarArvore(pedido);
       case 'comparar':
         return comparar(pedido);
+      case 'serie':
+        return serie(pedido);
       case 'estimativa':
         return estimar(pedido);
     }

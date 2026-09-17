@@ -6,6 +6,7 @@ import {
   type EstimativaResposta,
   type Modo,
   type Sequencia,
+  type SerieResposta,
 } from '@sequencias/contrato';
 
 export interface PedidoCalcular {
@@ -39,12 +40,23 @@ export interface PedidoEstimativa {
   modo: Modo;
 }
 
-export type Pedido = PedidoCalcular | PedidoArvore | PedidoComparar | PedidoEstimativa;
+export interface PedidoSerie {
+  tipo: 'serie';
+  sequencia: Sequencia;
+  n_inicial: number;
+  n_final: number;
+  passo: number;
+  repeticoes: number;
+}
+
+export type Pedido =
+  PedidoCalcular | PedidoArvore | PedidoComparar | PedidoSerie | PedidoEstimativa;
 
 export interface RespostaPorTipo {
   calcular: CalcularResposta;
   arvore: ArvoreResposta;
   comparar: CompararResposta;
+  serie: SerieResposta;
   estimativa: EstimativaResposta;
 }
 
