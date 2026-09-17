@@ -1,8 +1,12 @@
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
-import { createJsonSchemaTransform, jsonSchemaTransformObject } from 'fastify-type-provider-zod';
+import {
+  createJsonSchemaTransform,
+  createJsonSchemaTransformObject,
+} from 'fastify-type-provider-zod';
 import { type Aplicacao } from '../aplicacao';
 import { config } from '../config';
+import { registroDeSchemas } from './registro-schemas';
 
 export const CAMINHO_DOCUMENTACAO = '/docs';
 
@@ -46,8 +50,11 @@ export function registrarDocumentacao(app: Aplicacao): void {
       servers: [{ url: `http://localhost:${config.porta}`, description: 'desenvolvimento' }],
       tags: ETIQUETAS,
     },
-    transform: createJsonSchemaTransform({ skipList: ROTAS_IGNORADAS }),
-    transformObject: jsonSchemaTransformObject,
+    transform: createJsonSchemaTransform({
+      skipList: ROTAS_IGNORADAS,
+      schemaRegistry: registroDeSchemas,
+    }),
+    transformObject: createJsonSchemaTransformObject({ schemaRegistry: registroDeSchemas }),
   });
 
   void app.register(swaggerUi, {
