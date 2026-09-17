@@ -13,12 +13,14 @@ const CLASSES_MARCA: Record<Modo, string> = {
 
 function LinhaCrescimento({ modo, texto }: { modo: Modo; texto: string }) {
   return (
-    <li className="grid grid-cols-[1rem_5.5rem_1fr] items-baseline gap-x-2">
-      <span
-        aria-hidden="true"
-        className={juntarClasses('h-1 w-4 self-center rounded-full', CLASSES_MARCA[modo])}
-      />
-      <span>{rotuloModo(modo)}</span>
+    <li className="grid grid-cols-[6.5rem_1fr] items-baseline gap-x-2">
+      <span className="flex items-center gap-2">
+        <span
+          aria-hidden="true"
+          className={juntarClasses('h-1 w-4 shrink-0 rounded-full', CLASSES_MARCA[modo])}
+        />
+        {rotuloModo(modo)}
+      </span>
       <span className="text-texto-suave">{texto}</span>
     </li>
   );
