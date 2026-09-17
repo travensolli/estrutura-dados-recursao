@@ -19,7 +19,7 @@
     "test": "pnpm -r --if-present test && pnpm test:repo",
     "test:repo": "vitest run --config vitest.repo.config.ts",
     "e2e": "pnpm --filter @sequencias/web e2e",
-    "cli": "pnpm --filter @sequencias/cli start",
+    "cli": "tsx apps/cli/src/index.ts",
     "ci:local": "sh scripts/ci-local.sh"
   },
   "devDependencies": {
