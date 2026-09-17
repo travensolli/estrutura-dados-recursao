@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { executarTrabalho, trabalhosPendentes } from './servico';
+import { reiniciarAlternanciaDeModos } from '../medicao/modos';
+import { executarTrabalho, pedidoDeComparacao, trabalhosPendentes } from './servico';
 
 describe('executarTrabalho', () => {
   it('atende os pedidos em fila, um worker por vez', async () => {
@@ -39,5 +40,20 @@ describe('executarTrabalho', () => {
     });
     expect(resposta.metricas.valor).toBe('3628800');
     expect(trabalhosPendentes()).toBe(0);
+  });
+});
+
+describe('pedidoDeComparacao', () => {
+  it('troca a ordem dos modos a cada comparação pedida', () => {
+    reiniciarAlternanciaDeModos();
+    expect(pedidoDeComparacao('fibonacci', 10, 5)).toEqual({
+      tipo: 'comparar',
+      sequencia: 'fibonacci',
+      n: 10,
+      repeticoes: 5,
+      ordem: ['sem_cache', 'com_cache'],
+    });
+    expect(pedidoDeComparacao('fibonacci', 10, 5).ordem).toEqual(['com_cache', 'sem_cache']);
+    reiniciarAlternanciaDeModos();
   });
 });
