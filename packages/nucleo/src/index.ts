@@ -15,3 +15,4 @@ export {
   tribonacciComCacheInstrumentado,
   tribonacciSemCacheInstrumentado,
 } from './instrumentados';
+export { arvoreParaTexto, descreverNo } from './arvore';
