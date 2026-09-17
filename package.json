@@ -17,7 +17,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "pnpm -r --if-present test && pnpm test:repo",
+    "test": "pnpm -r --workspace-concurrency=1 --if-present test && pnpm test:repo",
     "test:repo": "vitest run --config vitest.repo.config.ts",
     "e2e": "pnpm --filter @sequencias/web e2e",
     "cli": "tsx apps/cli/src/index.ts",
