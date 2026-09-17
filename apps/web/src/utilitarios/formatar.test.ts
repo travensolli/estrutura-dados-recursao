@@ -3,6 +3,7 @@ import {
   abreviarValor,
   corDoArgumento,
   formatarBytes,
+  formatarCompacto,
   formatarFator,
   formatarInteiro,
   formatarTempoNs,
@@ -33,6 +34,14 @@ describe('formatar', () => {
     expect(formatarBytes(512)).toBe('512 B');
     expect(formatarBytes(-2048)).toBe('-2,0 KB');
     expect(formatarBytes(3 * 1024 ** 2)).toBe('3,0 MB');
+  });
+  it('encurta números grandes e preserva os pequenos', () => {
+    /* O Intl separa número e unidade com espaço fixo. */
+    const fixo = '\u00a0';
+    expect(formatarCompacto(46)).toBe('46');
+    expect(formatarCompacto(9_999)).toBe('9.999');
+    expect(formatarCompacto(128_287)).toBe(`128,3${fixo}mil`);
+    expect(formatarCompacto(1_234_567)).toBe(`1,2${fixo}mi`);
   });
   it('formata fator e cor', () => {
     expect(formatarFator(12.34)).toBe('12,3×');
