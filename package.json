@@ -20,6 +20,7 @@
     "test:repo": "vitest run --config vitest.repo.config.ts",
     "e2e": "pnpm --filter @sequencias/web e2e",
     "cli": "tsx apps/cli/src/index.ts",
+    "benchmark:relatorio": "node --expose-gc --import tsx apps/api/src/relatorio/gerar.ts && prettier --write docs/resultados-benchmark.md",
     "ci:local": "sh scripts/ci-local.sh"
   },
   "devDependencies": {
