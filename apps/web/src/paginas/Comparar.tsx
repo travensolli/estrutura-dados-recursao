@@ -10,15 +10,18 @@ import {
   type MemoriaModo,
   type Modo,
   type Sequencia,
+  type SerieResposta,
 } from '@sequencias/contrato';
-import { useQueryClient } from '@tanstack/react-query';
-import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { useQueryClient, type UseQueryResult } from '@tanstack/react-query';
+import { lazy, Suspense, useId, useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import type { SerieEntrada } from '../api/cliente';
 import {
   chaves,
   opcoesEstimativa,
   useComparar,
   useEstimativa,
   useSequencias,
+  useSerie,
 } from '../api/consultas';
 import {
   Alerta,
@@ -40,10 +43,14 @@ import {
   type ColunaTabela,
   type OpcaoSegmento,
 } from '../componentes';
+import { LegendaSeries } from '../componentes/BarraComparativa';
+import type { EscalaGrafico, PontoGrafico } from '../componentes/GraficoLinhas';
 import { useTituloPagina } from '../hooks/titulo-pagina';
 import { enderecoComEstado, useEstadoUrl, type OpcoesEstadoUrl } from '../hooks/useEstadoUrl';
+import { juntarClasses } from '../utilitarios/classes';
 import {
   formatarBytes,
+  formatarCompacto,
   formatarFator,
   formatarInteiro,
   formatarTempoNs,
@@ -51,7 +58,24 @@ import {
 } from '../utilitarios/formatar';
 import { validarInteiro } from '../utilitarios/validacao';
 
+/* Recharts entra sob demanda: as outras telas não carregam o pacote. */
+const GraficoLinhas = lazy(() => import('../componentes/GraficoLinhas'));
+
 const OPCOES_URL: OpcoesEstadoUrl = { padrao: { n: 20 } };
+
+/** Teto de pontos da série; o passo cresce para caber nesse orçamento. */
+const PONTOS_MAXIMOS = 40;
+
+const OPCOES_ESCALA: ReadonlyArray<OpcaoSegmento<EscalaGrafico>> = [
+  { valor: 'linear', rotulo: 'Linear' },
+  { valor: 'log', rotulo: 'Logarítmica' },
+];
+
+/** O que cada escala faz com o eixo vertical, dito em texto. */
+const NOTA_ESCALA: Record<EscalaGrafico, string> = {
+  linear: 'Na escala linear a mesma distância no eixo vertical vale sempre a mesma quantidade.',
+  log: 'Na escala logarítmica o eixo vertical cresce multiplicando em vez de somar, então as duas curvas cabem juntas mesmo com tamanhos muito diferentes: aqui uma reta quer dizer crescimento exponencial.',
+};
 
 const OPCOES_SEQUENCIA: ReadonlyArray<OpcaoSegmento<Sequencia>> = SEQUENCIAS.map((id) => ({
   valor: id,
@@ -302,6 +326,252 @@ function interpretar(resposta: CompararResposta, info: InfoSequencia | undefined
   ];
 }
 
+/** Série de n = 1 até o n medido, com passo que respeita o teto de pontos. */
+function entradaDaSerie(medicao: Medicao): SerieEntrada {
+  const inicial = Math.min(1, medicao.n);
+  return {
+    sequencia: medicao.sequencia,
+    n_inicial: inicial,
+    n_final: medicao.n,
+    passo: Math.max(1, Math.ceil((medicao.n - inicial + 1) / PONTOS_MAXIMOS)),
+    repeticoes: Math.min(medicao.repeticoes, 3),
+  };
+}
+
+function textoDoPonto(
+  ponto: PontoGrafico,
+  modo: Modo,
+  formatar: (valor: number) => string,
+): string {
+  const valor = ponto[modo];
+  return valor === null ? 'não medido' : formatar(valor);
+}
+
+/** Alternativa em texto do gráfico: os extremos de cada série e os vazios. */
+function descreverSerie(
+  pontos: ReadonlyArray<PontoGrafico>,
+  formatar: (valor: number) => string,
+): string {
+  const primeiro = pontos[0];
+  const ultimo = pontos[pontos.length - 1];
+  if (!primeiro || !ultimo) return '';
+  const trechos = MODOS.map((modo) => {
+    const semValor = pontos.filter((ponto) => ponto[modo] === null).length;
+    const inicio = primeiro[modo];
+    const fim = ultimo[modo];
+    if (inicio === null || fim === null || semValor === pontos.length) {
+      return `${rotuloModo(modo)} ficou sem medida em ${formatarInteiro(semValor)} dos ${formatarInteiro(pontos.length)} pontos`;
+    }
+    const vazios = semValor > 0 ? ` (${formatarInteiro(semValor)} pontos sem medida no meio)` : '';
+    return `${rotuloModo(modo)} vai de ${formatar(inicio)} a ${formatar(fim)}${vazios}`;
+  });
+  return `De f(${primeiro.n}) a f(${ultimo.n}), ${trechos.join('; ')}.`;
+}
+
+interface PainelGraficoProps {
+  titulo: string;
+  explicacao: string;
+  grandeza: string;
+  pontos: ReadonlyArray<PontoGrafico>;
+  escala: EscalaGrafico;
+  formatar: (valor: number) => string;
+  /** Forma curta para as marcas do eixo, quando o valor cheio não cabe. */
+  formatarEixo?: (valor: number) => string;
+}
+
+/** Gráfico com título, descrição em texto, legenda e tabela dos mesmos dados. */
+function PainelGrafico({
+  titulo,
+  explicacao,
+  grandeza,
+  pontos,
+  escala,
+  formatar,
+  formatarEixo,
+}: PainelGraficoProps) {
+  const [dadosVisiveis, setDadosVisiveis] = useState(false);
+  const idDados = useId();
+  const colunas: ColunaTabela<PontoGrafico>[] = [
+    {
+      chave: 'n',
+      rotulo: 'n',
+      cabecalhoDeLinha: true,
+      className: 'w-20',
+      conteudo: (ponto) => <span className="font-mono">f({ponto.n})</span>,
+    },
+    ...MODOS.map((modo) => ({
+      chave: modo,
+      rotulo: <RotuloModo modo={modo} />,
+      numerico: true,
+      conteudo: (ponto: PontoGrafico) => textoDoPonto(ponto, modo, formatar),
+    })),
+  ];
+
+  return (
+    <Cartao className="min-w-0">
+      <figure className="m-0">
+        <figcaption className="space-y-1">
+          <h3 className="text-base font-semibold sm:text-lg">{titulo}</h3>
+          <p className="text-sm text-texto-suave">{explicacao}</p>
+          <p className="text-sm text-texto-suave">
+            {descreverSerie(pontos, formatar)} {NOTA_ESCALA[escala]}
+          </p>
+        </figcaption>
+        <LegendaSeries className="mt-3" />
+        <Suspense
+          fallback={
+            <Esqueleto linhas={1} altura="h-64" rotulo={`Carregando o gráfico: ${titulo}`} />
+          }
+        >
+          <GraficoLinhas
+            pontos={pontos}
+            escala={escala}
+            formatar={formatar}
+            formatarEixo={formatarEixo}
+            grandeza={grandeza}
+          />
+        </Suspense>
+      </figure>
+      <Botao
+        className="mt-3"
+        variante="discreta"
+        tamanho="pequeno"
+        icone="tabela"
+        aria-expanded={dadosVisiveis}
+        aria-controls={idDados}
+        onClick={() => setDadosVisiveis((atual) => !atual)}
+      >
+        {dadosVisiveis ? 'Ocultar dados' : 'Ver dados'}
+      </Botao>
+      <div id={idDados} hidden={!dadosVisiveis} className="mt-3">
+        {dadosVisiveis ? (
+          <Tabela
+            legenda={`${titulo}, valor de cada ponto`}
+            colunas={colunas}
+            linhas={pontos}
+            chave={(ponto) => ponto.n}
+            alturaMaxima="20rem"
+          />
+        ) : null}
+      </div>
+    </Cartao>
+  );
+}
+
+/** Faixa medida descrita a partir da própria resposta. */
+function descreverFaixa(dados: SerieResposta | undefined): string {
+  if (!dados) return 'Cada ponto é uma execução dos dois modos ao longo da faixa de n.';
+  const passo =
+    dados.passo > 1
+      ? `, de ${formatarInteiro(dados.passo)} em ${formatarInteiro(dados.passo)}`
+      : '';
+  return `Cada ponto é uma execução dos dois modos: ${formatarInteiro(dados.pontos.length)} pontos de f(${dados.n_inicial}) a f(${dados.n_final})${passo}, com ${formatarInteiro(dados.repeticoes)} repetições por ponto. A escala escolhida vale para os dois gráficos.`;
+}
+
+interface SecaoCurvasProps {
+  consulta: UseQueryResult<SerieResposta>;
+  escala: EscalaGrafico;
+  aoMudarEscala: (escala: EscalaGrafico) => void;
+  aoTentarDeNovo: () => void;
+}
+
+/** Os dois gráficos da série, com uma única escala mandando nos dois. */
+function SecaoCurvas({ consulta, escala, aoMudarEscala, aoTentarDeNovo }: SecaoCurvasProps) {
+  const pontos = consulta.data?.pontos ?? [];
+  const pontosTempo: PontoGrafico[] = pontos.map((ponto) => ({
+    n: ponto.n,
+    sem_cache: ponto.tempo_ns.sem_cache,
+    com_cache: ponto.tempo_ns.com_cache,
+  }));
+  const pontosInvocacoes: PontoGrafico[] = pontos.map((ponto) => ({
+    n: ponto.n,
+    sem_cache: ponto.invocacoes.sem_cache,
+    com_cache: ponto.invocacoes.com_cache,
+  }));
+  /* Uma linha precisa de dois pontos; com menos, só a tabela faz sentido. */
+  const desenhavel = pontos.length > 1;
+
+  function conteudo() {
+    if (desenhavel) {
+      return (
+        <div
+          aria-busy={consulta.isFetching}
+          className={juntarClasses(
+            'grid gap-4 transition-opacity duration-150 ease-suave xl:grid-cols-2',
+            consulta.isFetching && 'opacity-60',
+          )}
+        >
+          <PainelGrafico
+            titulo="Tempo por n"
+            explicacao="A mediana das repetições em cada n. Onde a medida faltou, a linha fica interrompida."
+            grandeza="Tempo"
+            pontos={pontosTempo}
+            escala={escala}
+            formatar={formatarTempoNs}
+          />
+          <PainelGrafico
+            titulo="Invocações por n"
+            explicacao="Quantas vezes a função foi chamada em cada n. É contagem exata, sem relógio no meio."
+            grandeza="Invocações"
+            pontos={pontosInvocacoes}
+            escala={escala}
+            formatar={formatarInteiro}
+            formatarEixo={formatarCompacto}
+          />
+        </div>
+      );
+    }
+    if (consulta.isFetching) {
+      return (
+        <div className="grid gap-4 xl:grid-cols-2">
+          {['Tempo por n', 'Invocações por n'].map((titulo) => (
+            <Esqueleto
+              key={titulo}
+              linhas={1}
+              altura="h-72"
+              rotulo={`Montando o gráfico de ${titulo.toLowerCase()}`}
+              className="rounded-xl border border-borda bg-superficie p-4 sm:p-6"
+            />
+          ))}
+        </div>
+      );
+    }
+    if (consulta.error !== null) {
+      return <EstadoErro erro={consulta.error} aoTentarDeNovo={aoTentarDeNovo} />;
+    }
+    return (
+      <EstadoVazio
+        icone="comparar"
+        titulo="Faixa curta para desenhar uma curva"
+        descricao="Uma linha precisa de pelo menos dois valores de n. Compare um n maior e as duas curvas aparecem aqui."
+      />
+    );
+  }
+
+  return (
+    <section aria-labelledby="titulo-curvas" className="space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+        <div className="min-w-0 max-w-prose">
+          <h2 id="titulo-curvas" className="text-xl font-semibold">
+            Como cada modo cresce até esse n
+          </h2>
+          <p className="mt-1 text-sm text-texto-suave">{descreverFaixa(consulta.data)}</p>
+        </div>
+        {desenhavel ? (
+          <SeletorSegmentado
+            className="min-w-0"
+            rotulo="Escala do eixo vertical"
+            valor={escala}
+            aoMudar={aoMudarEscala}
+            opcoes={OPCOES_ESCALA}
+          />
+        ) : null}
+      </div>
+      {conteudo()}
+    </section>
+  );
+}
+
 function BlocoAmbiente({ ambiente }: { ambiente: AmbienteExecucao }) {
   const itens: Array<[string, string]> = [
     ['Node', ambiente.node],
@@ -348,6 +618,7 @@ export function PaginaComparar() {
   const [rascunhoRepeticoes, setRascunhoRepeticoes, ecoarRepeticoes] = useRascunho(repeticoes);
 
   const [medicao, setMedicao] = useState<Medicao | null>(null);
+  const [escala, setEscala] = useState<EscalaGrafico>('linear');
   const [confirmando, setConfirmando] = useState(false);
   const [verificando, setVerificando] = useState(false);
   const [cancelada, setCancelada] = useState(false);
@@ -361,6 +632,12 @@ export function PaginaComparar() {
   const comparacao = useComparar(medicao);
   const resposta = comparacao.data;
   const medindo = comparacao.isFetching;
+
+  const entradaSerie = useMemo(
+    () => (medicao === null ? null : entradaDaSerie(medicao)),
+    [medicao],
+  );
+  const serie = useSerie(entradaSerie);
 
   const rascunhosValidos =
     validarInteiro(rascunhoN, { minimo: 0 }).valido &&
@@ -376,6 +653,7 @@ export function PaginaComparar() {
     const pedido: Medicao = { sequencia, n, repeticoes };
     if (mesmaMedicao(medicao, pedido)) {
       void comparacao.refetch();
+      void serie.refetch();
       return;
     }
     setMedicao(pedido);
@@ -403,6 +681,9 @@ export function PaginaComparar() {
   async function cancelar() {
     if (medicao !== null) {
       await clienteConsultas.cancelQueries({ queryKey: chaves.comparar(medicao) });
+    }
+    if (entradaSerie !== null) {
+      await clienteConsultas.cancelQueries({ queryKey: chaves.serie(entradaSerie) });
     }
     setMedicao(null);
     setCancelada(true);
@@ -648,6 +929,13 @@ export function PaginaComparar() {
                 nome={`f(${resposta.n})`}
               />
             </Cartao>
+
+            <SecaoCurvas
+              consulta={serie}
+              escala={escala}
+              aoMudarEscala={setEscala}
+              aoTentarDeNovo={() => void serie.refetch()}
+            />
 
             <section aria-labelledby="titulo-tempo" className="space-y-3">
               <h2 id="titulo-tempo" className="text-xl font-semibold">
