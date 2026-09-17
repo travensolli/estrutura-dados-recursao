@@ -17,11 +17,8 @@ export interface OpcoesExecutor {
 
 /** Em desenvolvimento o worker é o próprio .ts; no pacote, o .js irmão gerado pelo tsup. */
 export function arquivoDoTrabalhador(urlDoModulo: string): URL {
-  const nome =
-    urlDoModulo.startsWith('file:') && urlDoModulo.endsWith('.ts')
-      ? './trabalhador.ts'
-      : './trabalhador.js';
-  return new URL(nome, urlDoModulo);
+  const ehFonte = new URL(urlDoModulo).pathname.endsWith('.ts');
+  return new URL(ehFonte ? './trabalhador.ts' : './trabalhador.js', urlDoModulo);
 }
 
 function partidaComTsx(alvo: URL): string {

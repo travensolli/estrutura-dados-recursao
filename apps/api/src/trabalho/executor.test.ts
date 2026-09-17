@@ -30,6 +30,12 @@ describe('arquivoDoTrabalhador', () => {
       '/app/dist/trabalhador.js',
     );
   });
+
+  it('ignora a consulta que alguns carregadores acrescentam na url', () => {
+    expect(arquivoDoTrabalhador('file:///app/src/trabalho/executor.ts?v=12').href).toBe(
+      'file:///app/src/trabalho/trabalhador.ts',
+    );
+  });
 });
 
 describe('executarEmWorker', () => {
