@@ -68,7 +68,7 @@ export function TabelaArgumentos({
       </caption>
       <thead>
         <tr className="text-[clamp(0.75rem,0.95vw,1rem)] text-texto-suave">
-          <th scope="col" className="w-[7ch] py-1 text-left font-normal">
+          <th scope="col" className="w-[11ch] py-1 pr-3 text-left font-normal whitespace-nowrap">
             argumento
           </th>
           <th scope="col" className="py-1 text-left font-normal">
