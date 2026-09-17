@@ -213,8 +213,7 @@ function montarJson(pedido: Pedido, resultado: ResultadoInstrumentado): string {
 }
 
 function mensagemDeErro(erro: unknown): string {
-  const detalhe =
-    erro instanceof ErroSequencia || erro instanceof Error ? erro.message : String(erro);
+  const detalhe = erro instanceof Error ? erro.message : String(erro);
   return `Erro: ${detalhe}\nUse --ajuda para ver as opções e os limites.`;
 }
 
