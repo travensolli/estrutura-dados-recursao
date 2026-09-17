@@ -16,11 +16,34 @@
     background-color: var(--color-fundo);
     color: var(--color-texto);
     min-height: 100dvh;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  p,
+  li {
+    text-wrap: pretty;
   }
   :focus-visible {
     outline: 3px solid var(--color-foco);
     outline-offset: 2px;
-    border-radius: var(--radius-sm);
+  }
+  button,
+  [role='button'],
+  a,
+  label,
+  summary {
+    touch-action: manipulation;
+  }
+  ::selection {
+    background-color: var(--color-primaria-suave);
+    color: var(--color-texto);
   }
   @media (prefers-reduced-motion: reduce) {
     *,
@@ -31,5 +54,28 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+/* Campo numérico próprio: as setas nativas são pequenas demais para toque. */
+@utility sem-setas {
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+/* Rolagem horizontal discreta em tabelas largas. */
+@utility rolagem-fina {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-borda-forte) transparent;
+  &::-webkit-scrollbar {
+    height: 0.5rem;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-borda-forte);
+    border-radius: 999px;
   }
 }
