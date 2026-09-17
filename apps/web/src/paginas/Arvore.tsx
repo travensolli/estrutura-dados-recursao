@@ -7,7 +7,7 @@ import {
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import { useSequencias } from '../api/consultas';
-import { ArvoreSvg } from '../arvore/ArvoreSvg';
+import { VisaoArvore } from '../arvore/VisaoArvore';
 import {
   LIMITE_NOS_TELA_MAXIMO,
   consultaValida,
@@ -119,15 +119,9 @@ export function PaginaArvore() {
             </Aviso>
           )}
 
-          <ArvoreSvg
+          <VisaoArvore
             key={`${dados.resposta.sequencia}-${dados.resposta.n}-${dados.resposta.modo}-${dados.resposta.limite_nos}`}
-            raiz={dados.resposta.raiz}
-            metricas={dados.resposta.metricas}
-            sequencia={dados.resposta.sequencia}
-            n={dados.resposta.n}
-            modo={dados.resposta.modo}
-            truncada={dados.resposta.truncada}
-            nosExibidos={dados.resposta.nos_exibidos}
+            resposta={dados.resposta}
           />
         </>
       )}

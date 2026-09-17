@@ -1,5 +1,5 @@
 import type { Modo, No } from '@sequencias/contrato';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { abreviarValor, corDoArgumento, formatarInteiro } from '../utilitarios/formatar';
 import {
   acertoNoPasso,
@@ -23,12 +23,21 @@ export interface ReproducaoProps {
   podasPorAcerto?: ReadonlyMap<number, number>;
   /** Escuta espaço, setas, Home e End na janela. */
   atalhos?: boolean;
+  /** Leva o foco para o botão de tocar assim que o painel aparece. */
+  focarAoMontar?: boolean;
+  /** Desenho ou lista da árvore, ao lado dos painéis em telas largas. */
+  children?: ReactNode;
 }
 
 const BOTAO =
   'inline-flex h-11 min-w-11 items-center justify-center gap-2 rounded-md border border-borda bg-superficie px-3 text-sm text-texto hover:bg-superficie-suave disabled:opacity-40';
 const CAIXA = 'rounded-lg border border-borda bg-superficie p-3';
-const IGNORADOS = 'input, select, textarea, button, a, [role="button"], [role="tree"]';
+/** Campos de texto e afins: nenhum atalho vale dentro deles. */
+const CAMPOS = 'input, select, textarea, [contenteditable="true"]';
+/** Espaço já aciona estes elementos. */
+const ATIVAVEIS = 'button, a, [role="button"]';
+/** A árvore e a lista usam as setas para andar entre os nós. */
+const NAVEGAVEIS = '[role="button"], [role="tree"], [role="treeitem"]';
 
 export function Reproducao({
   nos,
@@ -36,7 +45,10 @@ export function Reproducao({
   relogio,
   podasPorAcerto,
   atalhos = true,
+  focarAoMontar = false,
+  children,
 }: ReproducaoProps) {
+  const botaoToqueRef = useRef<HTMLButtonElement>(null);
   const { passo, ultimoPasso, tocando } = relogio;
   const indice = useMemo(() => indexarPassos(nos), [nos]);
   const pilha = useMemo(() => pilhaNoPasso(nos, passo), [nos, passo]);
@@ -49,13 +61,17 @@ export function Reproducao({
   const contagem = `Passo ${formatarInteiro(passo)} de ${formatarInteiro(ultimoPasso)}`;
 
   useEffect(() => {
+    if (focarAoMontar) botaoToqueRef.current?.focus();
+  }, [focarAoMontar]);
+
+  useEffect(() => {
     if (!atalhos) return;
     const aoTeclar = (evento: KeyboardEvent) => {
       if (evento.defaultPrevented || evento.altKey || evento.ctrlKey || evento.metaKey) return;
-      const alvo = evento.target;
-      if (alvo instanceof Element && alvo.closest(IGNORADOS)) return;
+      const alvo = evento.target instanceof Element ? evento.target : null;
+      const dentroDe = (seletor: string) => alvo?.closest(seletor) != null;
+      if (dentroDe(CAMPOS)) return;
       const acoes: Record<string, () => void> = {
-        ' ': relogio.alternarToque,
         ArrowRight: relogio.avancar,
         ArrowUp: relogio.avancar,
         ArrowLeft: relogio.voltar,
@@ -63,8 +79,14 @@ export function Reproducao({
         Home: relogio.paraOInicio,
         End: relogio.paraOFim,
       };
+      if (evento.key === ' ') {
+        if (dentroDe(ATIVAVEIS)) return;
+        evento.preventDefault();
+        relogio.alternarToque();
+        return;
+      }
       const acao = acoes[evento.key];
-      if (!acao) return;
+      if (!acao || dentroDe(NAVEGAVEIS)) return;
       evento.preventDefault();
       acao();
     };
@@ -95,6 +117,7 @@ export function Reproducao({
             <span className="sr-only">Passo anterior</span>
           </button>
           <button
+            ref={botaoToqueRef}
             type="button"
             className={`${BOTAO} bg-primaria font-medium text-primaria-contraste hover:bg-primaria-forte`}
             onClick={relogio.alternarToque}
@@ -162,9 +185,22 @@ export function Reproducao({
         {`${contagem}. ${narracao}`}
       </p>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <PilhaDeChamadas pilha={pilha} />
-        <Dicionario modo={modo} entradas={dicionario} argumentoUsado={acerto?.argumento ?? null} />
+      <div
+        className={
+          children
+            ? 'grid items-start gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]'
+            : 'grid gap-3 md:grid-cols-2'
+        }
+      >
+        {children && <div className="min-w-0">{children}</div>}
+        <div className={`grid min-w-0 gap-3 ${children ? 'md:grid-cols-2 lg:grid-cols-1' : ''}`}>
+          <PilhaDeChamadas pilha={pilha} />
+          <Dicionario
+            modo={modo}
+            entradas={dicionario}
+            argumentoUsado={acerto?.argumento ?? null}
+          />
+        </div>
       </div>
     </section>
   );

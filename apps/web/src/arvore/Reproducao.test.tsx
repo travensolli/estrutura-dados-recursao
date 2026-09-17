@@ -124,6 +124,12 @@ describe('Reproducao', () => {
     expect(screen.getByRole('button', { name: 'Tocar' })).toBeInTheDocument();
   });
 
+  it('deixa o espaço para o botão quando ele já está com o foco', () => {
+    render(<Cenario modo="sem_cache" />);
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Tocar' }), { key: ' ' });
+    expect(screen.getByRole('button', { name: 'Tocar' })).toBeInTheDocument();
+  });
+
   it('ignora atalhos quando o foco está num campo', () => {
     render(<Cenario modo="sem_cache" />);
     const controle = screen.getByLabelText('Passo da reprodução');

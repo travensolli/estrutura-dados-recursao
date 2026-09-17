@@ -87,6 +87,38 @@ describe('página Árvore', () => {
     expect(nos().length).toBeLessThanOrEqual(20);
   });
 
+  it('troca o desenho pela lista indentada', async () => {
+    const usuario = userEvent.setup();
+    abrir();
+    await screen.findByRole('heading', { level: 2 });
+
+    await usuario.click(screen.getByRole('button', { name: 'Lista' }));
+
+    expect(screen.getAllByRole('treeitem')).toHaveLength(46);
+    expect(screen.queryAllByTestId('no-arvore')).toHaveLength(0);
+    expect(screen.getByRole('button', { name: 'Lista' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('reproduz a execução passo a passo', async () => {
+    const usuario = userEvent.setup();
+    abrir('/arvore?sequencia=tribonacci&n=7&modo=com_cache&limite_nos=300');
+    await screen.findByRole('heading', { level: 2 });
+
+    await usuario.click(screen.getByRole('button', { name: 'Reproduzir passo a passo' }));
+    expect(screen.getByText('Chama f(7): não está no dicionário, precisa calcular.')).toBeVisible();
+    expect(screen.getAllByTestId('quadro-pilha')).toHaveLength(1);
+    expect(screen.getByText('0 / 31')).toBeInTheDocument();
+
+    await usuario.keyboard('{ArrowRight}{ArrowRight}');
+    expect(screen.getByText('2 / 31')).toBeInTheDocument();
+    expect(screen.getAllByTestId('quadro-pilha')).toHaveLength(3);
+    expect(nos().filter((no) => no.dataset.estado === 'futuro')).toHaveLength(13);
+
+    await usuario.click(screen.getByRole('button', { name: 'Ver a árvore inteira' }));
+    expect(screen.queryAllByTestId('quadro-pilha')).toHaveLength(0);
+    expect(nos().every((no) => no.dataset.estado === 'inteira')).toBe(true);
+  });
+
   it('mostra o erro da API e deixa tentar de novo', async () => {
     servidorMock.use(
       http.post('/api/arvore', () =>
