@@ -1,0 +1,112 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { HttpResponse, http } from 'msw';
+import { MemoryRouter } from 'react-router';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { PedidoCalculo } from '../plano-b/mensagens';
+import { processarPedido } from '../plano-b/processar';
+import { servidorMock } from '../mocks/servidor';
+import { PaginaArvore } from './Arvore';
+
+/** Worker falso: roda a mesma função pura do worker real. */
+class TrabalhadorFalso extends EventTarget {
+  postMessage(pedido: PedidoCalculo) {
+    queueMicrotask(() =>
+      this.dispatchEvent(new MessageEvent('message', { data: processarPedido(pedido) })),
+    );
+  }
+  terminate() {}
+}
+
+function abrir(caminho = '/arvore') {
+  const cliente = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(
+    <QueryClientProvider client={cliente}>
+      <MemoryRouter initialEntries={[caminho]}>
+        <PaginaArvore />
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
+const nos = () => screen.getAllByTestId('no-arvore');
+
+afterEach(() => vi.unstubAllGlobals());
+
+describe('página Árvore', () => {
+  it('desenha tribonacci f(7) sem cache com os padrões da URL', async () => {
+    abrir();
+    expect(await screen.findByRole('heading', { level: 2 })).toHaveTextContent(
+      'Tribonacci f(7) sem cache',
+    );
+    expect(nos()).toHaveLength(46);
+    expect(screen.getByLabelText('Valor de n')).toHaveValue(7);
+    expect(screen.getByLabelText('Limite de nós')).toHaveValue(300);
+  });
+
+  it('lê sequência, n, modo e limite de nós da URL', async () => {
+    abrir('/arvore?sequencia=tribonacci&n=7&modo=com_cache&limite_nos=300');
+    await screen.findByRole('heading', { level: 2 });
+    expect(nos()).toHaveLength(16);
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
+      'Tribonacci f(7) com cache',
+    );
+  });
+
+  it('aplica os controles na URL ao pedir a árvore', async () => {
+    const usuario = userEvent.setup();
+    abrir();
+    await screen.findByRole('heading', { level: 2 });
+
+    const campoN = screen.getByLabelText('Valor de n');
+    await usuario.clear(campoN);
+    await usuario.type(campoN, '5');
+    await usuario.click(screen.getByRole('button', { name: 'Ver árvore' }));
+
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('f(5)'),
+    );
+    expect(nos()).toHaveLength(13);
+  });
+
+  it('avisa quando n passa do limite da sequência', async () => {
+    abrir('/arvore?sequencia=tribonacci&n=40&modo=sem_cache');
+    expect(
+      await screen.findByText('Ajuste os parâmetros para desenhar a árvore'),
+    ).toBeInTheDocument();
+    const alerta = screen.getByRole('status');
+    expect(within(alerta).getByText('Tribonacci sem cache vai até n = 30.')).toBeInTheDocument();
+    expect(screen.queryAllByTestId('no-arvore')).toHaveLength(0);
+  });
+
+  it('avisa quando a resposta vem truncada', async () => {
+    abrir('/arvore?sequencia=fibonacci&n=12&modo=sem_cache&limite_nos=20');
+    expect(await screen.findByText('A árvore foi cortada no limite de nós')).toBeInTheDocument();
+    expect(screen.getByText(/nós de 465 invocações/)).toBeInTheDocument();
+    expect(nos().length).toBeLessThanOrEqual(20);
+  });
+
+  it('mostra o erro da API e deixa tentar de novo', async () => {
+    servidorMock.use(
+      http.post('/api/arvore', () =>
+        HttpResponse.json(
+          { codigo: 'LIMITE_EXCEDIDO', mensagem: 'Teste: limite estourado.' },
+          { status: 422 },
+        ),
+      ),
+    );
+    abrir();
+    expect(await screen.findByText('Não deu para montar a árvore')).toBeInTheDocument();
+    expect(screen.getByText('Teste: limite estourado.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument();
+  });
+
+  it('cai para o plano B quando a API está indisponível', async () => {
+    vi.stubGlobal('Worker', TrabalhadorFalso);
+    servidorMock.use(http.post('/api/arvore', () => HttpResponse.error()));
+    abrir();
+    expect(await screen.findByText('modo offline: calculado no navegador')).toBeInTheDocument();
+    expect(nos()).toHaveLength(46);
+  });
+});
