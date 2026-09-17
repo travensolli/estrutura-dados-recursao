@@ -2,7 +2,7 @@ import type { Metricas, Modo, No, Sequencia } from '@sequencias/contrato';
 import { DESCRICAO_SEQUENCIAS } from '@sequencias/contrato';
 import { select } from 'd3-selection';
 import { zoom, zoomIdentity, type ZoomBehavior, type ZoomTransform } from 'd3-zoom';
-import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { abreviarValor, corDoArgumento, formatarInteiro } from '../utilitarios/formatar';
 import { baixarPng, baixarSvg, type Extensao } from './exportar';
 import { estiloDoTipo } from './formas';
@@ -14,6 +14,7 @@ import {
   eventoNoPasso,
   indexarPassos,
   rotuloTipo,
+  type EstadoNo,
 } from './modelo';
 import { Contadores } from './ui/Contadores';
 import { Legenda } from './ui/Legenda';
@@ -199,6 +200,28 @@ export function ArvoreSvg({
     [alternar, focar, layout, vizinho],
   );
 
+  const registrar = useCallback((id: number, elemento: SVGGElement | null) => {
+    if (elemento) nosRef.current.set(id, elemento);
+    else nosRef.current.delete(id);
+  }, []);
+  const aoFocar = useCallback((id: number) => setIdFoco(id), []);
+  const aoDesfocar = useCallback(
+    (id: number) => setIdFoco((atual) => (atual === id ? null : atual)),
+    [],
+  );
+  const aoApontar = useCallback((id: number) => setIdPonteiro(id), []);
+  const aoSair = useCallback(
+    (id: number) => setIdPonteiro((atual) => (atual === id ? null : atual)),
+    [],
+  );
+  const aoClicar = useCallback(
+    (posicionado: NoPosicionado) => {
+      focar(posicionado.no.id);
+      alternar(posicionado);
+    },
+    [alternar, focar],
+  );
+
   const posicionadoDica = idDica === null ? null : (layout.porId.get(idDica) ?? null);
   const argumentoFoco = posicionadoDica?.no.argumento ?? null;
 
@@ -351,125 +374,30 @@ export function ArvoreSvg({
                 );
               })}
             </g>
-            {layout.nos.map((posicionado) => {
-              const { no } = posicionado;
-              const cor = corDoArgumento(no.argumento);
-              const largura = larguraDoNo(no.tipo);
-              const estilo = estiloDoTipo(no.tipo, largura, A);
-              const realcado = argumentoFoco !== null && argumentoFoco === no.argumento;
-              const estado = passo === null ? null : estadoDoNoNoPasso(no, passo);
-              const futuro = estado === 'futuro';
-              const emFoco = no.id === idEvento;
-              const apagado = argumentoFoco !== null && !realcado;
-              const valor = abreviarValor(no.valor, 9);
-              const selo =
-                posicionado.ocultos > 0
-                  ? posicionado.podadoPorOrcamento
-                    ? `+${formatarInteiro(posicionado.ocultos)} ocultos`
-                    : `+${formatarInteiro(posicionado.ocultos)}`
-                  : null;
-              return (
-                <g
-                  key={no.id}
-                  ref={(elemento) => {
-                    if (elemento) nosRef.current.set(no.id, elemento);
-                    else nosRef.current.delete(no.id);
-                  }}
-                  data-testid="no-arvore"
-                  data-argumento={no.argumento}
-                  data-tipo={no.tipo}
-                  data-realce={argumentoFoco === null ? 'neutro' : realcado ? 'sim' : 'nao'}
-                  data-estado={estado ?? 'inteira'}
-                  transform={`translate(${posicionado.x}, ${posicionado.y})`}
-                  tabIndex={no.id === idAtivo ? 0 : -1}
-                  role="button"
-                  aria-label={rotuloAcessivel(posicionado)}
-                  aria-expanded={no.filhos.length > 0 ? !posicionado.recolhido : undefined}
-                  className={
-                    animacaoReduzida ? 'cursor-pointer' : 'cursor-pointer transition-opacity'
-                  }
-                  opacity={futuro ? 0.16 : apagado ? 0.25 : 1}
-                  onFocus={() => setIdFoco(no.id)}
-                  onBlur={() => setIdFoco((atual) => (atual === no.id ? null : atual))}
-                  onPointerEnter={() => setIdPonteiro(no.id)}
-                  onPointerLeave={() => setIdPonteiro((atual) => (atual === no.id ? null : atual))}
-                  onClick={() => {
-                    focar(no.id);
-                    alternar(posicionado);
-                  }}
-                  onKeyDown={(evento) => aoTeclar(evento, posicionado)}
-                >
-                  {emFoco && (
-                    <path
-                      d={estilo.caminho}
-                      fill="none"
-                      stroke="var(--foco)"
-                      strokeWidth={8}
-                      opacity={0.8}
-                    />
-                  )}
-                  <path
-                    d={estilo.caminho}
-                    fill={cor}
-                    fillOpacity={realcado || emFoco ? 0.34 : 0.22}
-                    stroke={cor}
-                    strokeWidth={realcado || emFoco ? 3 : 2}
-                    strokeDasharray={estilo.tracejado}
-                  />
-                  <path
-                    d={estilo.marca}
-                    transform={`translate(${-largura / 2 + 14}, 0)`}
-                    fill="var(--texto-suave)"
-                  />
-                  <text
-                    x={8}
-                    y={-2}
-                    textAnchor="middle"
-                    className="font-mono"
-                    fontSize={15}
-                    fontWeight={600}
-                    fill="var(--texto)"
-                  >
-                    f({no.argumento})
-                  </text>
-                  <text
-                    x={8}
-                    y={14}
-                    textAnchor="middle"
-                    className="font-mono"
-                    fontSize={11}
-                    fill="var(--texto-suave)"
-                  >
-                    {estado === null || estado === 'resolvido' ? valor.abreviado : '…'}
-                  </text>
-                  {selo && (
-                    <g transform={`translate(0, ${A / 2 + 13})`}>
-                      <rect
-                        x={-(selo.length * 3.6 + 9)}
-                        y={-10}
-                        width={selo.length * 7.2 + 18}
-                        height={20}
-                        rx={10}
-                        fill="var(--superficie)"
-                        stroke={posicionado.podadoPorOrcamento ? 'var(--no-podado)' : cor}
-                        strokeWidth={1.5}
-                        strokeDasharray={posicionado.podadoPorOrcamento ? '4 3' : undefined}
-                      />
-                      <text
-                        x={0}
-                        y={4}
-                        textAnchor="middle"
-                        className="font-mono"
-                        fontSize={11}
-                        fill="var(--texto-suave)"
-                      >
-                        {selo}
-                      </text>
-                    </g>
-                  )}
-                </g>
-              );
-            })}
+            {layout.nos.map((posicionado) => (
+              <NoDesenhado
+                key={posicionado.no.id}
+                posicionado={posicionado}
+                realce={
+                  argumentoFoco === null
+                    ? 'neutro'
+                    : argumentoFoco === posicionado.no.argumento
+                      ? 'sim'
+                      : 'nao'
+                }
+                estado={passo === null ? null : estadoDoNoNoPasso(posicionado.no, passo)}
+                emFoco={posicionado.no.id === idEvento}
+                ativo={posicionado.no.id === idAtivo}
+                animacaoReduzida={animacaoReduzida}
+                registrar={registrar}
+                aoFocar={aoFocar}
+                aoDesfocar={aoDesfocar}
+                aoApontar={aoApontar}
+                aoSair={aoSair}
+                aoClicar={aoClicar}
+                aoTeclar={aoTeclar}
+              />
+            ))}
           </g>
         </svg>
 
@@ -497,6 +425,147 @@ export function ArvoreSvg({
     </figure>
   );
 }
+
+interface NoDesenhadoProps {
+  posicionado: NoPosicionado;
+  realce: 'neutro' | 'sim' | 'nao';
+  /** null quando não há reprodução em curso. */
+  estado: EstadoNo | null;
+  /** Nó do evento do instante atual. */
+  emFoco: boolean;
+  ativo: boolean;
+  animacaoReduzida: boolean;
+  registrar: (id: number, elemento: SVGGElement | null) => void;
+  aoFocar: (id: number) => void;
+  aoDesfocar: (id: number) => void;
+  aoApontar: (id: number) => void;
+  aoSair: (id: number) => void;
+  aoClicar: (posicionado: NoPosicionado) => void;
+  aoTeclar: (evento: KeyboardEvent<SVGGElement>, posicionado: NoPosicionado) => void;
+}
+
+/** Memoizado: numa árvore grande, cada passo muda o estado de poucos nós. */
+const NoDesenhado = memo(function NoDesenhado({
+  posicionado,
+  realce,
+  estado,
+  emFoco,
+  ativo,
+  animacaoReduzida,
+  registrar,
+  aoFocar,
+  aoDesfocar,
+  aoApontar,
+  aoSair,
+  aoClicar,
+  aoTeclar,
+}: NoDesenhadoProps) {
+  const { no } = posicionado;
+  const referencia = useCallback(
+    (elemento: SVGGElement | null) => registrar(no.id, elemento),
+    [no.id, registrar],
+  );
+  const cor = corDoArgumento(no.argumento);
+  const largura = larguraDoNo(no.tipo);
+  const estilo = estiloDoTipo(no.tipo, largura, A);
+  const realcado = realce === 'sim';
+  const apagado = realce === 'nao';
+  const futuro = estado === 'futuro';
+  const valor = abreviarValor(no.valor, 9);
+  const selo =
+    posicionado.ocultos > 0
+      ? posicionado.podadoPorOrcamento
+        ? `+${formatarInteiro(posicionado.ocultos)} ocultos`
+        : `+${formatarInteiro(posicionado.ocultos)}`
+      : null;
+
+  return (
+    <g
+      ref={referencia}
+      data-testid="no-arvore"
+      data-argumento={no.argumento}
+      data-tipo={no.tipo}
+      data-realce={realce}
+      data-estado={estado ?? 'inteira'}
+      transform={`translate(${posicionado.x}, ${posicionado.y})`}
+      tabIndex={ativo ? 0 : -1}
+      role="button"
+      aria-label={rotuloAcessivel(posicionado)}
+      aria-expanded={no.filhos.length > 0 ? !posicionado.recolhido : undefined}
+      className={animacaoReduzida ? 'cursor-pointer' : 'cursor-pointer transition-opacity'}
+      opacity={futuro ? 0.16 : apagado ? 0.25 : 1}
+      onFocus={() => aoFocar(no.id)}
+      onBlur={() => aoDesfocar(no.id)}
+      onPointerEnter={() => aoApontar(no.id)}
+      onPointerLeave={() => aoSair(no.id)}
+      onClick={() => aoClicar(posicionado)}
+      onKeyDown={(evento) => aoTeclar(evento, posicionado)}
+    >
+      {emFoco && (
+        <path d={estilo.caminho} fill="none" stroke="var(--foco)" strokeWidth={8} opacity={0.8} />
+      )}
+      <path
+        d={estilo.caminho}
+        fill={cor}
+        fillOpacity={realcado || emFoco ? 0.34 : 0.22}
+        stroke={cor}
+        strokeWidth={realcado || emFoco ? 3 : 2}
+        strokeDasharray={estilo.tracejado}
+      />
+      <path
+        d={estilo.marca}
+        transform={`translate(${-largura / 2 + 14}, 0)`}
+        fill="var(--texto-suave)"
+      />
+      <text
+        x={8}
+        y={-2}
+        textAnchor="middle"
+        className="font-mono"
+        fontSize={15}
+        fontWeight={600}
+        fill="var(--texto)"
+      >
+        f({no.argumento})
+      </text>
+      <text
+        x={8}
+        y={14}
+        textAnchor="middle"
+        className="font-mono"
+        fontSize={11}
+        fill="var(--texto-suave)"
+      >
+        {estado === null || estado === 'resolvido' ? valor.abreviado : '…'}
+      </text>
+      {selo && (
+        <g transform={`translate(0, ${A / 2 + 13})`}>
+          <rect
+            x={-(selo.length * 3.6 + 9)}
+            y={-10}
+            width={selo.length * 7.2 + 18}
+            height={20}
+            rx={10}
+            fill="var(--superficie)"
+            stroke={posicionado.podadoPorOrcamento ? 'var(--no-podado)' : cor}
+            strokeWidth={1.5}
+            strokeDasharray={posicionado.podadoPorOrcamento ? '4 3' : undefined}
+          />
+          <text
+            x={0}
+            y={4}
+            textAnchor="middle"
+            className="font-mono"
+            fontSize={11}
+            fill="var(--texto-suave)"
+          >
+            {selo}
+          </text>
+        </g>
+      )}
+    </g>
+  );
+});
 
 function rotuloAcessivel(posicionado: NoPosicionado): string {
   const { no, ocultos, podadoPorOrcamento } = posicionado;
