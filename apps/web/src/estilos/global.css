@@ -1,0 +1,35 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@custom-variant dark (&:where(.tema-escuro, .tema-escuro *));
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+  html.tema-escuro {
+    color-scheme: dark;
+  }
+  body {
+    background-color: var(--color-fundo);
+    color: var(--color-texto);
+    min-height: 100dvh;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-foco);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

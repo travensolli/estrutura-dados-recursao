@@ -1,0 +1,22 @@
+{
+  "name": "@sequencias/cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Execução por terminal: valor, métricas e árvore em texto indentado",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@sequencias/contrato": "workspace:*",
+    "@sequencias/nucleo": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.3",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
+  }
+}

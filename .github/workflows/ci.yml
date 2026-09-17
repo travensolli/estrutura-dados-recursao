@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, 'feature/**', 'release/**', 'hotfix/**']
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  commits:
+    name: Mensagens de commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        env:
+          HUSKY: '0'
+      - name: Determina a base do intervalo
+        id: base
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "base=origin/${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ] \
+            && git cat-file -e "${{ github.event.before }}" 2>/dev/null; then
+            echo "base=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=$(git rev-list --max-parents=0 HEAD | tail -1)" >> "$GITHUB_OUTPUT"
+          fi
+      - name: commitlint no intervalo
+        run: pnpm exec commitlint --from "${{ steps.base.outputs.base }}" --to HEAD --verbose
+
+  qualidade:
+    name: Lint, tipos, testes e build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        env:
+          HUSKY: '0'
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+
+  e2e:
+    name: Ponta a ponta (Playwright)
+    runs-on: ubuntu-latest
+    needs: qualidade
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        env:
+          HUSKY: '0'
+      - name: Verifica se há configuração do Playwright
+        id: tem
+        run: |
+          if [ -f apps/web/playwright.config.ts ]; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "ok=false" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.tem.outputs.ok == 'true'
+        run: pnpm --filter @sequencias/web exec playwright install --with-deps chromium
+      - if: steps.tem.outputs.ok == 'true'
+        run: pnpm e2e
+      - if: steps.tem.outputs.ok == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 7
