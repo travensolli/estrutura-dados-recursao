@@ -366,14 +366,14 @@ deve ser refeita na véspera da apresentação, na própria máquina que vai ser
 
 ## 10. Como conferir
 
-| O que                                       | Onde                                                                 |
-| ------------------------------------------- | -------------------------------------------------------------------- |
-| Estatísticas de tempo e memória lado a lado | tela `/comparar`                                                     |
-| Contagens exatas de uma execução            | tela `/calcular`                                                     |
-| Crescimento em função de n                  | série na tela `/comparar`                                            |
-| Contrato dos campos citados aqui            | `packages/contrato/src/api.ts` e `packages/contrato/src/metricas.ts` |
-| Limites e valores padrão                    | `packages/contrato/src/limites.ts`                                   |
-| Rodada registrada                           | `docs/resultados-benchmark.md`                                       |
+| O que                                       | Onde                                                                      |
+| ------------------------------------------- | ------------------------------------------------------------------------- |
+| Estatísticas de tempo e memória lado a lado | tela `/comparar`                                                          |
+| Contagens exatas de uma execução            | tela `/calcular`                                                          |
+| Crescimento em função de n                  | rota `POST /api/serie` (a tela que a exibe é a conferir na revisão final) |
+| Contrato dos campos citados aqui            | `packages/contrato/src/api.ts` e `packages/contrato/src/metricas.ts`      |
+| Limites e valores padrão                    | `packages/contrato/src/limites.ts`                                        |
+| Rodada registrada                           | `docs/resultados-benchmark.md`                                            |
 
 Na apresentação, a frase curta que resume esta metodologia inteira é: "o tempo é mediana de várias
 repetições, com aquecimento, cache novo a cada repetição, e a memória é medida em execução separada".
