@@ -285,7 +285,8 @@ Tenha os quatro níveis prontos antes de começar. Suba na escada só até onde 
    menor: Tribonacci 20 no lugar de 25. Confira a API em `http://localhost:3333/api/saude`.
 2. **Modo offline no navegador.** A interface calcula sem a API, em um Web Worker, dentro dos
    limites do navegador (Tribonacci até 22 sem cache). Serve para salvar a demonstração se só a API
-   cair. Avise que o tempo medido no navegador é indicativo, não é benchmark.
+   cair. As contagens continuam exatas; os tempos aparecem marcados como indicativos e a memória
+   não é exibida, porque o navegador não dá medida confiável. Diga isso em voz alta ao usar.
 3. **Linha de comando.** Terminal já aberto, fonte grande, comando digitado e pronto para o Enter:
 
    ```bash
@@ -302,8 +303,9 @@ Tenha os quatro níveis prontos antes de começar. Suba na escada só até onde 
 
 Duas regras do plano B:
 
-- Não use os mocks de desenvolvimento da interface na apresentação. Os tempos deles são simulados e
-  apresentar número simulado como se fosse medição invalida o argumento.
+- Não use os mocks de desenvolvimento da interface na apresentação. As contagens deles são reais,
+  mas os tempos são simulados, e apresentar tempo simulado como se fosse medição invalida o
+  argumento.
 - Se algo falhar, não conserte ao vivo. Troque de nível, continue falando e volte ao assunto. O
   critério de avaliação é a fluidez.
 
@@ -337,10 +339,11 @@ Abas abertas, nesta ordem:
 4. `http://localhost:5173/comparar?sequencia=tribonacci&n=25`
 5. `http://localhost:5173/apresentacao`
 
-Se for mostrar no celular: use `docker compose up --build` e acesse a porta 8080 pelo endereço IP
-da máquina na rede da sala, ou suba a interface expondo o host. Teste antes, porque a rede da
-faculdade pode isolar os aparelhos. A conferir na revisão final: se o script de desenvolvimento já
-expõe o servidor na rede local.
+Se for mostrar no celular: suba a interface expondo o host e acesse pelo endereço IP da máquina na
+rede da sala, ou use `docker compose up --build` na porta 8080. Teste antes, porque a rede da
+faculdade pode isolar os aparelhos e porque o Compose ainda não foi executado de ponta a ponta
+nesta máquina (registro em `docs/decisoes.md`). A conferir na revisão final: se o script de
+desenvolvimento já expõe o servidor na rede local.
 
 ## Se o tempo for outro
 
