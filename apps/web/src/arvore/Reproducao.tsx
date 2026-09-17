@@ -32,6 +32,8 @@ export interface ReproducaoProps {
 const BOTAO =
   'inline-flex h-11 min-w-11 items-center justify-center gap-2 rounded-md border border-borda bg-superficie px-3 text-sm text-texto hover:bg-superficie-suave disabled:opacity-40';
 const CAIXA = 'rounded-lg border border-borda bg-superficie p-3';
+/** Em árvore truncada existem instantes sem nó desenhado. */
+const PASSO_CORTADO = 'Este passo acontece dentro de uma subárvore que o limite de nós cortou.';
 /** Campos de texto e afins: nenhum atalho vale dentro deles. */
 const CAMPOS = 'input, select, textarea, [contenteditable="true"]';
 /** Espaço já aciona estes elementos. */
@@ -57,7 +59,8 @@ export function Reproducao({
     [modo, nos, passo],
   );
   const acerto = acertoNoPasso(indice, passo);
-  const narracao = descreverPasso(eventoNoPasso(indice, passo), modo, podasPorAcerto);
+  const evento = eventoNoPasso(indice, passo);
+  const narracao = evento ? descreverPasso(evento, modo, podasPorAcerto) : PASSO_CORTADO;
   const contagem = `Passo ${formatarInteiro(passo)} de ${formatarInteiro(ultimoPasso)}`;
 
   useEffect(() => {

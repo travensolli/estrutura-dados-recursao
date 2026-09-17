@@ -7,13 +7,17 @@ import { achatarNos, pilhaNoPasso, podasPorAcerto, subarvoresPodadas, totalPasso
 import { useReproducao } from './usarReproducao';
 
 const semCache = executarInstrumentado('tribonacci', 7, 'sem_cache', { comArvore: true });
+const cortada = executarInstrumentado('tribonacci', 7, 'sem_cache', {
+  comArvore: true,
+  limiteNos: 8,
+});
 const comCache = executarInstrumentado('tribonacci', 7, 'com_cache', { comArvore: true });
 const raizSem = semCache.raiz!;
 const raizCom = comCache.raiz!;
 const podas = podasPorAcerto(subarvoresPodadas(raizSem, raizCom));
 
-function Cenario({ modo }: { modo: Modo }) {
-  const raiz = modo === 'com_cache' ? raizCom : raizSem;
+function Cenario({ modo, raizEscolhida }: { modo: Modo; raizEscolhida?: typeof raizSem }) {
+  const raiz = raizEscolhida ?? (modo === 'com_cache' ? raizCom : raizSem);
   const nos = achatarNos(raiz);
   const relogio = useReproducao(totalPassos(raiz));
   return <Reproducao nos={nos} modo={modo} relogio={relogio} podasPorAcerto={podas} />;
@@ -93,6 +97,14 @@ describe('Reproducao', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Ir para o fim' }));
     expect(entradas()).toEqual([3, 4, 5, 6, 7]);
     expect(entradas()).toHaveLength(comCache.metricas.entradas_cache);
+  });
+
+  it('avisa quando o passo caiu numa subárvore cortada', () => {
+    render(<Cenario modo="sem_cache" raizEscolhida={cortada.raiz!} />);
+    irParaOPasso(20);
+    expect(
+      screen.getByText('Este passo acontece dentro de uma subárvore que o limite de nós cortou.'),
+    ).toBeInTheDocument();
   });
 
   it('anuncia o passo numa região aria-live', () => {
