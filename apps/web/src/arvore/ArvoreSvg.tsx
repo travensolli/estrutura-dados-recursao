@@ -4,6 +4,7 @@ import { select } from 'd3-selection';
 import { zoom, zoomIdentity, type ZoomBehavior, type ZoomTransform } from 'd3-zoom';
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { abreviarValor, corDoArgumento, formatarInteiro } from '../utilitarios/formatar';
+import { baixarPng, baixarSvg, type Extensao } from './exportar';
 import { estiloDoTipo } from './formas';
 import { calcularLayout, DIMENSOES, enquadrar, larguraDoNo, type NoPosicionado } from './layout';
 import { descreverArvore, rotuloTipo } from './modelo';
@@ -41,7 +42,7 @@ interface Dica {
 }
 
 const BOTAO =
-  'inline-flex h-9 min-w-9 items-center justify-center gap-1 rounded-md border border-borda bg-superficie px-2 text-sm text-texto hover:bg-superficie-suave';
+  'inline-flex h-9 min-w-9 items-center justify-center gap-1 rounded-md border border-borda bg-superficie px-2 text-sm text-texto hover:bg-superficie-suave disabled:opacity-60';
 
 export function ArvoreSvg({
   raiz,
@@ -61,6 +62,8 @@ export function ArvoreSvg({
   const [idAtivo, setIdAtivo] = useState<number>(raiz.id);
   const [idFoco, setIdFoco] = useState<number | null>(null);
   const [idPonteiro, setIdPonteiro] = useState<number | null>(null);
+  const [gerandoPng, setGerandoPng] = useState(false);
+  const [erroExportacao, setErroExportacao] = useState<string | null>(null);
   const idDica = idPonteiro ?? idFoco;
 
   const layout = useMemo(() => calcularLayout(raiz, recolhidos), [raiz, recolhidos]);
@@ -219,6 +222,38 @@ export function ArvoreSvg({
       : base;
   }, [layout.nos.length, metricas, modo, n, nosExibidos, sequencia, truncada]);
 
+  const montadoRef = useRef(true);
+  useEffect(() => {
+    montadoRef.current = true;
+    return () => {
+      montadoRef.current = false;
+    };
+  }, []);
+
+  const exportarArquivo = useCallback(
+    async (extensao: Extensao) => {
+      const svg = svgRef.current;
+      if (!svg) return;
+      const alvo = { sequencia, n, modo };
+      const opcoes = { svg, caixa: layoutRef.current.caixa, titulo: descricao };
+      setErroExportacao(null);
+      setGerandoPng(extensao === 'png');
+      try {
+        if (extensao === 'svg') baixarSvg(alvo, opcoes);
+        else await baixarPng(alvo, opcoes);
+      } catch (erro) {
+        if (montadoRef.current) {
+          setErroExportacao(
+            erro instanceof Error ? erro.message : 'Não deu para exportar a árvore.',
+          );
+        }
+      } finally {
+        if (montadoRef.current) setGerandoPng(false);
+      }
+    },
+    [descricao, modo, n, sequencia],
+  );
+
   return (
     <figure className="m-0 flex flex-col gap-3">
       <Contadores metricas={metricas} nosExibidos={nosExibidos} />
@@ -237,6 +272,19 @@ export function ArvoreSvg({
             Ajustar à tela
           </button>
         </div>
+        <div className="flex items-center gap-1" role="group" aria-label="Exportar a árvore">
+          <button type="button" className={BOTAO} onClick={() => void exportarArquivo('svg')}>
+            Baixar SVG
+          </button>
+          <button
+            type="button"
+            className={BOTAO}
+            disabled={gerandoPng}
+            onClick={() => void exportarArquivo('png')}
+          >
+            {gerandoPng ? 'Gerando PNG…' : 'Baixar PNG'}
+          </button>
+        </div>
         {recolhidos.size > 0 && (
           <button type="button" className={BOTAO} onClick={() => setRecolhidos(new Set<number>())}>
             Abrir os {formatarInteiro(recolhidos.size)} nós recolhidos
@@ -245,6 +293,11 @@ export function ArvoreSvg({
         <p className="ml-auto text-sm text-texto-suave">
           Arraste para mover, role para aproximar, clique num nó para recolher.
         </p>
+        {erroExportacao && (
+          <p role="alert" className="basis-full text-sm text-erro">
+            {erroExportacao}
+          </p>
+        )}
       </div>
 
       <div className="relative overflow-hidden rounded-lg border border-borda bg-superficie">
@@ -256,6 +309,7 @@ export function ArvoreSvg({
           style={{ aspectRatio: `${layout.caixa.largura} / ${layout.caixa.altura}` }}
         >
           <g
+            data-camada="conteudo"
             transform={`translate(${transformacao.x}, ${transformacao.y}) scale(${transformacao.k})`}
           >
             <g fill="none" stroke="var(--borda-forte)" strokeWidth={1.5}>

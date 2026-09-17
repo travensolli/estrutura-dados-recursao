@@ -52,6 +52,7 @@ describe('serializarSvg', () => {
     expect(texto).toContain(`width="${Math.round(caixa.largura)}"`);
     expect(texto).toContain('<title>Tribonacci f(7) sem cache</title>');
     expect(texto).toContain('font-family=');
+    expect(texto).not.toContain('scale(');
     expect(texto).not.toContain('tabindex');
     expect(texto).not.toContain('class=');
   });

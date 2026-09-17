@@ -1,7 +1,7 @@
 import type { Modo } from '@sequencias/contrato';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { act } from 'react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { executarInstrumentado } from '../plano-b/nucleo-adaptador';
 import { ArvoreSvg } from './ArvoreSvg';
 
@@ -25,6 +25,11 @@ function desenhar(modo: Modo, limiteNos?: number) {
 function nos() {
   return screen.getAllByTestId('no-arvore');
 }
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 describe('ArvoreSvg', () => {
   it('desenha 46 nós para tribonacci f(7) sem cache', () => {
@@ -88,6 +93,24 @@ describe('ArvoreSvg', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir os 1 nós recolhidos' }));
     expect(nos()).toHaveLength(46);
+  });
+
+  it('baixa o desenho em SVG com o nome da execução', () => {
+    vi.stubGlobal(
+      'URL',
+      Object.assign(URL, { createObjectURL: () => 'blob:teste', revokeObjectURL: () => {} }),
+    );
+    const clicar = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      expect(this.download).toBe('arvore-tribonacci-f7-sem_cache.svg');
+    });
+    desenhar('sem_cache');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Baixar SVG' }));
+
+    expect(clicar).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: 'Baixar PNG' })).toBeEnabled();
   });
 
   it('marca com selo os nós colapsados pelo orçamento', () => {
