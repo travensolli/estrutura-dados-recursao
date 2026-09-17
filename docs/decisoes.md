@@ -60,3 +60,35 @@ Fixamos TypeScript 5.x (o typescript-eslint ainda não aceita a linha 7),
 Vite 7 com Vitest 4, ESLint 9, React 19, React Router 7, Zod 4 e Fastify 5.
 Versões mais novas existiam no registro, mas com compatibilidade cruzada
 incerta entre plugins.
+
+## 2026-09-17: Trabalho em worktrees paralelos
+
+Cada frente de trabalho usa um `git worktree` proprio em
+`/home/g-travensolli/fatec/.worktrees-trabalho-ed`, fora da pasta do
+repositorio, com branch `feature/*` saido de `develop`. Ficar fora da pasta
+evita que ESLint, Prettier, `tsc` e Vitest do repositorio principal enxerguem
+os arquivos das outras frentes. A integracao acontece por merge `--no-ff` em
+`develop`, feito em um lugar so.
+
+## 2026-09-17: Ambiente de desenvolvimento
+
+- Node 22.22.1 e pnpm 10, instalado por `corepack` em `~/.local/bin`.
+- `jsdom` fica na linha 29: a linha 30 exige Node 22.22.2 ou superior e o
+  campo `engines` do pacote bloqueia a instalacao.
+- TypeScript fica na linha 5: o `typescript-eslint` 8 ainda declara
+  compatibilidade ate a linha 6.
+- O daemon do Docker esta ativo na maquina, mas o usuario nao pertence ao
+  grupo `docker` e nao ha `sudo` sem senha. Os arquivos do Compose e os
+  Dockerfiles foram escritos e revisados, porem `docker compose up` ainda nao
+  foi executado de ponta a ponta. Para validar: `sudo usermod -aG docker $USER`
+  e reabrir a sessao.
+
+## 2026-09-17: Onde cada numero da interface nasce
+
+Nenhuma tela mostra numero escrito no codigo. Enquanto a API nao existia, o
+frontend foi construido sobre mocks que executam a mesma recorrencia e
+devolvem metricas reais. Na integracao, os mocks saem e as respostas passam a
+vir da API, que usa `packages/nucleo`. O modo apresentacao tem um plano B que
+executa o mesmo nucleo num Web Worker do navegador: as contagens continuam
+exatas, os tempos aparecem marcados como indicativos e a memoria nao e
+exibida, porque o navegador nao oferece medida confiavel.
