@@ -104,6 +104,15 @@ describe('Página calcular', () => {
     expect(screen.getByText('Somando todos os argumentos: 46 sem cache.')).toBeInTheDocument();
   });
 
+  it('anuncia o resultado numa região viva, com os parâmetros executados', async () => {
+    const usuario = await abrir();
+    await usuario.click(botaoCalcular());
+    await valorHeroi('Tribonacci f(7) vale');
+    const resumo = screen.getByText('Tribonacci f(7) = 31. 46 invocações sem cache.');
+    expect(resumo).toHaveAttribute('role', 'status');
+    expect(resumo).toHaveAttribute('aria-live', 'polite');
+  });
+
   it('liga o resultado à árvore da mesma execução', async () => {
     const usuario = await abrir();
     await usuario.click(botaoCalcular());

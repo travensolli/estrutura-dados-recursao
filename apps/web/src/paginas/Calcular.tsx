@@ -280,6 +280,13 @@ function TabelaArgumentos({ respostas }: { respostas: CalcularResposta[] }) {
   );
 }
 
+/** Valores enormes viram contagem de dígitos: ninguém ouve 26 algarismos. */
+function valorFalado(metricas: Metricas): string {
+  return metricas.digitos <= 12
+    ? formatarInteiro(metricas.valor)
+    : `um número de ${formatarInteiro(metricas.digitos)} dígitos`;
+}
+
 /** Relógios do navegador arredondam para baixo; zero vira texto em vez de "0 ns". */
 function duracaoLegivel(duracaoMs: number): string {
   return duracaoMs > 0
@@ -408,14 +415,15 @@ export function PaginaCalcular() {
     }
   }
 
-  const resumoAcessivel = resultado
-    ? `${nome} f(${n}) = ${resultado[0]?.metricas.valor}. ${resultado
-        .map(
-          (item) =>
-            `${formatarInteiro(item.metricas.invocacoes)} invocações ${rotuloModo(item.modo)}`,
-        )
-        .join(', ')}.`
-    : '';
+  const resumoAcessivel =
+    resultado && primeira
+      ? `${DESCRICAO_SEQUENCIAS[primeira.sequencia].nome} f(${primeira.n}) = ${valorFalado(primeira.metricas)}. ${resultado
+          .map(
+            (item) =>
+              `${formatarInteiro(item.metricas.invocacoes)} invocações ${rotuloModo(item.modo)}`,
+          )
+          .join(', ')}.`
+      : '';
 
   return (
     <div className="space-y-6">
