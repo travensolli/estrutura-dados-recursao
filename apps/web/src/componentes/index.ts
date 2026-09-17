@@ -6,6 +6,7 @@ export {
   type BarraComparativaProps,
   type SerieComparativa,
 } from './BarraComparativa';
+export { BarraProporcao, type BarraProporcaoProps } from './BarraProporcao';
 export {
   Botao,
   BotaoIcone,
