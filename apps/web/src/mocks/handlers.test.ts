@@ -19,6 +19,13 @@ describe('mocks MSW', () => {
     expect(com.metricas.invocacoes).toBe(16);
     expect(contarNos(com.raiz)).toBe(16);
     expect(com.metricas.acertos_cache).toBe(5);
+    expect(com.metricas.acertos_detalhados).toEqual([
+      { argumento: 3, dentro_de: 5 },
+      { argumento: 4, dentro_de: 6 },
+      { argumento: 3, dentro_de: 6 },
+      { argumento: 5, dentro_de: 7 },
+      { argumento: 4, dentro_de: 7 },
+    ]);
     expect(sem.metricas.invocacoes - com.metricas.invocacoes).toBe(30);
   });
 

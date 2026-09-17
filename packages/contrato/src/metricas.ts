@@ -10,6 +10,13 @@ export const InvocacoesPorArgumentoSchema = z.array(
 );
 export type InvocacoesPorArgumento = z.infer<typeof InvocacoesPorArgumentoSchema>;
 
+/** Cada acerto de cache: qual argumento foi encontrado e dentro de qual chamada. */
+export const AcertoCacheSchema = z.object({
+  argumento: inteiroNaoNegativo,
+  dentro_de: inteiroNaoNegativo,
+});
+export type AcertoCache = z.infer<typeof AcertoCacheSchema>;
+
 /**
  * Convenção de contagem: "invocação" é toda chamada da função, incluindo a
  * raiz, os casos base e os acertos de cache. Ordem de verificação dentro da
@@ -33,5 +40,7 @@ export const MetricasSchema = z.object({
   profundidade_maxima: z.number().int().positive(),
   /** Ordenado do maior argumento para o menor. */
   invocacoes_por_argumento: InvocacoesPorArgumentoSchema,
+  /** Em ordem de ocorrência; vazio no modo sem cache. */
+  acertos_detalhados: z.array(AcertoCacheSchema),
 });
 export type Metricas = z.infer<typeof MetricasSchema>;
