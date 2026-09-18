@@ -27,18 +27,22 @@ export function Placar({ itens, rotulo }: PlacarProps) {
           className="border-l border-borda pl-[clamp(0.75rem,1.5vw,1.5rem)] first:border-l-0 first:pl-0"
         >
           <dt className="text-[clamp(0.75rem,0.95vw,1rem)] text-texto-suave">{item.rotulo}</dt>
-          <dd
-            className={`font-mono leading-none tabular-nums ${
-              item.destaque
-                ? 'text-[clamp(2rem,4vw,3.6rem)] font-semibold text-primaria'
-                : 'text-[clamp(1.4rem,2.6vw,2.4rem)]'
-            }`}
-          >
-            {item.valor}
+          <dd>
+            <span
+              className={`block font-mono leading-none tabular-nums ${
+                item.destaque
+                  ? 'text-[clamp(2rem,4vw,3.6rem)] font-semibold text-primaria'
+                  : 'text-[clamp(1.4rem,2.6vw,2.4rem)]'
+              }`}
+            >
+              {item.valor}
+            </span>
+            {item.nota && (
+              <span className="mt-1 block text-[clamp(0.7rem,0.9vw,0.95rem)] text-texto-suave">
+                {item.nota}
+              </span>
+            )}
           </dd>
-          {item.nota && (
-            <p className="mt-1 text-[clamp(0.7rem,0.9vw,0.95rem)] text-texto-suave">{item.nota}</p>
-          )}
         </div>
       ))}
     </dl>
