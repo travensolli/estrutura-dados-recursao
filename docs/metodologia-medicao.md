@@ -12,7 +12,7 @@ uma execução de verdade, feita na hora ou registrada em `docs/resultados-bench
 
 Status: este documento define o método combinado e os campos de resposta já fixados em
 `packages/contrato/src/api.ts`. O código de medição está sendo escrito em paralelo em
-`packages/nucleo` e `apps/api`. Os pontos marcados com "a conferir na revisão final" dependem dele.
+`packages/nucleo` e `apps/api`.
 
 ## 1. O que medimos e o que não medimos
 
@@ -168,8 +168,9 @@ Duas ressalvas, ditas com todas as letras:
   de tempo.
 
 O K usado vai no campo `intervalo_amostragem` e o pico no campo `pico_heap_bytes`. Os dois podem vir
-nulos, quando a amostragem não foi feita. (O K é escolhido para render algumas centenas de amostras
-sem pesar demais: o valor exato fica no código do medidor, a conferir na revisão final.)
+nulos, quando a amostragem não foi feita. (O K padrão é 10.000 invocações, definido em
+`apps/api/src/medicao/memoria.ts` e ajustável pela variável de ambiente
+`INTERVALO_AMOSTRAGEM`.)
 
 ### 3.3 As métricas estruturais
 
@@ -366,14 +367,14 @@ deve ser refeita na véspera da apresentação, na própria máquina que vai ser
 
 ## 10. Como conferir
 
-| O que                                       | Onde                                                                      |
-| ------------------------------------------- | ------------------------------------------------------------------------- |
-| Estatísticas de tempo e memória lado a lado | tela `/comparar`                                                          |
-| Contagens exatas de uma execução            | tela `/calcular`                                                          |
-| Crescimento em função de n                  | rota `POST /api/serie` (a tela que a exibe é a conferir na revisão final) |
-| Contrato dos campos citados aqui            | `packages/contrato/src/api.ts` e `packages/contrato/src/metricas.ts`      |
-| Limites e valores padrão                    | `packages/contrato/src/limites.ts`                                        |
-| Rodada registrada                           | `docs/resultados-benchmark.md`                                            |
+| O que                                       | Onde                                                                 |
+| ------------------------------------------- | -------------------------------------------------------------------- |
+| Estatísticas de tempo e memória lado a lado | tela `/comparar`                                                     |
+| Contagens exatas de uma execução            | tela `/calcular`                                                     |
+| Crescimento em função de n                  | tela `/comparar`, nos gráficos de tempo e de invocações por n        |
+| Contrato dos campos citados aqui            | `packages/contrato/src/api.ts` e `packages/contrato/src/metricas.ts` |
+| Limites e valores padrão                    | `packages/contrato/src/limites.ts`                                   |
+| Rodada registrada                           | `docs/resultados-benchmark.md`                                       |
 
 Na apresentação, a frase curta que resume esta metodologia inteira é: "o tempo é mediana de várias
 repetições, com aquecimento, cache novo a cada repetição, e a memória é medida em execução separada".
