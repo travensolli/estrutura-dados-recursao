@@ -241,6 +241,18 @@ f(5) dentro de f(7); f(4) dentro de f(7).
 
 Agora cada argumento de 3 a 7 é calculado **uma única vez**. As outras aparições são acertos.
 
+## As mesmas árvores em figura
+
+As árvores desenhadas acima em texto existem também em imagem, exportadas do
+aplicativo e prontas para slide:
+
+- `figuras/arvore-tribonacci-f7-sem-cache.svg` e `.png`, com os 46 nós.
+- `figuras/arvore-tribonacci-f7-com-cache.svg` e `.png`, com os 16 nós, em que
+  os acertos de cache aparecem tracejados e com marca própria.
+
+Nas figuras, a cor identifica o argumento: todas as ocorrências de f(3) têm a
+mesma cor, o que deixa a repetição visível de longe.
+
 ## 5. A conta das chamadas evitadas: 30
 
 Há três formas de chegar ao mesmo número, e as três batem.
