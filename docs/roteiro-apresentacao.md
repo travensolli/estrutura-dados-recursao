@@ -244,6 +244,11 @@ Dizer: "cada acerto corta uma subárvore inteira; o acerto de f(5) sozinho corta
 
 `http://localhost:5173/comparar?sequencia=tribonacci&n=25`
 
+Clique em **Comparar**. Como são mais de um milhão de invocações, a interface abre um aviso antes de
+medir: "Esta medição é pesada". Aproveite o aviso, ele mostra a previsão de 2 700 421 invocações por
+execução, e clique em **Medir mesmo assim**. A medição leva cerca de quatro segundos, e os gráficos
+por n chegam logo depois, porque os trabalhos pesados entram numa fila de um de cada vez.
+
 Apontar:
 
 - Invocações: 2 700 421 sem cache contra 70 com cache.
