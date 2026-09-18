@@ -4,6 +4,8 @@ import { Icone, type NomeIcone } from './Icone';
 import type { MarcaSerie } from './SeletorSegmentado';
 
 export interface MetricaProps {
+  /** Nome curto e estável, usado para localizar o cartão nos testes. */
+  identificador?: string;
   rotulo: ReactNode;
   /** Valor já formatado por quem chama. */
   valor: ReactNode;
@@ -23,6 +25,7 @@ const CLASSES_MARCA: Record<MarcaSerie, string> = {
 
 /** Número medido com rótulo curto. O texto fica em cor de texto; só a marca é colorida. */
 export function Metrica({
+  identificador,
   rotulo,
   valor,
   unidade,
@@ -34,6 +37,7 @@ export function Metrica({
 }: MetricaProps) {
   return (
     <div
+      data-testid={identificador === undefined ? undefined : `metrica-${identificador}`}
       className={juntarClasses(
         'rounded-xl border border-borda bg-superficie p-4',
         destaque && 'border-primaria/40',

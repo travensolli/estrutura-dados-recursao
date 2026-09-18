@@ -40,10 +40,21 @@ export function PaginaApresentacao() {
     [setParametros],
   );
 
+  /* Passo relativo lido do endereço do navegador, que já está atualizado
+     enquanto a navegação anterior ainda não foi pintada: assim teclas em
+     sequência rápida não se anulam no meio da apresentação. */
+  const aoAndar = useCallback(
+    (passo: number) => {
+      const vigentes = new URLSearchParams(window.location.search);
+      setParametros(escreverEtapa(lerEtapa(vigentes) + passo), { replace: true });
+    },
+    [setParametros],
+  );
+
   const ConteudoDaEtapa = CONTEUDO_DA_ETAPA[etapa.id];
 
   return (
-    <Palco etapa={etapa} indice={indice} aoIr={aoIr} offline={dados?.offline}>
+    <Palco etapa={etapa} indice={indice} aoIr={aoIr} aoAndar={aoAndar} offline={dados?.offline}>
       {!dados && carregando && (
         <div role="status" className="flex flex-1 items-center justify-center">
           <span className="animate-pulse text-[clamp(1rem,1.6vw,1.6rem)] text-texto-suave">

@@ -1,6 +1,6 @@
 import type { ArvoreResposta } from '@sequencias/contrato';
 import { useQuery } from '@tanstack/react-query';
-import { ErroApi, api } from '../api/cliente';
+import { api, apiIndisponivel } from '../api/cliente';
 import { usePlanoB } from '../plano-b/usarPlanoB';
 import type { ConsultaArvore } from './consulta';
 
@@ -23,8 +23,7 @@ export function useArvoreComPlanoB(consulta: ConsultaArvore | null) {
       try {
         return { resposta: await api.arvore(pedido, signal), origem: 'api' };
       } catch (erro) {
-        const indisponivel = erro instanceof ErroApi && erro.codigo === 'INDISPONIVEL';
-        if (!indisponivel || !planoB.disponivel) throw erro;
+        if (!apiIndisponivel(erro) || !planoB.disponivel) throw erro;
         return { resposta: await planoB.calcularArvore(pedido, signal), origem: 'plano_b' };
       }
     },
