@@ -1,5 +1,5 @@
 import { DESCRICAO_SEQUENCIAS } from '@sequencias/contrato';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { ETAPAS, N_APRESENTACAO, SEQUENCIA_APRESENTACAO, TOTAL_ETAPAS, type Etapa } from './etapas';
 import { useTelaCheia } from './usarTelaCheia';
@@ -10,6 +10,8 @@ export interface PalcoProps {
   etapa: Etapa;
   indice: number;
   aoIr: (indice: number) => void;
+  /** Passo relativo, resolvido no momento da tecla. */
+  aoAndar: (passo: number) => void;
   /** Mostra o selo de cálculo no navegador. */
   offline?: boolean;
   children: ReactNode;
@@ -25,35 +27,49 @@ const NAVEGAVEIS = '[role="button"], [role="tree"], [role="treeitem"]';
 const ALVO = `${DESCRICAO_SEQUENCIAS[SEQUENCIA_APRESENTACAO].nome} f(${N_APRESENTACAO})`;
 
 /** Moldura do modo apresentação: trilha de etapas, palco e controles. */
-export function Palco({ etapa, indice, aoIr, offline = false, children }: PalcoProps) {
+export function Palco({ etapa, indice, aoIr, aoAndar, offline = false, children }: PalcoProps) {
   const tela = useTelaCheia();
   const primeira = indice === 0;
   const ultima = indice === TOTAL_ETAPAS - 1;
 
+  /* O atalho lê a etapa por referência: teclas em sequência rápida não podem
+     cair num manipulador antigo e se perder no meio da apresentação. */
+  const irPara = useRef(aoIr);
+  const andar = useRef(aoAndar);
+  const setasOcupadas = useRef(etapa.setasOcupadas ?? false);
+
   useEffect(() => {
+    irPara.current = aoIr;
+    andar.current = aoAndar;
+    setasOcupadas.current = etapa.setasOcupadas ?? false;
+  }, [aoAndar, aoIr, etapa.setasOcupadas]);
+
+  useEffect(() => {
+    const ir = (alvo: number) => irPara.current(alvo);
+    const passo = (delta: number) => andar.current(delta);
     const aoTeclar = (evento: KeyboardEvent) => {
       if (evento.defaultPrevented || evento.altKey || evento.ctrlKey || evento.metaKey) return;
       const alvo = evento.target instanceof Element ? evento.target : null;
       if (alvo?.closest(CAMPOS)) return;
-      const setasLivres = !etapa.setasOcupadas && alvo?.closest(NAVEGAVEIS) == null;
+      const setasLivres = !setasOcupadas.current && alvo?.closest(NAVEGAVEIS) == null;
       const acoes: Record<string, () => void> = {
-        PageDown: () => aoIr(indice + 1),
-        PageUp: () => aoIr(indice - 1),
+        PageDown: () => passo(1),
+        PageUp: () => passo(-1),
         ...(setasLivres
           ? {
-              ArrowRight: () => aoIr(indice + 1),
-              ArrowLeft: () => aoIr(indice - 1),
-              ArrowDown: () => aoIr(indice + 1),
-              ArrowUp: () => aoIr(indice - 1),
-              Home: () => aoIr(0),
-              End: () => aoIr(TOTAL_ETAPAS - 1),
+              ArrowRight: () => passo(1),
+              ArrowLeft: () => passo(-1),
+              ArrowDown: () => passo(1),
+              ArrowUp: () => passo(-1),
+              Home: () => ir(0),
+              End: () => ir(TOTAL_ETAPAS - 1),
             }
           : {}),
       };
       const digito = Number(evento.key);
       if (Number.isInteger(digito) && digito >= 1 && digito <= TOTAL_ETAPAS) {
         evento.preventDefault();
-        aoIr(digito - 1);
+        ir(digito - 1);
         return;
       }
       const acao = acoes[evento.key];
@@ -63,7 +79,7 @@ export function Palco({ etapa, indice, aoIr, offline = false, children }: PalcoP
     };
     window.addEventListener('keydown', aoTeclar);
     return () => window.removeEventListener('keydown', aoTeclar);
-  }, [aoIr, etapa.setasOcupadas, indice]);
+  }, []);
 
   return (
     <div className="flex min-h-dvh flex-col bg-fundo text-texto">
