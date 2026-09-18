@@ -5,18 +5,17 @@ projeto; aqui ficam o conteúdo didático, o roteiro da aula e as decisões téc
 
 ## Índice
 
-| Documento                                            | Para que serve                                                            | Status                        |
-| ---------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------- |
-| [explicacao-tribonacci.md](explicacao-tribonacci.md) | Base conceitual: árvores de f(7), contagens, fórmulas e custo em memória  | Pronto                        |
-| [roteiro-apresentacao.md](roteiro-apresentacao.md)   | O que dizer nos 15 minutos, demonstração clique a clique e plano B        | Pronto, com pontos a conferir |
-| [metodologia-medicao.md](metodologia-medicao.md)     | Como medimos tempo e memória, e as limitações assumidas                   | Pronto, com pontos a conferir |
-| [decisoes.md](decisoes.md)                           | Registro de decisões: data, contexto, decisão e consequência              | Vivo, cresce com o projeto    |
-| [resultados-benchmark.md](resultados-benchmark.md)   | Rodada de medições registrada, gerada por script                          | Pronto, regerável             |
-| [figuras/](figuras/)                                 | Árvores de f(7) em SVG e PNG e telas do aplicativo, para slides e plano B | Pronto                        |
+| Documento                                            | Para que serve                                                            | Status                     |
+| ---------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------- |
+| [explicacao-tribonacci.md](explicacao-tribonacci.md) | Base conceitual: árvores de f(7), contagens, fórmulas e custo em memória  | Pronto                     |
+| [roteiro-apresentacao.md](roteiro-apresentacao.md)   | O que dizer nos 15 minutos, demonstração clique a clique e plano B        | Pronto                     |
+| [metodologia-medicao.md](metodologia-medicao.md)     | Como medimos tempo e memória, e as limitações assumidas                   | Pronto                     |
+| [decisoes.md](decisoes.md)                           | Registro de decisões: data, contexto, decisão e consequência              | Vivo, cresce com o projeto |
+| [resultados-benchmark.md](resultados-benchmark.md)   | Rodada de medições registrada, gerada por script                          | Pronto, regerável          |
+| [figuras/](figuras/)                                 | Árvores de f(7) em SVG e PNG e telas do aplicativo, para slides e plano B | Pronto                     |
 
-"Pronto, com pontos a conferir" quer dizer que o texto está completo, mas contém trechos marcados
-com **a conferir na revisão final**. São pontos que dependem de partes da interface, da linha de
-comando ou do medidor que ainda estão sendo construídas em paralelo.
+Todos os documentos foram revistos contra a aplicação pronta: os números citados saem de execução
+real e os caminhos de tela existem como descritos.
 
 ## Por onde começar
 

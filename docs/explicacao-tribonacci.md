@@ -287,8 +287,8 @@ Aplicando aos cinco acertos:
 | f(4)   | dentro de f(7) | 40 a 46 (7 nós viram 1)              | 6     |
 | Total  |                |                                      | 30    |
 
-12 + 6 + 6 + 3 + 3 = 30. É esse o conjunto de subárvores que o modo apresentação esmaece ao
-mostrar os dois modos lado a lado (recurso visual a conferir na revisão final).
+12 + 6 + 6 + 3 + 3 = 30. É esse o conjunto de subárvores que o modo apresentação esmaece e
+desenha tracejado na etapa 4, ao mostrar os dois modos lado a lado.
 
 ### 5.3 Pela diferença por argumento
 
