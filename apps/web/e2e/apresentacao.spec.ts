@@ -1,5 +1,12 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { abrir } from './auxiliares';
+
+/* O indicador de etapa só aparece depois que a moldura montou: esperar por ele
+   garante que o atalho de teclado já está escutando. */
+async function abrirEtapa(pagina: Page, numero: number) {
+  await abrir(pagina, `/apresentacao?etapa=${numero}`);
+  await expect(pagina.getByText(`Etapa ${numero} de 6`).first()).toBeVisible();
+}
 
 test.describe('modo apresentação', () => {
   test('abre com o valor de f(7) vindo da execução', async ({ page }) => {
@@ -17,7 +24,7 @@ test.describe('modo apresentação', () => {
   });
 
   test('anda pelas seis etapas pelo teclado', async ({ page }) => {
-    await abrir(page, '/apresentacao?etapa=1');
+    await abrirEtapa(page, 1);
     for (let etapa = 2; etapa <= 6; etapa++) {
       await page.keyboard.press('PageDown');
       await expect(page).toHaveURL(new RegExp(`etapa=${etapa}`));
@@ -27,7 +34,7 @@ test.describe('modo apresentação', () => {
   });
 
   test('as setas trocam de etapa onde não comandam a execução', async ({ page }) => {
-    await abrir(page, '/apresentacao?etapa=1');
+    await abrirEtapa(page, 1);
     await page.keyboard.press('ArrowRight');
     await expect(page).toHaveURL(/etapa=2/);
     await page.keyboard.press('ArrowLeft');
@@ -35,7 +42,7 @@ test.describe('modo apresentação', () => {
   });
 
   test('os números de 1 a 6 vão direto à etapa', async ({ page }) => {
-    await abrir(page, '/apresentacao?etapa=1');
+    await abrirEtapa(page, 1);
     await page.keyboard.press('4');
     await expect(page).toHaveURL(/etapa=4/);
   });
