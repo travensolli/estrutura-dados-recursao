@@ -82,7 +82,7 @@ export function Palco({ etapa, indice, aoIr, aoAndar, offline = false, children 
   }, []);
 
   return (
-    <div className="flex min-h-dvh flex-col bg-fundo text-texto">
+    <div className="flex h-dvh flex-col overflow-hidden bg-fundo text-texto">
       <header className="border-b border-borda px-[clamp(1rem,3vw,3rem)] pt-3">
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
           <p className="font-mono text-[clamp(0.8rem,1vw,1rem)] tracking-wide text-texto-suave">
@@ -134,7 +134,9 @@ export function Palco({ etapa, indice, aoIr, aoAndar, offline = false, children 
 
       <main
         id="conteudo"
-        className="flex min-h-0 flex-1 flex-col gap-[clamp(0.75rem,1.5vh,1.5rem)] px-[clamp(1rem,3vw,3rem)] py-[clamp(0.75rem,2vh,2rem)]"
+        /* A moldura tem altura fixa e só o conteúdo rola: os controles de etapa
+           ficam sempre visíveis e a chegada dos dados não empurra o rodapé. */
+        className="flex min-h-0 flex-1 flex-col gap-[clamp(0.75rem,1.5vh,1.5rem)] overflow-y-auto px-[clamp(1rem,3vw,3rem)] py-[clamp(0.75rem,2vh,2rem)]"
       >
         <div>
           {/* Nome da página só para leitor de tela: no projetor vale o título da etapa. */}

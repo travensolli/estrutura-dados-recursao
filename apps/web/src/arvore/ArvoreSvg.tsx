@@ -573,6 +573,7 @@ const NoDesenhado = memo(function NoDesenhado({
       <text
         x={8}
         y={-2}
+        aria-hidden="true"
         textAnchor="middle"
         className="font-mono"
         fontSize={15}
@@ -584,6 +585,7 @@ const NoDesenhado = memo(function NoDesenhado({
       <text
         x={8}
         y={14}
+        aria-hidden="true"
         textAnchor="middle"
         className="font-mono"
         fontSize={11}
