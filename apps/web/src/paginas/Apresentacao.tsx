@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 import type { DadosApresentacao } from '../arvore/apresentacao/dados';
 import { useApresentacao } from '../arvore/apresentacao/dados';
@@ -14,6 +14,7 @@ import {
   etapaPorIndice,
   lerEtapa,
   N_APRESENTACAO,
+  TOTAL_ETAPAS,
 } from '../arvore/apresentacao/etapas';
 import { Palco } from '../arvore/apresentacao/Palco';
 import { Aviso } from '../arvore/ui/Aviso';
@@ -35,21 +36,23 @@ export function PaginaApresentacao() {
   const etapa = etapaPorIndice(indice);
   const { dados, carregando, erro, recarregar } = useApresentacao();
 
-  const aoIr = useCallback(
-    (alvo: number) => setParametros(escreverEtapa(alvo), { replace: true }),
-    [setParametros],
-  );
+  /* A etapa alvo é guardada numa referência e atualizada já no comando, antes
+     de a navegação ser pintada: assim dois toques seguidos não se anulam. */
+  const alvo = useRef(indice);
+  useEffect(() => {
+    alvo.current = indice;
+  }, [indice]);
 
-  /* Passo relativo lido do endereço do navegador, que já está atualizado
-     enquanto a navegação anterior ainda não foi pintada: assim teclas em
-     sequência rápida não se anulam no meio da apresentação. */
-  const aoAndar = useCallback(
-    (passo: number) => {
-      const vigentes = new URLSearchParams(window.location.search);
-      setParametros(escreverEtapa(lerEtapa(vigentes) + passo), { replace: true });
+  const aoIr = useCallback(
+    (destino: number) => {
+      const limitado = Math.min(Math.max(destino, 0), TOTAL_ETAPAS - 1);
+      alvo.current = limitado;
+      setParametros(escreverEtapa(limitado), { replace: true });
     },
     [setParametros],
   );
+
+  const aoAndar = useCallback((passo: number) => aoIr(alvo.current + passo), [aoIr]);
 
   const ConteudoDaEtapa = CONTEUDO_DA_ETAPA[etapa.id];
 
