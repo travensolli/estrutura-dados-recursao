@@ -525,13 +525,18 @@ function SecaoCurvas({ consulta, escala, aoMudarEscala, aoTentarDeNovo }: SecaoC
       return (
         <div className="grid gap-4 xl:grid-cols-2">
           {['Tempo por n', 'Invocações por n'].map((titulo) => (
-            <Esqueleto
-              key={titulo}
-              linhas={1}
-              altura="h-72"
-              rotulo={`Montando o gráfico de ${titulo.toLowerCase()}`}
-              className="rounded-xl border border-borda bg-superficie p-4 sm:p-6"
-            />
+            <Cartao key={titulo} className="min-w-0">
+              <h3 className="text-base font-semibold sm:text-lg">{titulo}</h3>
+              <p className="mt-1 text-sm text-texto-suave">
+                Medindo ponto a ponto. Os trabalhos pesados entram numa fila, um de cada vez.
+              </p>
+              <Esqueleto
+                linhas={1}
+                altura="h-64"
+                rotulo={`Montando o gráfico de ${titulo.toLowerCase()}`}
+                className="mt-3"
+              />
+            </Cartao>
           ))}
         </div>
       );
