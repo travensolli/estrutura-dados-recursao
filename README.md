@@ -76,6 +76,9 @@ pnpm cli tribonacci 7 --modo sem_cache --arvore
 Imprime o valor, as métricas da execução e, com `--arvore`, a árvore de chamadas em texto indentado.
 Serve para conferir os números sem abrir o navegador.
 
+Opções: `--modo sem_cache|com_cache`, `--arvore`, `--limite-nos <n>` (padrão 300), `--json` e
+`--ajuda`. O `--ajuda` lista os limites de n que a linha de comando aceita em cada sequência.
+
 ## Mapa do repositório
 
 ```
