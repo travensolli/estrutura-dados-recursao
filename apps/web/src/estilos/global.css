@@ -1,0 +1,103 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@custom-variant dark (&:where(.tema-escuro, .tema-escuro *));
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+  html.tema-escuro {
+    color-scheme: dark;
+  }
+  body {
+    background-color: var(--color-fundo);
+    color: var(--color-texto);
+    min-height: 100dvh;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  p,
+  li {
+    text-wrap: pretty;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-foco);
+    outline-offset: 2px;
+  }
+  button,
+  [role='button'],
+  a,
+  label,
+  summary {
+    touch-action: manipulation;
+  }
+  ::selection {
+    background-color: var(--color-primaria-suave);
+    color: var(--color-texto);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Campo numérico próprio: as setas nativas são pequenas demais para toque. */
+@utility sem-setas {
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+/* Rolagem horizontal discreta em tabelas largas. */
+@utility rolagem-fina {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-borda-forte) transparent;
+  &::-webkit-scrollbar {
+    height: 0.5rem;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-borda-forte);
+    border-radius: 999px;
+  }
+}
+
+/* Entrada do diálogo: a regra global de movimento reduzido já a encurta. */
+@keyframes surgir-fundo {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes surgir-painel {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+  }
+}
+
+@utility animar-fundo {
+  animation: surgir-fundo 150ms var(--ease-suave) both;
+}
+
+@utility animar-painel {
+  animation: surgir-painel 150ms var(--ease-suave) both;
+}

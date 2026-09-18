@@ -1,0 +1,154 @@
+/* Tokens de design. Valores brutos por tema e mapeamento para o Tailwind.
+   Pares de texto conferidos em WCAG AA (4,5:1) e marcas em 3:1 nos dois temas.
+   `--borda` é decorativa; contornos de controle usam `--borda-forte`. */
+
+:root {
+  --fundo: #f6f6f3;
+  --superficie: #ffffff;
+  --superficie-elevada: #ffffff;
+  --superficie-suave: #eeeeea;
+  --borda: #d8d8d2;
+  --borda-forte: #80807a;
+  --texto: #1b1b19;
+  --texto-suave: #55554f;
+  --texto-invertido: #ffffff;
+
+  --primaria: #0b5cad;
+  --primaria-forte: #084a8c;
+  --primaria-suave: #e2eefb;
+  --primaria-contraste: #ffffff;
+  --foco: #c96a00;
+
+  --sucesso: #14683a;
+  --sucesso-suave: #e3f5ea;
+  --alerta: #a35a00;
+  --alerta-suave: #fdf0d9;
+  --erro: #b3261e;
+  --erro-suave: #fbe7e5;
+
+  /* séries dos gráficos: um par fixo, sem cache sempre laranja e com cache sempre azul */
+  --serie-sem-cache: #eb6834;
+  --serie-com-cache: #2a78d6;
+
+  /* tipos de nó da árvore de chamadas */
+  --no-base: #1a7f4b;
+  --no-calculado: #0b5cad;
+  --no-acerto: #a8327d;
+  --no-podado: #8b8b85;
+
+  /* paleta categórica para argumentos: f(0), f(1), ... (cíclica) */
+  --arg-0: #0072b2;
+  --arg-1: #e69f00;
+  --arg-2: #009e73;
+  --arg-3: #cc79a7;
+  --arg-4: #56b4e9;
+  --arg-5: #d55e00;
+  --arg-6: #b5a400;
+  --arg-7: #7570b3;
+  --arg-8: #1b9e77;
+  --arg-9: #e7298a;
+  --arg-10: #66a61e;
+  --arg-11: #a6761d;
+}
+
+.tema-escuro {
+  --fundo: #121413;
+  --superficie: #1c1f1e;
+  --superficie-elevada: #242827;
+  --superficie-suave: #2a2e2d;
+  --borda: #3a3f3d;
+  --borda-forte: #767c79;
+  --texto: #f1f1ee;
+  --texto-suave: #b4b7b3;
+  --texto-invertido: #121413;
+
+  --primaria: #7fb6f0;
+  --primaria-forte: #a9cdf5;
+  --primaria-suave: #1c2f45;
+  --primaria-contraste: #0b1a2b;
+  --foco: #ffb454;
+
+  --sucesso: #5cc98a;
+  --sucesso-suave: #16321f;
+  --alerta: #f0a23c;
+  --alerta-suave: #3a2a10;
+  --erro: #f28b82;
+  --erro-suave: #3d1c1a;
+
+  --serie-sem-cache: #d95926;
+  --serie-com-cache: #3987e5;
+
+  --no-base: #5cc98a;
+  --no-calculado: #7fb6f0;
+  --no-acerto: #e58fc7;
+  --no-podado: #7a7f7c;
+
+  --arg-0: #5aa9e6;
+  --arg-1: #f2b134;
+  --arg-2: #3fc39a;
+  --arg-3: #e59ac4;
+  --arg-4: #8fd3ff;
+  --arg-5: #ff8c5a;
+  --arg-6: #e6d34a;
+  --arg-7: #a49ee6;
+  --arg-8: #4fd1a5;
+  --arg-9: #ff7ab8;
+  --arg-10: #9ed35a;
+  --arg-11: #d9a35a;
+}
+
+@theme inline {
+  /* Só pilha do sistema: a demonstração pode rodar sem internet. */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Helvetica Neue',
+    Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+
+  --color-fundo: var(--fundo);
+  --color-superficie: var(--superficie);
+  --color-superficie-elevada: var(--superficie-elevada);
+  --color-superficie-suave: var(--superficie-suave);
+  --color-borda: var(--borda);
+  --color-borda-forte: var(--borda-forte);
+  --color-texto: var(--texto);
+  --color-texto-suave: var(--texto-suave);
+  --color-texto-invertido: var(--texto-invertido);
+
+  --color-primaria: var(--primaria);
+  --color-primaria-forte: var(--primaria-forte);
+  --color-primaria-suave: var(--primaria-suave);
+  --color-primaria-contraste: var(--primaria-contraste);
+  --color-foco: var(--foco);
+
+  --color-sucesso: var(--sucesso);
+  --color-sucesso-suave: var(--sucesso-suave);
+  --color-alerta: var(--alerta);
+  --color-alerta-suave: var(--alerta-suave);
+  --color-erro: var(--erro);
+  --color-erro-suave: var(--erro-suave);
+
+  --color-serie-sem-cache: var(--serie-sem-cache);
+  --color-serie-com-cache: var(--serie-com-cache);
+
+  --color-no-base: var(--no-base);
+  --color-no-calculado: var(--no-calculado);
+  --color-no-acerto: var(--no-acerto);
+  --color-no-podado: var(--no-podado);
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* alvo mínimo de toque: 44 px */
+  --spacing-toque: 2.75rem;
+
+  /* acima disto a navegação deixa de ser compacta */
+  --breakpoint-nav: 50rem;
+
+  --shadow-cartao: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 12px rgb(0 0 0 / 0.06);
+  --shadow-flutuante: 0 8px 24px rgb(0 0 0 / 0.14);
+
+  --ease-suave: cubic-bezier(0.2, 0, 0, 1);
+}
