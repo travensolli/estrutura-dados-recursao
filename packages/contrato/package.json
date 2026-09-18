@@ -1,6 +1,6 @@
 {
   "name": "@sequencias/contrato",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Schemas Zod, tipos e constantes compartilhados entre núcleo, API, CLI e frontend",
   "type": "module",
