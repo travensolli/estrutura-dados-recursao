@@ -141,6 +141,7 @@ function MetricasExecucao({ resposta }: { resposta: CalcularResposta }) {
       {METRICAS.map((descricao, indice) => (
         <Metrica
           key={descricao.chave}
+          identificador={descricao.chave}
           rotulo={rotuloMetrica(descricao, resposta.modo)}
           valor={formatarInteiro(descricao.valor(resposta.metricas))}
           detalhe={detalheMetrica(descricao, resposta.modo)}
