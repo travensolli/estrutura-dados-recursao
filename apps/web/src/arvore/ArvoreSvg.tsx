@@ -378,16 +378,12 @@ export function ArvoreSvg({
               role="group"
               aria-label={`Exportar a árvore ${rotuloModo(modo)}`}
             >
-              <button
-                type="button"
-                className={`${BOTAO} text-primaria`}
-                onClick={() => void exportarArquivo('svg')}
-              >
+              <button type="button" className={BOTAO} onClick={() => void exportarArquivo('svg')}>
                 Baixar SVG
               </button>
               <button
                 type="button"
-                className={`${BOTAO} text-primaria`}
+                className={BOTAO}
                 disabled={gerandoPng}
                 onClick={() => void exportarArquivo('png')}
               >

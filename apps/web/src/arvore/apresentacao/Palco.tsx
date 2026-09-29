@@ -95,7 +95,9 @@ export function Palco({ etapa, indice, aoIr, aoAndar, offline = false, children 
             </span>
           )}
         </div>
-        <nav aria-label="Etapas da apresentação" className="min-w-0 flex-1">
+        {/* A base mínima faz a trilha descer para a própria linha quando não cabe ao lado do
+            assunto; com base zero ela se espremeria em vez de quebrar. */}
+        <nav aria-label="Etapas da apresentação" className="min-w-0 flex-1 basis-[32rem]">
           <ol className="flex gap-1">
             {ETAPAS.map((passo, posicao) => {
               const atual = posicao === indice;
@@ -187,7 +189,7 @@ export function Palco({ etapa, indice, aoIr, aoAndar, offline = false, children 
           )}
           <Link
             to="/"
-            className="text-[clamp(0.8rem,0.95vw,1rem)] text-texto-suave underline underline-offset-4 hover:text-texto"
+            className="inline-flex min-h-toque items-center text-[clamp(0.8rem,0.95vw,1rem)] text-texto-suave underline underline-offset-4 hover:text-texto"
           >
             Sair da apresentação
           </Link>
