@@ -34,11 +34,6 @@ test.describe('cálculo', () => {
     await expect(page.getByText('15511210043330985984000000')).toBeVisible();
   });
 
-  test('prevê as invocações antes de executar', async ({ page }) => {
-    await abrir(page, '/calcular?sequencia=tribonacci&n=7&modo=sem_cache');
-    await expect(page.getByText(/Previsão para f\(7\) sem cache: 46 invocações/)).toBeVisible();
-  });
-
   test('recusa n acima do limite e não executa', async ({ page }) => {
     await abrir(page, '/calcular?sequencia=fibonacci&n=90&modo=sem_cache');
     await expect(page.getByText(/35/).first()).toBeVisible();

@@ -784,11 +784,6 @@ export function PaginaComparar() {
               </Botao>
             ) : null}
           </div>
-          <p className="min-h-10 text-sm text-texto-suave">
-            {previsao
-              ? `Previsão: ${formatarInteiro(previsao.invocacoes_previstas)} invocações sem cache; ${formatarInteiro(repeticoes)} repetições por modo.`
-              : null}
-          </p>
         </form>
 
         <SeletorSegmentado

@@ -11,7 +11,8 @@ import { PaginaComparar } from './Comparar';
 async function abrir(rota = '/comparar') {
   const usuario = userEvent.setup();
   renderizarComProvedores(<PaginaComparar />, { rota });
-  await screen.findByText(/^Previsão:/);
+  // Os limites de n vêm da API: com eles na tela, o formulário está pronto.
+  await screen.findByText(/^Aceita de 0 a \d/);
   return usuario;
 }
 

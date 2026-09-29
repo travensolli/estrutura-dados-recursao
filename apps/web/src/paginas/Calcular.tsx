@@ -474,11 +474,6 @@ export function PaginaCalcular() {
               </Botao>
             ) : null}
           </div>
-          <p className="min-h-10 text-sm text-texto-suave">
-            {previsao
-              ? `Previsão para f(${previsao.n}) ${rotuloModo(previsao.modo)}: ${formatarInteiro(previsao.invocacoes_previstas)} invocações e profundidade ${formatarInteiro(previsao.profundidade_prevista)}.`
-              : null}
-          </p>
         </form>
       </section>
 
