@@ -49,7 +49,7 @@ export function PaginaArvore() {
         <h1 id="titulo-pagina" className="text-2xl font-semibold">
           Árvore de chamadas
         </h1>
-        <p className="mt-1 max-w-prose text-sm text-texto-suave">
+        <p className="mt-1 text-sm text-texto-suave">
           Cada caixa é uma invocação: a cor mostra o argumento e a forma o que aconteceu na chamada
           — caso base, cálculo ou acerto no dicionário.
         </p>

@@ -419,7 +419,7 @@ export function PaginaCalcular() {
         <h1 id="titulo-pagina" className="text-2xl font-semibold">
           Calcular
         </h1>
-        <p className="mt-1 max-w-prose text-sm text-texto-suave">
+        <p className="mt-1 text-sm text-texto-suave">
           Escolha a sequência, o n e o modo: o resultado traz o valor exato e as contagens da
           execução instrumentada.
         </p>
@@ -456,11 +456,7 @@ export function PaginaCalcular() {
             aoMudar={aoMudarN}
             minimo={0}
             maximo={limite}
-            ajuda={
-              modo === 'comparar'
-                ? 'O limite segue o modo sem cache, que é o mais caro.'
-                : undefined
-            }
+            ajuda={modo === 'comparar' ? 'O limite é o do modo sem cache.' : undefined}
           />
           <GrupoBotoes>
             <Botao
@@ -560,7 +556,7 @@ export function PaginaCalcular() {
           <EstadoVazio
             icone="calcular"
             titulo="Nenhum cálculo ainda"
-            descricao="Escolha a sequência, o n e o modo, depois toque em Calcular. Aparecem aqui o valor exato, as métricas de contagem e as invocações por argumento."
+            descricao="Escolha os parâmetros e toque em Calcular: aparecem o valor exato, as contagens e as invocações por argumento."
           />
         ) : null}
 

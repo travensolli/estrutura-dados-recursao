@@ -29,8 +29,8 @@ function LinhaCrescimento({ modo, texto }: { modo: Modo; texto: string }) {
 function textoLimites(info: InfoSequencia): string {
   const { sem_cache, com_cache } = info.limites;
   return sem_cache === com_cache
-    ? `Nesta demonstração n vai até ${formatarInteiro(sem_cache)} nos dois modos.`
-    : `Nesta demonstração n vai até ${formatarInteiro(sem_cache)} sem cache e ${formatarInteiro(com_cache)} com cache.`;
+    ? `Aqui n vai até ${formatarInteiro(sem_cache)} nos dois modos.`
+    : `Aqui n vai até ${formatarInteiro(sem_cache)} sem cache e ${formatarInteiro(com_cache)} com cache.`;
 }
 
 function CartaoSequencia({ info }: { info: InfoSequencia }) {
@@ -52,7 +52,7 @@ function CartaoSequencia({ info }: { info: InfoSequencia }) {
 
       <p className="mt-2 text-sm text-texto-suave">{textoLimites(info)}</p>
 
-      <GrupoBotoes className="mt-auto pt-3">
+      <GrupoBotoes className="mt-auto pt-2">
         <BotaoLink
           to={enderecoComEstado('/calcular', { sequencia: info.id })}
           variante="secundaria"
@@ -87,12 +87,12 @@ export function PaginaInicio() {
   const { data, isPending, isError, error, refetch } = useSequencias();
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <section aria-labelledby="titulo-pagina">
         <h1 id="titulo-pagina" className="text-2xl font-semibold sm:text-3xl">
           Recursão com e sem cache
         </h1>
-        <p className="mt-2 max-w-prose text-base text-texto-suave">
+        <p className="mt-2 text-base text-texto-suave">
           Cada invocação é contada; tempo, memória e a árvore de chamadas mostram onde o cache evita
           trabalho repetido.
         </p>
@@ -100,7 +100,7 @@ export function PaginaInicio() {
 
       <section aria-labelledby="titulo-enunciado" className="flex flex-wrap items-center gap-2">
         <h2 id="titulo-enunciado" className="mr-1 text-sm font-medium text-texto-suave">
-          O que o enunciado pede — e onde está:
+          O enunciado, item a item:
         </h2>
         <BotaoLink
           to={enderecoComEstado('/calcular', { sequencia: 'tribonacci', n: 7 })}
@@ -127,19 +127,16 @@ export function PaginaInicio() {
           3 · Árvore de chamadas
         </BotaoLink>
         <BotaoLink to="/apresentacao" variante="secundaria" tamanho="pequeno" icone="apresentacao">
-          4 · Apresentação: f(7) de 46 → 16
+          4 · Apresentação do f(7)
         </BotaoLink>
       </section>
 
-      <section aria-labelledby="titulo-sequencias">
-        <h2 id="titulo-sequencias" className="text-lg font-semibold">
-          As três sequências
-        </h2>
+      <section aria-label="As três sequências">
         {isError ? (
           <EstadoErro erro={error} aoTentarDeNovo={() => void refetch()} className="mt-4" />
         ) : null}
         {isPending ? (
-          <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[0, 1, 2].map((indice) => (
               <Esqueleto
                 key={indice}
@@ -152,7 +149,7 @@ export function PaginaInicio() {
           </div>
         ) : null}
         {data ? (
-          <ul className="mt-3 grid list-none gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid list-none gap-4 md:grid-cols-2 lg:grid-cols-3">
             {data.sequencias.map((info) => (
               <li key={info.id} className="min-w-0">
                 <CartaoSequencia info={info} />

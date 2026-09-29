@@ -55,7 +55,7 @@ describe('Página inicial', () => {
     await renderizar();
     const tribonacci = screen.getByRole('article', { name: 'Tribonacci' });
     expect(
-      within(tribonacci).getByText('Nesta demonstração n vai até 30 sem cache e 5.000 com cache.'),
+      within(tribonacci).getByText('Aqui n vai até 30 sem cache e 5.000 com cache.'),
     ).toBeInTheDocument();
   });
 
@@ -73,7 +73,7 @@ describe('Página inicial', () => {
       'href',
       '/arvore?sequencia=tribonacci&n=7&modo=sem_cache',
     );
-    expect(screen.getByRole('link', { name: '4 · Apresentação: f(7) de 46 → 16' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: '4 · Apresentação do f(7)' })).toHaveAttribute(
       'href',
       '/apresentacao',
     );

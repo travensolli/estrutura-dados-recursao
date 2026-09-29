@@ -724,7 +724,7 @@ export function PaginaComparar() {
         <h1 id="titulo-pagina" className="text-2xl font-semibold">
           Comparar desempenho
         </h1>
-        <p className="mt-1 max-w-prose text-sm text-texto-suave">
+        <p className="mt-1 text-sm text-texto-suave">
           A mesma função roda várias vezes com e sem cache: aqui aparecem o tempo, a memória e as
           chamadas que o cache evitou.
         </p>
@@ -753,7 +753,6 @@ export function PaginaComparar() {
             aoMudar={aoMudarN}
             minimo={0}
             maximo={limite}
-            ajuda="O limite segue o modo sem cache."
           />
           <CampoNumero
             className="w-32"
@@ -762,7 +761,6 @@ export function PaginaComparar() {
             aoMudar={aoMudarRepeticoes}
             minimo={1}
             maximo={REPETICOES_MAXIMO}
-            ajuda="Quantas vezes cada modo roda."
           />
           <GrupoBotoes>
             <Botao
@@ -859,7 +857,7 @@ export function PaginaComparar() {
           <EstadoVazio
             icone="comparar"
             titulo="Nenhuma comparação ainda"
-            descricao="Escolha a sequência, o n e quantas repetições medir, depois toque em Comparar. Aparecem aqui o fator de aceleração, as chamadas evitadas, o tempo das repetições e a memória de cada modo."
+            descricao="Escolha os parâmetros e toque em Comparar: aparecem o fator de aceleração, as chamadas evitadas, o tempo e a memória."
           />
         ) : null}
 
