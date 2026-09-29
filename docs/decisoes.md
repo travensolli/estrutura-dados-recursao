@@ -115,3 +115,30 @@ em formato de artigo, que passa a ser a fonte para montar a apresentação. Os
 documentos `explicacao-tribonacci.md` e `metodologia-medicao.md` foram
 incorporados a ele (seções 2, 3, 5 e 6) e removidos, para não haver duas versões
 dos mesmos números.
+
+## 2026-09-29: A resposta acima da dobra — as telas cabem num notebook
+
+A apresentação será projetada de um notebook comum, então o pior caso de
+janela útil é 1366x641 (1366x768 menos a barra de tarefas e o navegador).
+As telas de navegação foram compactadas com um princípio único: **acima da
+dobra fica a resposta; a prova abre sob demanda.**
+
+- Início, Calcular e Comparar abrem sem rolagem do documento. O teste de
+  ponta a ponta `dobra.spec.ts` trava isso no projeto desktop, que passou a
+  medir 1366x641.
+- As tabelas longas (tempo, memória, ambiente e invocações por argumento)
+  viraram blocos recolhidos no componente novo `Detalhes`, com seta que gira
+  ao abrir e alvo de toque de 44px no resumo.
+- O Início ganhou uma faixa que liga cada item do enunciado à tela que o
+  responde, já com Tribonacci e n igual a 7 no endereço.
+- Na Árvore os controles podem rolar para fora da primeira dobra, mas
+  contadores, ferramentas e desenho cabem juntos numa tela; o teto do
+  desenho é min(42vh, 680px), o mesmo espírito do palco da apresentação.
+- Nenhum texto de conteúdo desce de 14px: a densidade veio de margens,
+  rótulos e ajudas mais curtas, nunca de fonte menor nem de alvo de toque
+  menor.
+
+De quebra, a medição achou o motivo de o trabalho de ponta a ponta falhar
+no CI: o vite subia só em localhost, que em Node recente resolve para o ::1
+do IPv6, enquanto o Playwright esperava em 127.0.0.1. O vite agora nasce
+preso ao IPv4 e a espera dos servidores dobrou para 240 segundos.
