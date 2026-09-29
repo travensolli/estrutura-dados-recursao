@@ -284,3 +284,10 @@ chamada recursiva", "1 invocação", "1 repetição", "Abrir o nó recolhido".
 **Sem rodapé (mesmo dia):** o rodapé com a frase de resumo saiu de todas as
 telas, porque repetia o que o início e o roteiro já dizem. Os 37px voltaram
 ao desenho da árvore, cuja altura é calculada a partir da janela.
+
+**Tempo no placar (mesmo dia):** o tempo da execução do calcular saiu da
+frase ao pé da tela e passou a fechar cada placar, em destaque e alinhado
+aos outros números. Continua sendo uma medida única da versão instrumentada,
+e a nota ao lado diz isso. Em f(7) os dois modos ficam perto de 0,3 ms, porque
+o custo fixo de uma execução a frio domina 46 chamadas; em n = 20 e n = 25 a
+diferença aparece (3,7 contra 0,4 ms e 46 contra 0,4 ms, medidos na API).
