@@ -3,6 +3,9 @@
 
 @custom-variant dark (&:where(.tema-escuro, .tema-escuro *));
 
+/* Mesma consulta do token --alvo: vale quando os controles estão no tamanho de mouse. */
+@custom-variant denso (@media (pointer: fine) and (hover: hover));
+
 @layer base {
   html {
     font-family: var(--font-sans);

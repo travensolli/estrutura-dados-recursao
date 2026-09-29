@@ -26,6 +26,8 @@ export interface CampoNumeroProps {
   comBotoes?: boolean;
   /** Guarda a altura da mensagem de erro mesmo sem erro, para o formulário não pular. */
   reservarErro?: boolean;
+  /** Ajuda sob o rótulo, e não ao lado: para campos estreitos lado a lado ficarem alinhados. */
+  empilhado?: boolean;
   className?: string;
 }
 
@@ -45,6 +47,7 @@ export function CampoNumero({
   autoFoco = false,
   comBotoes = true,
   reservarErro = true,
+  empilhado = false,
   className,
 }: CampoNumeroProps) {
   const gerado = useId();
@@ -91,7 +94,11 @@ export function CampoNumero({
   return (
     <div className={juntarClasses('flex flex-col gap-1', className)}>
       {/* O intervalo aceito fica na linha do rótulo: numa coluna estreita, uma linha a menos. */}
-      <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+      <div
+        className={
+          empilhado ? 'flex flex-col' : 'flex flex-wrap items-baseline justify-between gap-x-2'
+        }
+      >
         <label htmlFor={idCampo} className="font-medium">
           {rotulo}
         </label>
