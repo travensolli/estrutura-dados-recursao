@@ -126,13 +126,14 @@ export function PaginaInicio() {
         </h1>
         <ul className="mt-1 space-y-0.5 text-sm text-texto-suave">
           <LinhaMotivacao modo="sem_cache">
-            <strong className="font-semibold text-texto">Sem cache</strong>, cada chamada abre uma
-            chamada por termo anterior — a <em>ordem</em> da recorrência. Com ordem 2 ou mais, os
-            subproblemas se repetem e o custo é exponencial.
+            <strong className="font-semibold text-texto">Sem cache</strong>, cada chamada que não é
+            caso base abre uma chamada por termo anterior — a <em>ordem</em> da recorrência. Com
+            ordem 2 ou mais, os subproblemas se repetem e o custo é exponencial.
           </LinhaMotivacao>
           <LinhaMotivacao modo="com_cache">
             <strong className="font-semibold text-texto">Com cache</strong> (memoização), cada f(k)
-            é calculado uma vez e guardado; as demais chamadas só consultam, e o custo vira linear.
+            acima dos casos base é calculado uma vez e guardado; quando se repete, a chamada só
+            consulta o cache, e o custo vira linear.
           </LinhaMotivacao>
         </ul>
       </section>
@@ -142,7 +143,7 @@ export function PaginaInicio() {
           O enunciado:
         </h2>
         <BotaoLink
-          to={enderecoComEstado('/calcular', { sequencia: 'tribonacci', n: 7 })}
+          to={enderecoComEstado('/calcular', { sequencia: 'tribonacci', n: 7, modo: 'comparar' })}
           variante="neutra"
           tamanho="pequeno"
         >

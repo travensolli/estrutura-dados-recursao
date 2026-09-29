@@ -28,6 +28,19 @@ describe('Página inicial', () => {
     expect(within(tribonacci).getByText('linear, 3n − 5 invocações (n ≥ 2)')).toBeInTheDocument();
   });
 
+  it('explica por que o cache importa, sem esquecer os casos base', async () => {
+    await renderizar();
+    const [semCache, comCache] = screen.getAllByRole('listitem').slice(0, 2);
+    expect(semCache).toHaveTextContent(
+      /Sem cache, cada chamada que não é caso base abre uma chamada por termo anterior/,
+    );
+    expect(semCache).toHaveTextContent(/o custo é exponencial/);
+    expect(comCache).toHaveTextContent(
+      /Com cache \(memoização\), cada f\(k\) acima dos casos base/,
+    );
+    expect(comCache).toHaveTextContent(/o custo vira linear/);
+  });
+
   it('mostra a ordem de cada recorrência', async () => {
     await renderizar();
     for (const [nome, ordem] of [
@@ -75,7 +88,7 @@ describe('Página inicial', () => {
     await renderizar();
     expect(screen.getByRole('link', { name: '1 · Calcular com e sem cache' })).toHaveAttribute(
       'href',
-      '/calcular?sequencia=tribonacci&n=7',
+      '/calcular?sequencia=tribonacci&n=7&modo=comparar',
     );
     expect(screen.getByRole('link', { name: '2 · Comparar tempo e memória' })).toHaveAttribute(
       'href',
