@@ -39,6 +39,41 @@ test.describe('dobra do notebook', () => {
     });
   }
 
+  /* A segunda janela comum: 1440x900 menos os mesmos 127 px de barra de tarefas e navegador. */
+  test('as mesmas telas abrem sem rolagem na janela útil de um 1440x900', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 773 });
+    for (const [nome, rota, ancora] of ROTAS_SEM_ROLAGEM) {
+      await abrir(page, rota);
+      await expect(ancora(page)).toBeVisible();
+      expect(await excessoDeRolagem(page), nome).toBeLessThanOrEqual(1);
+    }
+  });
+
+  /* O palco tem altura fixa e só o miolo rola: nenhuma etapa pode precisar disso,
+     nem em tela cheia (768) nem na janela do notebook (641). */
+  test('as seis etapas da apresentação cabem no palco sem rolar por dentro', async ({ page }) => {
+    const conteudo: ReadonlyArray<(pagina: Page) => Locator> = [
+      (pagina) => pagina.getByTestId('valor-alvo'),
+      (pagina) => pagina.getByTestId('linha-argumento').first(),
+      (pagina) => pagina.getByTestId('momento-cache').first(),
+      (pagina) => pagina.getByTestId('poda').first(),
+      (pagina) => pagina.getByTestId('evitadas'),
+      (pagina) => pagina.getByRole('region', { name: 'O preço' }),
+    ];
+    for (const altura of [768, 641]) {
+      await page.setViewportSize({ width: 1366, height: altura });
+      for (const [indice, ancora] of conteudo.entries()) {
+        await abrir(page, `/apresentacao?etapa=${indice + 1}`);
+        await expect(ancora(page)).toBeVisible();
+        const excesso = await page.evaluate(() => {
+          const miolo = document.querySelector('main#conteudo');
+          return miolo ? miolo.scrollHeight - miolo.clientHeight : -1;
+        });
+        expect(excesso, `etapa ${indice + 1} em 1366x${altura}`).toBeLessThanOrEqual(1);
+      }
+    }
+  });
+
   test('árvore: contadores e desenho inteiros na janela', async ({ page }) => {
     await abrir(page, '/arvore');
     await expect(page.getByRole('button', { name: 'Ajustar à tela' })).toBeVisible();
