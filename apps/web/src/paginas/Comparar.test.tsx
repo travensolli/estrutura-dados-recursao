@@ -11,7 +11,8 @@ import { PaginaComparar } from './Comparar';
 async function abrir(rota = '/comparar') {
   const usuario = userEvent.setup();
   renderizarComProvedores(<PaginaComparar />, { rota });
-  await screen.findByText(/^Previsão:/);
+  // Os limites de n vêm da API: com eles na tela, o formulário está pronto.
+  await screen.findByText(/^Aceita de 0 a \d/);
   return usuario;
 }
 
@@ -45,6 +46,20 @@ describe('Página comparar', () => {
     expect(screen.getByLabelText('n')).toHaveValue('20');
     expect(screen.getByLabelText('Repetições')).toHaveValue('5');
     expect(screen.getByText('Nenhuma comparação ainda')).toBeInTheDocument();
+  });
+
+  it('explica o método antes de medir e o guarda recolhido depois', async () => {
+    const usuario = await abrir();
+    const metodo = screen.getByRole('region', { name: 'Como a comparação é feita' });
+    for (const termo of ['Contagens', 'Tempo', 'Memória', 'Curvas']) {
+      expect(within(metodo).getByText(termo)).toBeInTheDocument();
+    }
+    expect(within(metodo).getByText(/mede só as funções puras, sem contadores/)).toBeVisible();
+
+    await medir(usuario);
+    expect(screen.queryByRole('region', { name: 'Como a comparação é feita' })).toBeNull();
+    const resumo = screen.getByRole('heading', { name: 'Como a comparação é feita' });
+    expect(resumo.closest('summary')).not.toBeNull();
   });
 
   it('mede tribonacci f(20) e mostra o fator de aceleração medido', async () => {

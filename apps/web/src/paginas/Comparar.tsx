@@ -44,6 +44,7 @@ import {
   type ColunaTabela,
   type OpcaoSegmento,
 } from '../componentes';
+import { ComoMedimos } from '../comparar/ComoMedimos';
 import { LegendaSeries } from '../componentes/BarraComparativa';
 import type { EscalaGrafico, PontoGrafico } from '../componentes/GraficoLinhas';
 import { useTituloPagina } from '../hooks/titulo-pagina';
@@ -784,11 +785,6 @@ export function PaginaComparar() {
               </Botao>
             ) : null}
           </div>
-          <p className="min-h-10 text-sm text-texto-suave">
-            {previsao
-              ? `Previsão: ${formatarInteiro(previsao.invocacoes_previstas)} invocações sem cache; ${formatarInteiro(repeticoes)} repetições por modo.`
-              : null}
-          </p>
         </form>
 
         <SeletorSegmentado
@@ -867,13 +863,7 @@ export function PaginaComparar() {
 
           {medindo ? <Esqueleto linhas={4} altura="h-20" rotulo="Medindo os dois modos" /> : null}
 
-          {medicao === null && !medindo ? (
-            <EstadoVazio
-              icone="comparar"
-              titulo="Nenhuma comparação ainda"
-              descricao="Escolha os parâmetros à esquerda e toque em Comparar: aparecem o fator de aceleração, as chamadas evitadas, a memória e as curvas dos dois modos."
-            />
-          ) : null}
+          {medicao === null && !medindo ? <ComoMedimos recolhido={false} /> : null}
 
           {resposta && !medindo ? (
             <div className="space-y-2">
@@ -934,6 +924,8 @@ export function PaginaComparar() {
               />
 
               <div className="space-y-4 pt-2">
+                <ComoMedimos recolhido />
+
                 <Cartao as="section" titulo="O que esses números dizem" nivelTitulo={2} compacto>
                   <div className="space-y-3">
                     {interpretar(resposta, info).map((paragrafo) => (

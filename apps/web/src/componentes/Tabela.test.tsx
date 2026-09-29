@@ -29,6 +29,43 @@ const LINHAS: Linha[] = [
 ];
 
 describe('Tabela', () => {
+  it('por padrão não tem grade, zebra nem largura fixa', () => {
+    render(
+      <Tabela legenda="Simples" colunas={COLUNAS} linhas={LINHAS} chave={(l) => l.argumento} />,
+    );
+    const tabela = screen.getByRole('table');
+    expect(tabela).not.toHaveClass('table-fixed');
+    expect(screen.getByRole('columnheader', { name: 'Argumento' })).toHaveClass(
+      'whitespace-nowrap',
+    );
+    expect(screen.getAllByRole('row')[2]).not.toHaveClass('even:bg-superficie-suave');
+  });
+
+  it('com grade, zebra e ajuste, cruza as células e cabe na largura', () => {
+    render(
+      <Tabela
+        legenda="Com grade"
+        colunas={COLUNAS}
+        linhas={LINHAS}
+        chave={(l) => l.argumento}
+        grade
+        zebrado
+        ajustada
+        destacar={(l) => l.argumento === 5}
+      />,
+    );
+    expect(screen.getByRole('table')).toHaveClass('table-fixed');
+    const cabecalho = screen.getByRole('columnheader', { name: 'Invocações' });
+    expect(cabecalho).toHaveClass('border-l');
+    expect(cabecalho).not.toHaveClass('whitespace-nowrap');
+    const [, primeira, segunda, destacada] = screen.getAllByRole('row');
+    expect(primeira).toHaveClass('even:bg-superficie-suave');
+    expect(segunda).toHaveClass('even:bg-superficie-suave');
+    expect(destacada).toHaveClass('bg-primaria-suave');
+    expect(destacada).not.toHaveClass('even:bg-superficie-suave');
+    expect(screen.getAllByRole('cell')[0]).toHaveClass('break-words');
+  });
+
   it('é uma região rolável nomeada e alcançável pelo teclado', () => {
     render(
       <Tabela

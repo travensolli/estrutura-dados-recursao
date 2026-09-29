@@ -9,7 +9,8 @@ import { PaginaCalcular } from './Calcular';
 async function abrir(rota = '/calcular') {
   const usuario = userEvent.setup();
   renderizarComProvedores(<PaginaCalcular />, { rota });
-  await screen.findByText(/^Previsão para/);
+  // Os limites de n vêm da API: com eles na tela, o formulário está pronto.
+  await screen.findByText(/^Aceita de 0 a \d/);
   return usuario;
 }
 
@@ -102,6 +103,7 @@ describe('Página calcular', () => {
       ),
     ).toBeVisible();
     expect(screen.getByText('Sem cache nada é reaproveitado.')).toBeVisible();
+    expect(screen.getByText(/versão instrumentada da recursão/)).toBeVisible();
   });
 
   it('mostra as invocações por argumento com barra proporcional', async () => {
@@ -243,6 +245,8 @@ describe('Página calcular', () => {
     await usuario.clear(screen.getByLabelText('n'));
     await usuario.type(screen.getByLabelText('n'), '12');
     expect(screen.getByLabelText('Sequência')).toHaveValue('fibonacci');
-    expect(await screen.findByText(/Previsão para f\(12\) com cache/)).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Com cache' })).toBeChecked();
+    expect(screen.getByLabelText('n')).toHaveValue('12');
+    expect(document.title).toMatch(/^Calcular Fibonacci f\(12\)/);
   });
 });
