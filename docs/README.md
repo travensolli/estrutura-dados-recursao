@@ -1,49 +1,63 @@
 # Documentação
 
-Índice dos documentos do trabalho PRJ.ED.1. O `README.md` da raiz explica como instalar e rodar o
-projeto; aqui ficam o conteúdo didático, o roteiro da aula e as decisões técnicas.
+O [`README.md`](../README.md) da raiz é o **artigo** do trabalho: enunciado, fundamentação, método,
+resultados, discussão, a explicação de Tribonacci f(7) e as instruções de execução. Ele é a fonte a
+partir da qual a apresentação é montada.
+
+Aqui ficam o material da aula, a rodada de medições registrada e as decisões de projeto.
 
 ## Índice
 
-| Documento                                            | Para que serve                                                            | Status                     |
-| ---------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------- |
-| [explicacao-tribonacci.md](explicacao-tribonacci.md) | Base conceitual: árvores de f(7), contagens, fórmulas e custo em memória  | Pronto                     |
-| [roteiro-apresentacao.md](roteiro-apresentacao.md)   | O que dizer nos 15 minutos, demonstração clique a clique e plano B        | Pronto                     |
-| [metodologia-medicao.md](metodologia-medicao.md)     | Como medimos tempo e memória, e as limitações assumidas                   | Pronto                     |
-| [decisoes.md](decisoes.md)                           | Registro de decisões: data, contexto, decisão e consequência              | Vivo, cresce com o projeto |
-| [resultados-benchmark.md](resultados-benchmark.md)   | Rodada de medições registrada, gerada por script                          | Pronto, regerável          |
-| [figuras/](figuras/)                                 | Árvores de f(7) em SVG e PNG e telas do aplicativo, para slides e plano B | Pronto                     |
-
-Todos os documentos foram revistos contra a aplicação pronta: os números citados saem de execução
-real e os caminhos de tela existem como descritos.
+| Documento                                          | Para que serve                                                           | Origem            |
+| -------------------------------------------------- | ------------------------------------------------------------------------ | ----------------- |
+| [relatorio.html](relatorio.html)                   | **O que vai no projetor**: enunciado, árvore de f(7), gráficos e tabelas | Gerado por script |
+| [roteiro-apresentacao.md](roteiro-apresentacao.md) | O que dizer nos 10 minutos, seção a seção, com plano B                   | Escrito à mão     |
+| [resultados-benchmark.md](resultados-benchmark.md) | A mesma rodada de medições em Markdown, para revisar no editor           | Gerado por script |
+| [decisoes.md](decisoes.md)                         | Registro de decisões: data, contexto, decisão e consequência             | Vivo              |
+| [figuras/](figuras/)                               | Árvores e gráficos em SVG e PNG, para slides e plano B                   | Misto             |
 
 ## Por onde começar
 
-- Quem vai **entender o trabalho**: `explicacao-tribonacci.md`.
-- Quem vai **apresentar**: `roteiro-apresentacao.md`, com a explicação ao lado.
-- Quem vai **duvidar dos números**: `metodologia-medicao.md`.
-- Quem quer saber **por que foi feito assim**: `decisoes.md`.
+- Quem vai **entender o trabalho**: o [artigo](../README.md), da seção 1 à 7.
+- Quem vai **apresentar**: [roteiro-apresentacao.md](roteiro-apresentacao.md), com o
+  [relatorio.html](relatorio.html) aberto ao lado.
+- Quem vai **duvidar dos números**: seção 3 do artigo (método) e
+  [resultados-benchmark.md](resultados-benchmark.md) (a rodada inteira, com dispersão).
+- Quem quer saber **por que foi feito assim**: [decisoes.md](decisoes.md).
+
+## Como regerar o que é gerado
+
+```bash
+pnpm relatorio
+```
+
+O comando roda a bateria completa de medições (cerca de um minuto e meio) e reescreve
+`relatorio.html`, `resultados-benchmark.md` e os quatro SVGs de `figuras/` gerados por script.
+**Rode-o na véspera, na máquina que vai ser usada na aula**, para os tempos do relatório serem os
+daquela máquina.
+
+## Figuras
+
+| Arquivo                                               | O que mostra                                                  | Origem            |
+| ----------------------------------------------------- | ------------------------------------------------------------- | ----------------- |
+| `figuras/arvore-tribonacci-f7.svg`                    | Os 46 nós de f(7), pintados pelo destino de cada um com cache | Gerado por script |
+| `figuras/grafico-invocacoes.svg`                      | Invocações por n, nas três sequências, em eixo logarítmico    | Gerado por script |
+| `figuras/grafico-tempo.svg`                           | Tempo mediano por n, em eixo logarítmico                      | Gerado por script |
+| `figuras/grafico-memoria.svg`                         | Memória retida pelo cache por n, em eixo linear               | Gerado por script |
+| `figuras/arvore-tribonacci-f7-sem-cache.svg` e `.png` | Os 46 nós coloridos por argumento, exportados da interface    | Exportado do app  |
+| `figuras/arvore-tribonacci-f7-com-cache.svg` e `.png` | Os 16 nós, com os acertos tracejados                          | Exportado do app  |
+| `figuras/tela-apresentacao-etapa-conta.png`           | A etapa da conta: 46 para 16, com as duas provas              | Exportado do app  |
+| `figuras/tela-comparar-tribonacci-f18.png`            | A tela de comparação com tempo, memória e curvas              | Exportado do app  |
+
+Para exportar de novo as figuras da interface: abra
+`/arvore?sequencia=tribonacci&n=7&modo=sem_cache`, use "Ajustar à tela" e depois "Baixar SVG" ou
+"Baixar PNG". O SVG sai com cores literais, sem variáveis de tema, e abre em qualquer editor de
+slides.
 
 ## Regras destes documentos
 
 - Português do Brasil, frases curtas e tom didático.
-- Nenhum número é escrito à mão: todos vêm de execução instrumentada ou de fórmula fechada
-  conferida contra execução.
-- As contagens oficiais são as de `explicacao-tribonacci.md`. Se um documento discordar dela, ela
-  vence.
+- Nenhum número é escrito à mão: todos vêm de execução instrumentada ou de fórmula fechada conferida
+  contra execução.
+- As contagens oficiais são as da seção 6 do artigo. Se um documento discordar dela, ela vence.
 - `decisoes.md` só recebe decisões já tomadas, no formato data, contexto, decisão e consequência.
-
-## Figuras
-
-Exportadas do próprio aplicativo, então mostram a execução real:
-
-| Arquivo                                               | O que mostra                                         |
-| ----------------------------------------------------- | ---------------------------------------------------- |
-| `figuras/arvore-tribonacci-f7-sem-cache.svg` e `.png` | Os 46 nós de f(7) sem cache, coloridos por argumento |
-| `figuras/arvore-tribonacci-f7-com-cache.svg` e `.png` | Os 16 nós com cache, com os acertos tracejados       |
-| `figuras/tela-apresentacao-etapa-conta.png`           | A etapa da conta: 46 para 16, com as duas provas     |
-| `figuras/tela-comparar-tribonacci-f18.png`            | A tela de comparação com tempo, memória e curvas     |
-
-Para gerar de novo: abra `/arvore?sequencia=tribonacci&n=7&modo=sem_cache`, use
-"Ajustar à tela" e depois "Baixar SVG" ou "Baixar PNG". O SVG sai com cores literais,
-sem variáveis de tema, e abre em qualquer editor de slides.

@@ -92,3 +92,26 @@ vir da API, que usa `packages/nucleo`. O modo apresentacao tem um plano B que
 executa o mesmo nucleo num Web Worker do navegador: as contagens continuam
 exatas, os tempos aparecem marcados como indicativos e a memoria nao e
 exibida, porque o navegador nao oferece medida confiavel.
+
+## 2026-09-28: Contexto informado — apresentação de 10 minutos
+
+O contexto que faltava no briefing foi informado e substitui a suposição de 15
+minutos registrada em 17/09.
+
+- **Tempo:** 10 minutos. O roteiro foi refeito com essa duração e organizado na
+  ordem do enunciado, para que nenhum dos quatro pedidos fique de fora.
+- **Base da apresentação:** o próprio enunciado. Cada seção do roteiro e do
+  relatório responde a um pedido dele, na mesma ordem.
+- **Material projetado:** `docs/relatorio.html`, gerado por `pnpm relatorio`. É
+  um arquivo único, estático, sem servidor e sem dependência de rede, então a
+  apresentação não depende de a aplicação subir na hora.
+- **A aplicação continua no projeto**, com front e back em Docker Compose, para
+  que seja possível informar o n das três funções e conferir os resultados ao
+  vivo. A demonstração passou a ser um bloco curto dentro da seção de
+  desempenho, e não mais o centro da apresentação.
+
+**Consequência:** a documentação didática foi consolidada no `README.md`, agora
+em formato de artigo, que passa a ser a fonte para montar a apresentação. Os
+documentos `explicacao-tribonacci.md` e `metodologia-medicao.md` foram
+incorporados a ele (seções 2, 3, 5 e 6) e removidos, para não haver duas versões
+dos mesmos números.

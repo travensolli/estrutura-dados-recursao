@@ -321,7 +321,7 @@ export function montarRelatorio(dados: DadosRelatorio): string {
   const partes = [
     '# Resultados de benchmark',
     '',
-    `Gerado por \`pnpm benchmark:relatorio\` em ${formatarInstante(dados.gerado_em)}.`,
+    `Gerado por \`pnpm relatorio\` em ${formatarInstante(dados.gerado_em)}.`,
     'Todos os números vêm da execução registrada abaixo, nesta máquina.',
     '',
     secaoMaquina(primeira.ambiente, dados),
