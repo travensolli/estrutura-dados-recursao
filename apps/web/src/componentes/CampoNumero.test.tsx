@@ -36,6 +36,11 @@ describe('CampoNumero', () => {
     expect(campo).toHaveAccessibleDescription(/Aceita de 0 a 30/);
   });
 
+  it('por padrão reserva a altura da mensagem de erro', () => {
+    const { container } = render(<CampoControlado />);
+    expect(container.querySelector('p[aria-live="polite"]')).toHaveClass('min-h-5');
+  });
+
   it('sem reserva de erro não ocupa altura, mas ainda anuncia o erro', async () => {
     const usuario = userEvent.setup();
     render(<CampoControlado inicial="" reservarErro={false} />);

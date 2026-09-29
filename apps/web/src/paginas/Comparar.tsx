@@ -2,7 +2,6 @@ import {
   DESCRICAO_SEQUENCIAS,
   MODOS,
   REPETICOES_MAXIMO,
-  SEQUENCIAS,
   type AmbienteExecucao,
   type CompararResposta,
   type EstatisticasTempo,
@@ -39,6 +38,7 @@ import {
   NumeroGrande,
   RotuloModo,
   SeletorSegmentado,
+  SeletorSequencia,
   Selo,
   Tabela,
   type ColunaTabela,
@@ -626,7 +626,6 @@ export function PaginaComparar() {
   useTituloPagina(`Comparar ${nome} f(${n})`);
 
   const clienteConsultas = useQueryClient();
-  const idSequencia = useId();
   const sequencias = useSequencias();
   const info = sequencias.data?.sequencias.find((item) => item.id === sequencia);
   const limite = info?.limites.sem_cache;
@@ -743,26 +742,10 @@ export function PaginaComparar() {
           onSubmit={(evento) => void enviar(evento)}
           className="space-y-2"
         >
-          <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
-            <label htmlFor={idSequencia} className="font-medium">
-              Sequência
-            </label>
-            <select
-              id={idSequencia}
-              value={sequencia}
-              onChange={(evento) => {
-                const escolhida = SEQUENCIAS.find((id) => id === evento.target.value);
-                if (escolhida) definir({ sequencia: escolhida });
-              }}
-              className="min-h-toque w-full rounded-md border border-borda-forte bg-superficie px-3 text-base"
-            >
-              {SEQUENCIAS.map((id) => (
-                <option key={id} value={id}>
-                  {DESCRICAO_SEQUENCIAS[id].nome}
-                </option>
-              ))}
-            </select>
-          </div>
+          <SeletorSequencia
+            valor={sequencia}
+            aoMudar={(escolhida) => definir({ sequencia: escolhida })}
+          />
           <CampoNumero
             rotulo="n"
             valor={rascunhoN}

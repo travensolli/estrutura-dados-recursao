@@ -1,13 +1,12 @@
 import {
   DESCRICAO_SEQUENCIAS,
   N_MAXIMO_ESTIMATIVA,
-  SEQUENCIAS,
   type CalcularResposta,
   type Metricas,
   type Modo,
 } from '@sequencias/contrato';
 import { useQueryClient } from '@tanstack/react-query';
-import { useId, useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import type { CalcularEntrada } from '../api/cliente';
 import {
   chaves,
@@ -34,6 +33,7 @@ import {
   NumeroGrande,
   RotuloModo,
   SeletorSegmentado,
+  SeletorSequencia,
   Selo,
   SeloModo,
   Tabela,
@@ -303,7 +303,6 @@ export function PaginaCalcular() {
   useTituloPagina(`Calcular ${nome} f(${n})`);
 
   const clienteConsultas = useQueryClient();
-  const idSequencia = useId();
   const sequencias = useSequencias();
   const info = sequencias.data?.sequencias.find((item) => item.id === sequencia);
   const modoReferencia = modoDeReferencia(modo);
@@ -433,26 +432,10 @@ export function PaginaCalcular() {
           onSubmit={(evento) => void enviar(evento)}
           className="space-y-2"
         >
-          <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
-            <label htmlFor={idSequencia} className="font-medium">
-              Sequência
-            </label>
-            <select
-              id={idSequencia}
-              value={sequencia}
-              onChange={(evento) => {
-                const escolhida = SEQUENCIAS.find((id) => id === evento.target.value);
-                if (escolhida) definir({ sequencia: escolhida });
-              }}
-              className="min-h-toque w-full rounded-md border border-borda-forte bg-superficie px-3 text-base"
-            >
-              {SEQUENCIAS.map((id) => (
-                <option key={id} value={id}>
-                  {DESCRICAO_SEQUENCIAS[id].nome}
-                </option>
-              ))}
-            </select>
-          </div>
+          <SeletorSequencia
+            valor={sequencia}
+            aoMudar={(escolhida) => definir({ sequencia: escolhida })}
+          />
           <SeletorSegmentado
             rotulo="Modo"
             valor={modo}

@@ -21,8 +21,6 @@ export interface SeletorSegmentadoProps<T extends string> {
   aoMudar: (valor: T) => void;
   opcoes: ReadonlyArray<OpcaoSegmento<T>>;
   desabilitado?: boolean;
-  /** Empilha as opções em telas estreitas. */
-  empilharNoCelular?: boolean;
   /** Empilha as opções em qualquer tela, para colunas de configuração. */
   vertical?: boolean;
   className?: string;
@@ -41,7 +39,6 @@ export function SeletorSegmentado<T extends string>({
   aoMudar,
   opcoes,
   desabilitado = false,
-  empilharNoCelular = false,
   vertical = false,
   className,
 }: SeletorSegmentadoProps<T>) {
@@ -85,7 +82,7 @@ export function SeletorSegmentado<T extends string>({
         aria-labelledby={rotuloVisivel ? idRotulo : undefined}
         className={juntarClasses(
           'flex gap-1 rounded-lg border border-borda bg-superficie-suave p-1',
-          vertical ? 'flex-col' : empilharNoCelular ? 'flex-col sm:flex-row' : 'flex-row flex-wrap',
+          vertical ? 'flex-col' : 'flex-row flex-wrap',
         )}
       >
         {opcoes.map((opcao, indice) => {
