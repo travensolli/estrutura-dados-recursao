@@ -125,6 +125,15 @@ function lerMemoria(bytes: number): string {
   return 'as duas execuções retiveram a mesma memória';
 }
 
+/** Sem ganho de memória, o sinal vem do coletor de lixo e não do cache: diga isso no destaque. */
+function detalheMemoria(resposta: CompararResposta): string {
+  const entradas = `${formatarInteiro(resposta.memoria.com_cache.entradas_cache)} entradas guardadas`;
+  const leitura = lerMemoria(resposta.diferenca_memoria_bytes);
+  return resposta.diferenca_memoria_bytes > 0
+    ? `${entradas}: ${leitura}.`
+    : `${entradas}, mas ${leitura}: a variação do coletor de lixo pesa mais que um cache tão pequeno.`;
+}
+
 interface TabelaComparadaProps {
   legenda: string;
   linhas: ReadonlyArray<LinhaComparada>;
@@ -931,7 +940,7 @@ export function PaginaComparar() {
                   valor={formatarBytes(resposta.diferenca_memoria_bytes)}
                   marca="com-cache"
                   destaque
-                  detalhe={`${formatarInteiro(resposta.memoria.com_cache.entradas_cache)} entradas guardadas no cache.`}
+                  detalhe={detalheMemoria(resposta)}
                 />
               </div>
 
