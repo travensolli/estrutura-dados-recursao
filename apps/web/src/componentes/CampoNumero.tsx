@@ -89,14 +89,17 @@ export function CampoNumero({
   const noMaximo = resultado.valido && maximo !== undefined && resultado.valor >= maximo;
 
   return (
-    <div className={juntarClasses('flex flex-col gap-1.5', className)}>
-      <label htmlFor={idCampo} className="font-medium">
-        {rotulo}
-      </label>
-      <p id={idAjuda} className="text-sm text-texto-suave">
-        Aceita {descreverIntervalo(minimo, maximo)}
-        {ajuda ? <>. {ajuda}</> : null}
-      </p>
+    <div className={juntarClasses('flex flex-col gap-1', className)}>
+      {/* O intervalo aceito fica na linha do rótulo: numa coluna estreita, uma linha a menos. */}
+      <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+        <label htmlFor={idCampo} className="font-medium">
+          {rotulo}
+        </label>
+        <p id={idAjuda} className="text-sm text-texto-suave">
+          Aceita {descreverIntervalo(minimo, maximo)}
+          {ajuda ? <>. {ajuda}</> : null}
+        </p>
+      </div>
       <div className="flex items-center gap-2">
         {comBotoes ? (
           <BotaoIcone

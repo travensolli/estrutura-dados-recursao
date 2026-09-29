@@ -13,6 +13,8 @@ export interface MetricaProps {
   /** Traço colorido da série, sempre ao lado do rótulo escrito. */
   marca?: MarcaSerie;
   destaque?: boolean;
+  /** Sem caixa própria: a métrica vive dentro de outro cartão, separada por régua. */
+  embutida?: boolean;
   className?: string;
 }
 
@@ -30,13 +32,14 @@ export function Metrica({
   icone,
   marca,
   destaque = false,
+  embutida = false,
   className,
 }: MetricaProps) {
   return (
     <div
       className={juntarClasses(
-        'rounded-xl border border-borda bg-superficie p-3',
-        destaque && 'border-primaria/40',
+        !embutida && 'rounded-xl border border-borda bg-superficie p-3',
+        !embutida && destaque && 'border-primaria/40',
         className,
       )}
     >
