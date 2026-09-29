@@ -74,7 +74,7 @@ export function PaginaArvore() {
         {valida && arvore.isPending && (
           <div
             role="status"
-            className="flex h-[clamp(200px,calc(100dvh-474px),820px)] items-center justify-center rounded-lg border border-borda bg-superficie text-texto-suave xl:h-[clamp(200px,calc(100dvh-386px),820px)]"
+            className="flex h-[clamp(200px,calc(100dvh-437px),820px)] items-center justify-center rounded-lg border border-borda bg-superficie text-texto-suave xl:h-[clamp(200px,calc(100dvh-349px),820px)]"
           >
             <span className="animate-pulse">
               Calculando {DESCRICAO_SEQUENCIAS[consulta.sequencia].nome} f({consulta.n}){' '}
