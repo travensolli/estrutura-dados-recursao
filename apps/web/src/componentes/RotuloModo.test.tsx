@@ -8,6 +8,11 @@ describe('RotuloModo', () => {
     expect(screen.getByText('sem cache')).toBeInTheDocument();
   });
 
+  it('abre com maiúscula quando é título de cartão', () => {
+    render(<RotuloModo modo="com_cache" titulo />);
+    expect(screen.getByText('Com cache')).toBeInTheDocument();
+  });
+
   it('esconde o traço colorido de leitores de tela', () => {
     const { container } = render(<RotuloModo modo="com_cache" />);
     expect(container.querySelector('[aria-hidden="true"]')).toHaveClass('bg-serie-com-cache');

@@ -75,7 +75,7 @@ const METRICAS: DescricaoMetrica[] = [
   {
     chave: 'invocacoes',
     rotulo: 'Invocações',
-    detalhe: 'Conta a chamada raiz, os casos base e os acertos de cache.',
+    detalhe: 'Todas as chamadas, a raiz incluída: casos base + calculados + acertos de cache.',
     valor: (metricas) => metricas.invocacoes,
   },
   {
@@ -130,16 +130,6 @@ function detalheMetrica(descricao: DescricaoMetrica, modo: Modo): string {
   return especifico ?? descricao.detalhe;
 }
 
-const TITULO_MODO: Record<Modo, string> = {
-  sem_cache: 'Sem cache',
-  com_cache: 'Com cache',
-};
-
-const CLASSES_MARCA: Record<Modo, string> = {
-  sem_cache: 'bg-serie-sem-cache',
-  com_cache: 'bg-serie-com-cache',
-};
-
 interface PlacarMetricasProps {
   resposta: CalcularResposta;
   /** Dá um identificador estável a cada linha; só vale quando há um modo na tela. */
@@ -155,12 +145,8 @@ function PlacarMetricas({ resposta, identificar = false }: PlacarMetricasProps) 
       compacto
       className="min-w-0"
     >
-      <p className="flex items-center gap-2 text-sm font-semibold">
-        <span
-          aria-hidden="true"
-          className={juntarClasses('h-1 w-4 shrink-0 rounded-full', CLASSES_MARCA[resposta.modo])}
-        />
-        {TITULO_MODO[resposta.modo]}
+      <p className="text-sm font-semibold">
+        <RotuloModo modo={resposta.modo} titulo />
       </p>
       <dl className="mt-1 divide-y divide-borda">
         {METRICAS.map((descricao, indice) => (
@@ -197,7 +183,9 @@ function DefinicoesMetricas({ modo }: { modo: Modo | null }) {
       <dl className="space-y-1 text-sm">
         {METRICAS.map((descricao) => (
           <div key={descricao.chave} className="gap-x-4 sm:grid sm:grid-cols-[12rem_1fr]">
-            <dt className="font-medium">{descricao.rotulo}</dt>
+            <dt className="font-medium">
+              {modo === null ? descricao.rotulo : rotuloMetrica(descricao, modo)}
+            </dt>
             <dd className="text-texto-suave">
               {modo === null ? descricao.detalhe : detalheMetrica(descricao, modo)}
             </dd>
@@ -254,7 +242,7 @@ function TabelaArgumentos({ respostas }: { respostas: CalcularResposta[] }) {
     colunas.push({
       chave: `barra-${modo}`,
       rotulo: <span className="sr-only">Proporção {rotuloModo(modo)}</span>,
-      className: 'w-full',
+      className: modos.length > 1 ? 'w-[35%]' : 'w-full',
       conteudo: (linha) => (
         <BarraProporcao valor={linha.valores[indice] ?? 0} maximo={maximo} modo={modo} />
       ),
@@ -274,7 +262,7 @@ function TabelaArgumentos({ respostas }: { respostas: CalcularResposta[] }) {
         colunas={colunas}
         linhas={linhas}
         chave={(linha) => linha.argumento}
-        alturaMaxima="38vh"
+        alturaMaxima="max(38vh, 17rem)"
       />
       <p className="mt-2 text-sm text-texto-suave">Somando todos os argumentos: {totais}.</p>
     </Detalhes>
@@ -443,7 +431,7 @@ export function PaginaCalcular() {
         <form
           aria-label="O que calcular"
           onSubmit={(evento) => void enviar(evento)}
-          className="space-y-2.5"
+          className="space-y-2"
         >
           <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
             <label htmlFor={idSequencia} className="font-medium">
@@ -478,9 +466,10 @@ export function PaginaCalcular() {
             aoMudar={aoMudarN}
             minimo={0}
             maximo={limite}
+            ajuda={modo === 'comparar' ? 'O limite é o do modo sem cache.' : undefined}
             reservarErro={false}
           />
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Botao
               type="submit"
               className="flex-1"

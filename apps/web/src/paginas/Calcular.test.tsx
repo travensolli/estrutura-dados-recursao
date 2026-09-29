@@ -97,7 +97,9 @@ describe('Página calcular', () => {
     await valorHeroi('Tribonacci f(7) vale');
     await usuario.click(screen.getByText('O que cada número conta'));
     expect(
-      screen.getByText('Conta a chamada raiz, os casos base e os acertos de cache.'),
+      screen.getByText(
+        'Todas as chamadas, a raiz incluída: casos base + calculados + acertos de cache.',
+      ),
     ).toBeVisible();
     expect(screen.getByText('Sem cache nada é reaproveitado.')).toBeVisible();
   });
@@ -227,7 +229,9 @@ describe('Página calcular', () => {
     await usuario.click(botaoCalcular());
 
     expect(await screen.findByText('26 dígitos')).toBeInTheDocument();
-    expect(screen.getByText('Calculados (faltas de cache)')).toBeInTheDocument();
+    expect(
+      within(regiaoMetricas('com cache')).getByText('Calculados (faltas de cache)'),
+    ).toBeInTheDocument();
     await usuario.click(screen.getByRole('button', { name: 'Ver valor completo' }));
     expect(screen.getByText('15511210043330985984000000')).toBeVisible();
   });

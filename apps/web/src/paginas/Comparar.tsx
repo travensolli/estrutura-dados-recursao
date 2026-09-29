@@ -779,7 +779,7 @@ export function PaginaComparar() {
             maximo={REPETICOES_MAXIMO}
             reservarErro={false}
           />
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Botao
               type="submit"
               className="flex-1"
