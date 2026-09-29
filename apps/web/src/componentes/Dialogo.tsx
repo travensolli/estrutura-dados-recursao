@@ -20,13 +20,13 @@ export interface DialogoProps {
   descricao?: ReactNode;
   children?: ReactNode;
   acoes?: ReactNode;
-  tamanho?: 'medio' | 'grande';
+  tamanho?: 'medio' | 'grande' | 'largo';
   /** Clique fora fecha o diálogo. */
   fecharNoFundo?: boolean;
   rotuloFechar?: string;
 }
 
-const LARGURAS = { medio: 'max-w-lg', grande: 'max-w-3xl' } as const;
+const LARGURAS = { medio: 'max-w-lg', grande: 'max-w-3xl', largo: 'max-w-5xl' } as const;
 
 /** Diálogo modal: foco preso, Esc fecha e o foco volta para quem abriu. */
 export function Dialogo({

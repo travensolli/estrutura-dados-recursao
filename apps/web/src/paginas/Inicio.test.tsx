@@ -54,6 +54,36 @@ describe('Página inicial', () => {
     }
   });
 
+  it('abre o código real das duas funções de cada sequência', async () => {
+    const usuario = userEvent.setup();
+    await renderizar();
+    const tribonacci = screen.getByRole('article', { name: 'Tribonacci' });
+    const botao = within(tribonacci).getByRole('button', {
+      name: 'Código de Tribonacci em TypeScript',
+    });
+    await usuario.click(botao);
+
+    const janela = screen.getByRole('dialog', { name: 'Tribonacci em TypeScript' });
+    expect(
+      within(janela).getByText('export function tribonacciSemCache(n: number): bigint {'),
+    ).toBeInTheDocument();
+    expect(
+      within(janela).getByText(
+        'export function tribonacciComCache(n: number, cache: Map<number, bigint>): bigint {',
+      ),
+    ).toBeInTheDocument();
+    const marcadas = [...janela.querySelectorAll('mark')].map((linha) => linha.textContent?.trim());
+    expect(marcadas).toEqual([
+      'const guardado = cache.get(n);',
+      'if (guardado !== undefined) return guardado;',
+      'cache.set(n, valor);',
+    ]);
+
+    await usuario.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(botao).toHaveFocus();
+  });
+
   it('diz que o fatorial não ganha nada com o cache', async () => {
     await renderizar();
     const fatorial = screen.getByRole('article', { name: 'Fatorial' });

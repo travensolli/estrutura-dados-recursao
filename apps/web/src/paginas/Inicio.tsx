@@ -1,9 +1,10 @@
 import type { InfoSequencia, Modo } from '@sequencias/contrato';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useSequencias } from '../api/consultas';
-import { BotaoLink, Cartao, Esqueleto, EstadoErro, GrupoBotoes } from '../componentes';
+import { Botao, BotaoLink, Cartao, Esqueleto, EstadoErro, GrupoBotoes } from '../componentes';
 import { useTituloPagina } from '../hooks/titulo-pagina';
 import { enderecoComEstado } from '../hooks/useEstadoUrl';
+import { JanelaCodigo } from '../inicio/JanelaCodigo';
 import { PainelFormulas } from '../inicio/PainelFormulas';
 import { TIPOS } from '../inicio/formulas';
 import { juntarClasses } from '../utilitarios/classes';
@@ -60,6 +61,7 @@ function SeloTipo({ info }: { info: InfoSequencia }) {
 
 function CartaoSequencia({ info }: { info: InfoSequencia }) {
   const ultimoTermo = info.primeiros_termos.length - 1;
+  const [codigoAberto, setCodigoAberto] = useState(false);
   return (
     <Cartao
       as="article"
@@ -103,7 +105,21 @@ function CartaoSequencia({ info }: { info: InfoSequencia }) {
         >
           Árvore
         </BotaoLink>
+        <Botao
+          variante="neutra"
+          tamanho="pequeno"
+          aria-haspopup="dialog"
+          aria-label={`Código de ${info.nome} em TypeScript`}
+          onClick={() => setCodigoAberto(true)}
+        >
+          Código
+        </Botao>
       </GrupoBotoes>
+      <JanelaCodigo
+        sequencia={info.id}
+        aberta={codigoAberto}
+        aoFechar={() => setCodigoAberto(false)}
+      />
     </Cartao>
   );
 }
