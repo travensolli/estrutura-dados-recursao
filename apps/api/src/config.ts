@@ -13,7 +13,7 @@ function numero(chave: string, padrao: number): number {
 export const config = {
   porta: numero('PORTA', 3333),
   host: process.env.HOST ?? '0.0.0.0',
-  versao: process.env.VERSAO_APP ?? '1.1.0',
+  versao: process.env.VERSAO_APP ?? '1.2.0',
   tempoLimiteMs: numero('TEMPO_LIMITE_MS', TEMPO_LIMITE_MS_PADRAO),
   pilhaMb: numero('PILHA_MB', PILHA_MB_PADRAO),
   intervaloAmostragemMemoria: numero('INTERVALO_AMOSTRAGEM', INTERVALO_AMOSTRAGEM_PADRAO),
