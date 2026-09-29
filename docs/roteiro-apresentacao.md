@@ -86,8 +86,9 @@ modo, e a faixa "O enunciado:".
 
 ### 2. As três sequências (1:00) — tela `/`
 
-Na tela: os três cartões, com a ordem ao lado do nome, a fórmula, o caso base escrito como no
-enunciado ("com f(0) = f(1) = 1") e os primeiros termos.
+Na tela: os três cartões, com o tipo de recursão e a ordem ao lado do nome ("recursão tripla ·
+ordem 3"), a fórmula, o caso base escrito como no enunciado ("com f(0) = f(1) = 1") e os primeiros
+termos. Abaixo deles, fechado, o painel **Fórmulas gerais**.
 
 - Leia as três recorrências com os casos base **do enunciado**. Avise explicitamente que o
   Fibonacci aqui começa em 1, 1, 2, 3, 5 e não em 0, 1: é a convenção do enunciado, e por isso os
@@ -100,6 +101,10 @@ enunciado ("com f(0) = f(1) = 1") e os primeiros termos.
   viram lineares, com 2n − 1 invocações a partir de n = 1 e 3n − 5 a partir de n = 2; abaixo disso
   a chamada já é caso base. O Fatorial é linear nos dois modos, sem ganho.
 - Fatorial é uma corrente. Fibonacci e Tribonacci são árvores. Só quem é árvore repete subproblema.
+- Se houver pergunta sobre de onde saem as contagens, abra **Fórmulas gerais**: com k = ordem e
+  b = casos base, as invocações com cache são 1 + k · (n − b + 1), e a tabela já traz a conta de
+  f(7) nas três colunas. No Tribonacci: (3 · 31 − 1) / 2 = 46 sem cache, 1 + 3 · (7 − 3 + 1) = 16
+  com cache, 30 evitadas. Feche o painel antes de seguir.
 - Anuncie o exemplo que atravessa a apresentação: **Tribonacci f(7) = 31**. Clique no item
   **1 · Calcular com e sem cache** da faixa.
 

@@ -49,6 +49,17 @@ test.describe('dobra do notebook', () => {
     );
   });
 
+  /* A árvore com cache é alta e estreita: é ela que o desenho estica até o fim da janela. */
+  test('árvore com cache abre sem rolagem, com o desenho inteiro na janela', async ({ page }) => {
+    await abrir(page, '/arvore?sequencia=tribonacci&n=7&modo=com_cache');
+    await expect(page.getByRole('button', { name: 'Ajustar à tela' })).toBeVisible();
+    expect(await excessoDeRolagem(page)).toBeLessThanOrEqual(1);
+    await dentroDaJanela(
+      page,
+      page.getByRole('group', { name: /Árvore de chamadas de Tribonacci f\(7\) com cache/ }),
+    );
+  });
+
   test('árvore: os 46 nós de f(7) ficam dentro do desenho, também num projetor de 1024', async ({
     page,
   }) => {

@@ -1,4 +1,5 @@
 import { screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { servidorMock } from '../mocks/servidor';
@@ -41,15 +42,15 @@ describe('Página inicial', () => {
     expect(comCache).toHaveTextContent(/o custo vira linear/);
   });
 
-  it('mostra a ordem de cada recorrência', async () => {
+  it('mostra o tipo de recursão e a ordem de cada recorrência', async () => {
     await renderizar();
-    for (const [nome, ordem] of [
-      ['Fatorial', 1],
-      ['Fibonacci', 2],
-      ['Tribonacci', 3],
+    for (const [nome, tipo] of [
+      ['Fatorial', 'recursão linear · ordem 1'],
+      ['Fibonacci', 'recursão dupla · ordem 2'],
+      ['Tribonacci', 'recursão tripla · ordem 3'],
     ] as const) {
       const cartao = screen.getByRole('article', { name: nome });
-      expect(within(cartao).getByText(`ordem ${ordem}`)).toBeInTheDocument();
+      expect(within(cartao).getByText(tipo)).toBeInTheDocument();
     }
   });
 
@@ -76,12 +77,44 @@ describe('Página inicial', () => {
     );
   });
 
-  it('mostra os limites de n vindos da API', async () => {
+  it('não repete nos cartões os limites de n de cada modo', async () => {
     await renderizar();
-    const tribonacci = screen.getByRole('article', { name: 'Tribonacci' });
+    expect(screen.queryByText(/Aqui n vai até/)).not.toBeInTheDocument();
+  });
+
+  it('traz as fórmulas gerais fechadas, com a conta de cada sequência', async () => {
+    const usuario = userEvent.setup();
+    await renderizar();
+    const resumo = screen.getByText('Fórmulas gerais: invocações, pilha e complexidade');
+    expect(resumo.closest('details')).not.toHaveAttribute('open');
+
+    await usuario.click(resumo);
+    const tabela = screen.getByRole('table', { name: /com n = 7$/ });
+    const linha = (grandeza: string) =>
+      within(within(tabela).getByRole('rowheader', { name: grandeza }).closest('tr')!);
+
+    expect(linha('Tipo de recursão').getByText(/^tripla \(k = 3\)/)).toBeInTheDocument();
+    expect(linha('Invocações sem cache').getByText(/^\(3 · 31 − 1\) \/ 2 =/)).toBeInTheDocument();
     expect(
-      within(tribonacci).getByText('Aqui n vai até 30 sem cache e 5.000 com cache.'),
+      linha('Invocações com cache').getByText(/^1 \+ 3 · \(7 − 3 \+ 1\) =/),
     ).toBeInTheDocument();
+    expect(linha('Chamadas evitadas').getByText(/^46 − 16 =/)).toBeInTheDocument();
+    expect(linha('Chamadas evitadas').getByText(/^7 − 7 =/)).toBeInTheDocument();
+  });
+
+  it('refaz as contas quando o n do exemplo muda', async () => {
+    const usuario = userEvent.setup();
+    await renderizar();
+    await usuario.click(screen.getByText('Fórmulas gerais: invocações, pilha e complexidade'));
+    const campo = screen.getByLabelText('n do exemplo');
+    await usuario.clear(campo);
+    await usuario.type(campo, '10');
+
+    const tabela = screen.getByRole('table', { name: /com n = 10$/ });
+    const evitadas = within(
+      within(tabela).getByRole('rowheader', { name: 'Chamadas evitadas' }).closest('tr')!,
+    );
+    expect(evitadas.getByText(/^289 − 25 =/)).toBeInTheDocument();
   });
 
   it('mapeia os quatro itens do enunciado nas telas', async () => {

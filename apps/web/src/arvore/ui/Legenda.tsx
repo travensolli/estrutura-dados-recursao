@@ -33,9 +33,6 @@ export function Legenda() {
           </span>
         );
       })}
-      <span className="text-texto-suave">
-        a cor mostra o argumento: todas as ocorrências de f(3) usam a mesma cor
-      </span>
     </div>
   );
 }
