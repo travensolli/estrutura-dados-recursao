@@ -70,12 +70,6 @@ export function Layout() {
       <main id="conteudo" className="mx-auto w-full max-w-7xl flex-1 px-4 py-4">
         <Outlet />
       </main>
-      <footer className="border-t border-borda bg-superficie">
-        <p className="mx-auto max-w-7xl px-4 py-2 text-sm text-texto-suave">
-          Fatorial, Fibonacci e Tribonacci calculados por recursão, com e sem cache. Todos os
-          números na tela vêm de execuções instrumentadas.
-        </p>
-      </footer>
     </div>
   );
 }
