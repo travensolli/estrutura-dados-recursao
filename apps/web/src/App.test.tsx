@@ -16,7 +16,7 @@ describe('App', () => {
 
   it.each([
     ['/calcular', 'Calcular'],
-    ['/comparar', 'Comparar desempenho'],
+    ['/comparar', 'Comparar'],
     ['/arvore', 'Árvore de chamadas'],
     ['/apresentacao', 'Modo apresentação'],
   ])('abre %s', (caminho, titulo) => {

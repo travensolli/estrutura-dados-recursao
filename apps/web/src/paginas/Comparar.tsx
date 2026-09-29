@@ -67,6 +67,10 @@ const OPCOES_URL: OpcoesEstadoUrl = { padrao: { n: 20 } };
 /** Teto de pontos da série; o passo cresce para caber nesse orçamento. */
 const PONTOS_MAXIMOS = 40;
 
+/* Os dois gráficos dividem a dobra com os destaques: altura fixa, esqueleto igual. */
+const ALTURA_GRAFICO = 150;
+const ALTURA_GRAFICO_CLASSE = 'h-[150px]';
+
 const OPCOES_ESCALA: ReadonlyArray<OpcaoSegmento<EscalaGrafico>> = [
   { valor: 'linear', rotulo: 'Linear' },
   { valor: 'log', rotulo: 'Logarítmica' },
@@ -77,11 +81,6 @@ const NOTA_ESCALA: Record<EscalaGrafico, string> = {
   linear: 'Na escala linear a mesma distância no eixo vertical vale sempre a mesma quantidade.',
   log: 'Na escala logarítmica o eixo vertical cresce multiplicando em vez de somar, então as duas curvas cabem juntas mesmo com tamanhos muito diferentes: aqui uma reta quer dizer crescimento exponencial.',
 };
-
-const OPCOES_SEQUENCIA: ReadonlyArray<OpcaoSegmento<Sequencia>> = SEQUENCIAS.map((id) => ({
-  valor: id,
-  rotulo: DESCRICAO_SEQUENCIAS[id].nome,
-}));
 
 /** Uma medição já disparada: é ela que vira chave da consulta. */
 interface Medicao {
@@ -319,7 +318,7 @@ function interpretar(resposta: CompararResposta, info: InfoSequencia | undefined
   }
 
   const crescimento = info
-    ? ` O crescimento é ${info.crescimento_sem_cache} sem cache e ${info.crescimento_com_cache} com cache.`
+    ? ` Sem cache o crescimento é ${info.crescimento_sem_cache}; com cache, ${info.crescimento_com_cache}.`
     : '';
   return [
     `Sem cache, ${chamada} fez ${sem} invocações; com cache foram ${com}. A diferença, ${formatarInteiro(resposta.chamadas_evitadas)} chamadas, é trabalho repetido que o cache não precisou refazer: cada argumento já resolvido volta pronto.${crescimento}`,
@@ -370,7 +369,11 @@ function descreverSerie(
 }
 
 interface PainelGraficoProps {
+  identificador: string;
   titulo: string;
+  /** Uma linha visível sob o título. */
+  subtitulo: string;
+  /** Leitura completa, junto da descrição dos pontos, para leitores de tela. */
   explicacao: string;
   grandeza: string;
   pontos: ReadonlyArray<PontoGrafico>;
@@ -382,7 +385,9 @@ interface PainelGraficoProps {
 
 /** Gráfico com título, descrição em texto, legenda e tabela dos mesmos dados. */
 function PainelGrafico({
+  identificador,
   titulo,
+  subtitulo,
   explicacao,
   grandeza,
   pontos,
@@ -409,19 +414,34 @@ function PainelGrafico({
   ];
 
   return (
-    <Cartao compacto className="min-w-0">
-      <figure className="m-0">
-        <figcaption className="space-y-1">
-          <h3 className="text-base font-semibold sm:text-lg">{titulo}</h3>
-          <p className="text-sm text-texto-suave">{explicacao}</p>
-          <p className="text-sm text-texto-suave">
-            {descreverSerie(pontos, formatar)} {NOTA_ESCALA[escala]}
-          </p>
+    <Cartao compacto className="min-w-0" data-testid={identificador}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <h3 className="text-base font-semibold">{titulo}</h3>
+          <p className="text-sm text-texto-suave">{subtitulo}</p>
+        </div>
+        <Botao
+          variante="discreta"
+          tamanho="pequeno"
+          icone="tabela"
+          aria-expanded={dadosVisiveis}
+          aria-controls={idDados}
+          onClick={() => setDadosVisiveis((atual) => !atual)}
+        >
+          {dadosVisiveis ? 'Ocultar dados' : 'Ver dados'}
+        </Botao>
+      </div>
+      <figure className="m-0 mt-2">
+        <figcaption className="sr-only">
+          {titulo}. {explicacao} {descreverSerie(pontos, formatar)} {NOTA_ESCALA[escala]}
         </figcaption>
-        <LegendaSeries className="mt-3" />
         <Suspense
           fallback={
-            <Esqueleto linhas={1} altura="h-64" rotulo={`Carregando o gráfico: ${titulo}`} />
+            <Esqueleto
+              linhas={1}
+              altura={ALTURA_GRAFICO_CLASSE}
+              rotulo={`Carregando o gráfico: ${titulo}`}
+            />
           }
         >
           <GraficoLinhas
@@ -430,21 +450,10 @@ function PainelGrafico({
             formatar={formatar}
             formatarEixo={formatarEixo}
             grandeza={grandeza}
-            altura={200}
+            altura={ALTURA_GRAFICO}
           />
         </Suspense>
       </figure>
-      <Botao
-        className="mt-3"
-        variante="discreta"
-        tamanho="pequeno"
-        icone="tabela"
-        aria-expanded={dadosVisiveis}
-        aria-controls={idDados}
-        onClick={() => setDadosVisiveis((atual) => !atual)}
-      >
-        {dadosVisiveis ? 'Ocultar dados' : 'Ver dados'}
-      </Botao>
       <div id={idDados} hidden={!dadosVisiveis} className="mt-3">
         {dadosVisiveis ? (
           <Tabela
@@ -473,12 +482,11 @@ function descreverFaixa(dados: SerieResposta | undefined): string {
 interface SecaoCurvasProps {
   consulta: UseQueryResult<SerieResposta>;
   escala: EscalaGrafico;
-  aoMudarEscala: (escala: EscalaGrafico) => void;
   aoTentarDeNovo: () => void;
 }
 
 /** Os dois gráficos da série, com uma única escala mandando nos dois. */
-function SecaoCurvas({ consulta, escala, aoMudarEscala, aoTentarDeNovo }: SecaoCurvasProps) {
+function SecaoCurvas({ consulta, escala, aoTentarDeNovo }: SecaoCurvasProps) {
   const pontos = consulta.data?.pontos ?? [];
   const pontosTempo: PontoGrafico[] = pontos.map((ponto) => ({
     n: ponto.n,
@@ -499,12 +507,14 @@ function SecaoCurvas({ consulta, escala, aoMudarEscala, aoTentarDeNovo }: SecaoC
         <div
           aria-busy={consulta.isFetching}
           className={juntarClasses(
-            'grid gap-4 transition-opacity duration-150 ease-suave xl:grid-cols-2',
+            'grid gap-3 transition-opacity duration-150 ease-suave lg:grid-cols-2',
             consulta.isFetching && 'opacity-60',
           )}
         >
           <PainelGrafico
+            identificador="painel-tempo"
             titulo="Tempo por n"
+            subtitulo="Mediana das repetições."
             explicacao="A mediana das repetições em cada n. Onde a medida faltou, a linha fica interrompida."
             grandeza="Tempo"
             pontos={pontosTempo}
@@ -512,7 +522,9 @@ function SecaoCurvas({ consulta, escala, aoMudarEscala, aoTentarDeNovo }: SecaoC
             formatar={formatarTempoNs}
           />
           <PainelGrafico
+            identificador="painel-invocacoes"
             titulo="Invocações por n"
+            subtitulo="Contagem exata, sem relógio."
             explicacao="Quantas vezes a função foi chamada em cada n. É contagem exata, sem relógio no meio."
             grandeza="Invocações"
             pontos={pontosInvocacoes}
@@ -525,18 +537,16 @@ function SecaoCurvas({ consulta, escala, aoMudarEscala, aoTentarDeNovo }: SecaoC
     }
     if (consulta.isFetching) {
       return (
-        <div className="grid gap-4 xl:grid-cols-2">
+        <div className="grid gap-3 lg:grid-cols-2">
           {['Tempo por n', 'Invocações por n'].map((titulo) => (
             <Cartao key={titulo} compacto className="min-w-0">
-              <h3 className="text-base font-semibold sm:text-lg">{titulo}</h3>
-              <p className="mt-1 text-sm text-texto-suave">
-                Medindo ponto a ponto. Os trabalhos pesados entram numa fila, um de cada vez.
-              </p>
+              <h3 className="text-base font-semibold">{titulo}</h3>
+              <p className="text-sm text-texto-suave">Medindo ponto a ponto, um de cada vez.</p>
               <Esqueleto
                 linhas={1}
-                altura="h-64"
+                altura={ALTURA_GRAFICO_CLASSE}
                 rotulo={`Montando o gráfico de ${titulo.toLowerCase()}`}
-                className="mt-3"
+                className="mt-2"
               />
             </Cartao>
           ))}
@@ -556,24 +566,14 @@ function SecaoCurvas({ consulta, escala, aoMudarEscala, aoTentarDeNovo }: SecaoC
   }
 
   return (
-    <section aria-labelledby="titulo-curvas" className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-        <div className="min-w-0 max-w-prose">
-          <h2 id="titulo-curvas" className="text-xl font-semibold">
-            Como cada modo cresce até esse n
-          </h2>
-          <p className="mt-1 text-sm text-texto-suave">{descreverFaixa(consulta.data)}</p>
-        </div>
-        {desenhavel ? (
-          <SeletorSegmentado
-            className="min-w-0"
-            rotulo="Escala do eixo vertical"
-            valor={escala}
-            aoMudar={aoMudarEscala}
-            opcoes={OPCOES_ESCALA}
-          />
-        ) : null}
+    <section aria-labelledby="titulo-curvas" className="space-y-2">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+        <h2 id="titulo-curvas" className="text-xl font-semibold">
+          Como cada modo cresce com n
+        </h2>
+        <LegendaSeries />
       </div>
+      <p className="sr-only">{descreverFaixa(consulta.data)}</p>
       {conteudo()}
     </section>
   );
@@ -617,6 +617,7 @@ export function PaginaComparar() {
   useTituloPagina(`Comparar ${nome} f(${n})`);
 
   const clienteConsultas = useQueryClient();
+  const idSequencia = useId();
   const sequencias = useSequencias();
   const info = sequencias.data?.sequencias.find((item) => item.id === sequencia);
   const limite = info?.limites.sem_cache;
@@ -719,53 +720,60 @@ export function PaginaComparar() {
     : '';
 
   return (
-    <div className="space-y-4">
-      <section aria-labelledby="titulo-pagina">
+    <div className="space-y-4 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start lg:gap-x-6 lg:space-y-0">
+      <section
+        aria-labelledby="titulo-pagina"
+        className="space-y-2 lg:border-r lg:border-borda lg:pr-6"
+      >
         <h1 id="titulo-pagina" className="text-2xl font-semibold">
-          Comparar desempenho
+          Comparar
         </h1>
-        <p className="mt-1 text-sm text-texto-suave">
-          A mesma função roda várias vezes com e sem cache: aqui aparecem o tempo, a memória e as
-          chamadas que o cache evitou.
-        </p>
-      </section>
 
-      <p role="status" aria-live="polite" className="sr-only">
-        {resumoAcessivel}
-      </p>
-
-      <Cartao as="section" aria-label="O que medir" compacto>
         <form
+          aria-label="O que medir"
           onSubmit={(evento) => void enviar(evento)}
-          className="flex flex-wrap items-end gap-x-5 gap-y-3"
+          className="space-y-2"
         >
-          <SeletorSegmentado
-            className="min-w-0"
-            rotulo="Sequência"
-            valor={sequencia}
-            aoMudar={(valor) => definir({ sequencia: valor })}
-            opcoes={OPCOES_SEQUENCIA}
-          />
+          <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
+            <label htmlFor={idSequencia} className="font-medium">
+              Sequência
+            </label>
+            <select
+              id={idSequencia}
+              value={sequencia}
+              onChange={(evento) => {
+                const escolhida = SEQUENCIAS.find((id) => id === evento.target.value);
+                if (escolhida) definir({ sequencia: escolhida });
+              }}
+              className="min-h-toque w-full rounded-md border border-borda-forte bg-superficie px-3 text-base"
+            >
+              {SEQUENCIAS.map((id) => (
+                <option key={id} value={id}>
+                  {DESCRICAO_SEQUENCIAS[id].nome}
+                </option>
+              ))}
+            </select>
+          </div>
           <CampoNumero
-            className="w-32"
             rotulo="n"
             valor={rascunhoN}
             aoMudar={aoMudarN}
             minimo={0}
             maximo={limite}
+            reservarErro={false}
           />
           <CampoNumero
-            className="w-32"
             rotulo="Repetições"
             valor={rascunhoRepeticoes}
             aoMudar={aoMudarRepeticoes}
             minimo={1}
             maximo={REPETICOES_MAXIMO}
+            reservarErro={false}
           />
-          <GrupoBotoes>
+          <div className="flex gap-2">
             <Botao
               type="submit"
-              tamanho="medio"
+              className="flex-1"
               icone="comparar"
               carregando={medindo || verificando}
               rotuloCarregando={medindo ? 'Medindo' : 'Conferindo o tamanho'}
@@ -776,223 +784,240 @@ export function PaginaComparar() {
             {medindo ? (
               <Botao
                 variante="neutra"
-                tamanho="medio"
+                className="flex-1"
                 icone="cancelar"
                 onClick={() => void cancelar()}
               >
                 Cancelar
               </Botao>
             ) : null}
-          </GrupoBotoes>
-          <p className="min-h-5 basis-full text-sm text-texto-suave">
+          </div>
+          <p className="min-h-10 text-sm text-texto-suave">
             {previsao
-              ? `Previsão: cada execução sem cache faz ${formatarInteiro(previsao.invocacoes_previstas)} invocações, e são ${formatarInteiro(repeticoes)} repetições em cada modo.`
+              ? `Previsão: ${formatarInteiro(previsao.invocacoes_previstas)} invocações sem cache; ${formatarInteiro(repeticoes)} repetições por modo.`
               : null}
           </p>
         </form>
-      </Cartao>
 
-      {bloqueado ? (
-        <Alerta
-          tipo="erro"
-          titulo="Esse n passa do limite desta demonstração"
-          acoes={
-            limiteExibido !== undefined ? (
-              <Botao
-                variante="secundaria"
-                tamanho="pequeno"
-                icone="reduzir"
-                onClick={() => definir({ n: limiteExibido })}
-              >
-                Usar n = {formatarInteiro(limiteExibido)}
-              </Botao>
-            ) : null
-          }
-        >
-          <p>
-            Comparar executa os dois modos, e sem cache {nome} não passa de n ={' '}
-            {limiteExibido === undefined
-              ? 'um valor menor que o pedido'
-              : formatarInteiro(limiteExibido)}
-            . Acima disso a recursão estoura o tempo e a pilha disponíveis.
-          </p>
-        </Alerta>
-      ) : null}
-
-      {cancelada ? (
-        <Alerta tipo="alerta" titulo="Comparação cancelada">
-          <p>Nada foi medido. Ajuste os valores e toque em Comparar de novo.</p>
-        </Alerta>
-      ) : null}
-
-      {comparacao.error !== null ? (
-        <EstadoErro
-          erro={comparacao.error}
-          aoTentarDeNovo={() => iniciar()}
-          aoReduzirN={limiteExibido === undefined ? undefined : () => definir({ n: limiteExibido })}
+        <SeletorSegmentado
+          rotulo="Escala dos gráficos"
+          valor={escala}
+          aoMudar={setEscala}
+          opcoes={OPCOES_ESCALA}
         />
-      ) : null}
+      </section>
 
-      <section aria-labelledby="titulo-resultado" className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="titulo-resultado" className="text-xl font-semibold">
-            Resultado
-          </h2>
-          {medicao ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <Selo>
-                {DESCRICAO_SEQUENCIAS[medicao.sequencia].nome} f({medicao.n})
-              </Selo>
-              <Selo>
-                {formatarInteiro(medicao.repeticoes)}{' '}
-                {medicao.repeticoes === 1 ? 'repetição' : 'repetições'}
-              </Selo>
-            </div>
-          ) : null}
-        </div>
+      <div className="min-w-0 space-y-3">
+        <p role="status" aria-live="polite" className="sr-only">
+          {resumoAcessivel}
+        </p>
 
-        {medindo ? <Esqueleto linhas={4} altura="h-20" rotulo="Medindo os dois modos" /> : null}
+        {bloqueado ? (
+          <Alerta
+            tipo="erro"
+            titulo="Esse n passa do limite desta demonstração"
+            acoes={
+              limiteExibido !== undefined ? (
+                <Botao
+                  variante="secundaria"
+                  tamanho="pequeno"
+                  icone="reduzir"
+                  onClick={() => definir({ n: limiteExibido })}
+                >
+                  Usar n = {formatarInteiro(limiteExibido)}
+                </Botao>
+              ) : null
+            }
+          >
+            <p>
+              Comparar executa os dois modos, e sem cache {nome} não passa de n ={' '}
+              {limiteExibido === undefined
+                ? 'um valor menor que o pedido'
+                : formatarInteiro(limiteExibido)}
+              . Acima disso a recursão estoura o tempo e a pilha disponíveis.
+            </p>
+          </Alerta>
+        ) : null}
 
-        {medicao === null && !medindo ? (
-          <EstadoVazio
-            icone="comparar"
-            titulo="Nenhuma comparação ainda"
-            descricao="Escolha os parâmetros e toque em Comparar: aparecem o fator de aceleração, as chamadas evitadas, o tempo e a memória."
+        {cancelada ? (
+          <Alerta tipo="alerta" titulo="Comparação cancelada">
+            <p>Nada foi medido. Ajuste os valores e toque em Comparar de novo.</p>
+          </Alerta>
+        ) : null}
+
+        {comparacao.error !== null ? (
+          <EstadoErro
+            erro={comparacao.error}
+            aoTentarDeNovo={() => iniciar()}
+            aoReduzirN={
+              limiteExibido === undefined ? undefined : () => definir({ n: limiteExibido })
+            }
           />
         ) : null}
 
-        {resposta && !medindo ? (
-          <div className="space-y-4">
-            {desatualizada ? (
-              <p className="text-sm text-texto-suave">
-                O formulário mudou depois desta medição. Toque em Comparar para atualizar.
-              </p>
-            ) : null}
-
-            {resposta.ambiente.node === 'mock' ? (
-              <Alerta tipo="alerta" titulo="Dados simulados">
-                <p>
-                  A API real ainda não está ligada: estes números vêm dos mocks do navegador. As
-                  contagens de invocações e as entradas no cache são exatas, mas os tempos e a
-                  memória são simulados a partir do número de chamadas.
-                </p>
-              </Alerta>
-            ) : null}
-
-            <div className="grid gap-4 lg:grid-cols-3">
-              <Cartao destaque compacto>
-                <p className="text-sm text-texto-suave">Fator de aceleração</p>
-                <p className="mt-1 text-4xl leading-none font-semibold">
-                  {formatarFator(resposta.fator_aceleracao)}
-                </p>
-                <p className="mt-2 text-sm text-texto-suave">
-                  Mediana de {formatarInteiro(resposta.repeticoes)} repetições:{' '}
-                  {formatarTempoNs(resposta.tempo.sem_cache.mediana_ns)} sem cache contra{' '}
-                  {formatarTempoNs(resposta.tempo.com_cache.mediana_ns)} com cache, ou seja,{' '}
-                  {lerFator(resposta.fator_aceleracao)}.
-                </p>
-              </Cartao>
-
-              <Metrica
-                rotulo="Chamadas evitadas pelo cache"
-                valor={formatarInteiro(resposta.chamadas_evitadas)}
-                destaque
-                detalhe={
-                  resposta.chamadas_evitadas > 0
-                    ? `${formatarInteiro(resposta.invocacoes.sem_cache)} invocações sem cache contra ${formatarInteiro(resposta.invocacoes.com_cache)} com cache.`
-                    : `Nenhum argumento se repetiu: ${formatarInteiro(resposta.invocacoes.sem_cache)} invocações nos dois modos.`
-                }
-              />
-
-              <Metrica
-                rotulo="Memória a mais com cache"
-                valor={formatarBytes(resposta.diferenca_memoria_bytes)}
-                destaque
-                detalhe={`${formatarInteiro(resposta.memoria.com_cache.entradas_cache)} entradas guardadas: ${lerMemoria(resposta.diferenca_memoria_bytes)}.`}
-              />
-            </div>
-
-            <Cartao as="section" titulo="O que esses números dizem" nivelTitulo={2} compacto>
-              <div className="space-y-3">
-                {interpretar(resposta, info).map((paragrafo) => (
-                  <p key={paragrafo.slice(0, 40)} className="max-w-prose">
-                    {paragrafo}
-                  </p>
-                ))}
+        <section aria-labelledby="titulo-resultado" className="space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 id="titulo-resultado" className="text-xl font-semibold">
+              Resultado
+            </h2>
+            {medicao ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <Selo>
+                  {DESCRICAO_SEQUENCIAS[medicao.sequencia].nome} f({medicao.n})
+                </Selo>
+                <Selo>
+                  {formatarInteiro(medicao.repeticoes)}{' '}
+                  {medicao.repeticoes === 1 ? 'repetição' : 'repetições'}
+                </Selo>
               </div>
-            </Cartao>
-
-            <Cartao
-              as="section"
-              titulo="Valor calculado"
-              nivelTitulo={2}
-              descricao="Os dois modos chegam ao mesmo valor: o cache muda o caminho, nunca o resultado."
-              compacto
-            >
-              <NumeroGrande
-                valor={resposta.valor}
-                tamanho="medio"
-                rotulo={`${DESCRICAO_SEQUENCIAS[resposta.sequencia].nome} f(${resposta.n}) vale`}
-                nome={`f(${resposta.n})`}
-              />
-            </Cartao>
-
-            <SecaoCurvas
-              consulta={serie}
-              escala={escala}
-              aoMudarEscala={setEscala}
-              aoTentarDeNovo={() => void serie.refetch()}
-            />
-
-            <Detalhes
-              resumo={
-                <h2 id="titulo-tempo" className="text-base font-semibold">
-                  Tempo
-                </h2>
-              }
-            >
-              <TabelaTempo resposta={resposta} />
-            </Detalhes>
-
-            <Detalhes
-              resumo={
-                <h2 id="titulo-memoria" className="text-base font-semibold">
-                  Memória
-                </h2>
-              }
-            >
-              <TabelaMemoria resposta={resposta} />
-            </Detalhes>
-
-            <BlocoAmbiente ambiente={resposta.ambiente} />
-
-            <GrupoBotoes>
-              <BotaoLink
-                variante="secundaria"
-                icone="calcular"
-                to={enderecoComEstado('/calcular', {
-                  sequencia: resposta.sequencia,
-                  n: resposta.n,
-                  modo: 'comparar',
-                })}
-              >
-                Ver as contagens desta execução
-              </BotaoLink>
-              <BotaoLink
-                variante="neutra"
-                icone="arvore"
-                to={enderecoComEstado('/arvore', {
-                  sequencia: resposta.sequencia,
-                  n: resposta.n,
-                  modo: 'com_cache',
-                })}
-              >
-                Ver árvore com cache
-              </BotaoLink>
-            </GrupoBotoes>
+            ) : null}
           </div>
-        ) : null}
-      </section>
+
+          {medindo ? <Esqueleto linhas={4} altura="h-20" rotulo="Medindo os dois modos" /> : null}
+
+          {medicao === null && !medindo ? (
+            <EstadoVazio
+              icone="comparar"
+              titulo="Nenhuma comparação ainda"
+              descricao="Escolha os parâmetros à esquerda e toque em Comparar: aparecem o fator de aceleração, as chamadas evitadas, a memória e as curvas dos dois modos."
+            />
+          ) : null}
+
+          {resposta && !medindo ? (
+            <div className="space-y-2">
+              {desatualizada ? (
+                <p className="text-sm text-texto-suave">
+                  O formulário mudou depois desta medição. Toque em Comparar para atualizar.
+                </p>
+              ) : null}
+
+              {resposta.ambiente.node === 'mock' ? (
+                <Alerta tipo="alerta" titulo="Dados simulados">
+                  <p>
+                    A API real ainda não está ligada: estes números vêm dos mocks do navegador. As
+                    contagens de invocações e as entradas no cache são exatas, mas os tempos e a
+                    memória são simulados a partir do número de chamadas.
+                  </p>
+                </Alerta>
+              ) : null}
+
+              <div className="grid gap-3 lg:grid-cols-3">
+                <Cartao destaque compacto>
+                  <p className="text-sm text-texto-suave">Fator de aceleração</p>
+                  <p className="mt-1 text-4xl leading-none font-semibold">
+                    {formatarFator(resposta.fator_aceleracao)}
+                  </p>
+                  <p className="mt-2 text-sm text-texto-suave">
+                    Medianas de {formatarTempoNs(resposta.tempo.sem_cache.mediana_ns)} sem cache e{' '}
+                    {formatarTempoNs(resposta.tempo.com_cache.mediana_ns)} com cache:{' '}
+                    {lerFator(resposta.fator_aceleracao)}.
+                  </p>
+                </Cartao>
+
+                <Metrica
+                  rotulo="Chamadas evitadas pelo cache"
+                  valor={formatarInteiro(resposta.chamadas_evitadas)}
+                  marca="com-cache"
+                  destaque
+                  detalhe={
+                    resposta.chamadas_evitadas > 0
+                      ? `${formatarInteiro(resposta.invocacoes.sem_cache)} invocações sem cache contra ${formatarInteiro(resposta.invocacoes.com_cache)} com cache.`
+                      : `Nenhum argumento se repetiu: ${formatarInteiro(resposta.invocacoes.sem_cache)} invocações nos dois modos.`
+                  }
+                />
+
+                <Metrica
+                  rotulo="Memória a mais com cache"
+                  valor={formatarBytes(resposta.diferenca_memoria_bytes)}
+                  marca="com-cache"
+                  destaque
+                  detalhe={`${formatarInteiro(resposta.memoria.com_cache.entradas_cache)} entradas guardadas no cache.`}
+                />
+              </div>
+
+              <SecaoCurvas
+                consulta={serie}
+                escala={escala}
+                aoTentarDeNovo={() => void serie.refetch()}
+              />
+
+              <div className="space-y-4 pt-2">
+                <Cartao as="section" titulo="O que esses números dizem" nivelTitulo={2} compacto>
+                  <div className="space-y-3">
+                    {interpretar(resposta, info).map((paragrafo) => (
+                      <p key={paragrafo.slice(0, 40)} className="max-w-prose">
+                        {paragrafo}
+                      </p>
+                    ))}
+                  </div>
+                </Cartao>
+
+                <Cartao
+                  as="section"
+                  titulo="Valor calculado"
+                  nivelTitulo={2}
+                  descricao="Os dois modos chegam ao mesmo valor: o cache muda o caminho, nunca o resultado."
+                  compacto
+                >
+                  <NumeroGrande
+                    valor={resposta.valor}
+                    tamanho="medio"
+                    rotulo={`${DESCRICAO_SEQUENCIAS[resposta.sequencia].nome} f(${resposta.n}) vale`}
+                    nome={`f(${resposta.n})`}
+                  />
+                </Cartao>
+
+                <Detalhes
+                  resumo={
+                    <h2 id="titulo-tempo" className="text-base font-semibold">
+                      Tempo
+                    </h2>
+                  }
+                >
+                  <TabelaTempo resposta={resposta} />
+                </Detalhes>
+
+                <Detalhes
+                  resumo={
+                    <h2 id="titulo-memoria" className="text-base font-semibold">
+                      Memória
+                    </h2>
+                  }
+                >
+                  <TabelaMemoria resposta={resposta} />
+                </Detalhes>
+
+                <BlocoAmbiente ambiente={resposta.ambiente} />
+
+                <GrupoBotoes>
+                  <BotaoLink
+                    variante="secundaria"
+                    icone="calcular"
+                    to={enderecoComEstado('/calcular', {
+                      sequencia: resposta.sequencia,
+                      n: resposta.n,
+                      modo: 'comparar',
+                    })}
+                  >
+                    Ver as contagens desta execução
+                  </BotaoLink>
+                  <BotaoLink
+                    variante="neutra"
+                    icone="arvore"
+                    to={enderecoComEstado('/arvore', {
+                      sequencia: resposta.sequencia,
+                      n: resposta.n,
+                      modo: 'com_cache',
+                    })}
+                  >
+                    Ver árvore com cache
+                  </BotaoLink>
+                </GrupoBotoes>
+              </div>
+            </div>
+          ) : null}
+        </section>
+      </div>
 
       <DialogoConfirmacao
         aberto={confirmando}

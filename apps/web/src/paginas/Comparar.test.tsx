@@ -39,7 +39,7 @@ function linhaDaTabela(nome: RegExp): HTMLElement {
 describe('Página comparar', () => {
   it('começa vazia, com tribonacci, n 20 e 5 repetições', async () => {
     await abrir();
-    expect(screen.getByRole('radio', { name: 'Tribonacci' })).toBeChecked();
+    expect(screen.getByLabelText('Sequência')).toHaveValue('tribonacci');
     expect(screen.getByLabelText('n')).toHaveValue('20');
     expect(screen.getByLabelText('Repetições')).toHaveValue('5');
     expect(screen.getByText('Nenhuma comparação ainda')).toBeInTheDocument();
@@ -127,6 +127,14 @@ describe('Página comparar', () => {
     await usuario.click(screen.getByRole('button', { name: 'Usar n = 30' }));
     expect(screen.getByLabelText('n')).toHaveValue('30');
     expect(botaoComparar()).toBeEnabled();
+  });
+
+  it('troca a escala dos dois gráficos pela coluna de configuração', async () => {
+    const usuario = await abrir();
+    const logaritmica = screen.getByRole('radio', { name: 'Logarítmica' });
+    await usuario.click(logaritmica);
+    expect(logaritmica).toBeChecked();
+    expect(screen.getByRole('radiogroup', { name: 'Escala dos gráficos' })).toBeInTheDocument();
   });
 
   it('guarda repetições no endereço e anuncia o resultado numa região viva', async () => {
