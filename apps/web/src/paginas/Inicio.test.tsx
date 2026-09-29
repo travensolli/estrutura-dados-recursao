@@ -23,15 +23,40 @@ describe('Página inicial', () => {
 
     const tribonacci = screen.getByRole('article', { name: 'Tribonacci' });
     expect(within(tribonacci).getByText('f(n) = f(n-1) + f(n-2) + f(n-3)')).toBeInTheDocument();
-    expect(within(tribonacci).getByText('f(0) = f(1) = f(2) = 1')).toBeInTheDocument();
+    expect(within(tribonacci).getByText('com f(0) = f(1) = f(2) = 1')).toBeInTheDocument();
     expect(within(tribonacci).getByText('1, 1, 1, 3, 5, 9, 17, 31')).toBeInTheDocument();
-    expect(within(tribonacci).getByText(/linear: 3n - 5 invocações/)).toBeInTheDocument();
+    expect(within(tribonacci).getByText('linear, 3n − 5 invocações (n ≥ 2)')).toBeInTheDocument();
+  });
+
+  it('explica por que o cache importa, sem esquecer os casos base', async () => {
+    await renderizar();
+    const [semCache, comCache] = screen.getAllByRole('listitem').slice(0, 2);
+    expect(semCache).toHaveTextContent(
+      /Sem cache, cada chamada que não é caso base abre uma chamada por termo anterior/,
+    );
+    expect(semCache).toHaveTextContent(/o custo é exponencial/);
+    expect(comCache).toHaveTextContent(
+      /Com cache \(memoização\), cada f\(k\) acima dos casos base/,
+    );
+    expect(comCache).toHaveTextContent(/o custo vira linear/);
+  });
+
+  it('mostra a ordem de cada recorrência', async () => {
+    await renderizar();
+    for (const [nome, ordem] of [
+      ['Fatorial', 1],
+      ['Fibonacci', 2],
+      ['Tribonacci', 3],
+    ] as const) {
+      const cartao = screen.getByRole('article', { name: nome });
+      expect(within(cartao).getByText(`ordem ${ordem}`)).toBeInTheDocument();
+    }
   });
 
   it('diz que o fatorial não ganha nada com o cache', async () => {
     await renderizar();
     const fatorial = screen.getByRole('article', { name: 'Fatorial' });
-    expect(within(fatorial).getByText(/o cache não evita nenhuma chamada/)).toBeInTheDocument();
+    expect(within(fatorial).getByText('linear, sem ganho')).toBeInTheDocument();
   });
 
   it('leva a cada tela com a sequência no endereço', async () => {
@@ -63,7 +88,7 @@ describe('Página inicial', () => {
     await renderizar();
     expect(screen.getByRole('link', { name: '1 · Calcular com e sem cache' })).toHaveAttribute(
       'href',
-      '/calcular?sequencia=tribonacci&n=7',
+      '/calcular?sequencia=tribonacci&n=7&modo=comparar',
     );
     expect(screen.getByRole('link', { name: '2 · Comparar tempo e memória' })).toHaveAttribute(
       'href',

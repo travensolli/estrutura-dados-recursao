@@ -1,7 +1,9 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { api } from '../api/cliente';
+import { servidorMock } from '../mocks/servidor';
 import { renderizarComProvedores } from '../testes/renderizar';
 import { formatarFator } from '../utilitarios/formatar';
 import { PaginaComparar } from './Comparar';
@@ -39,7 +41,7 @@ function linhaDaTabela(nome: RegExp): HTMLElement {
 describe('Página comparar', () => {
   it('começa vazia, com tribonacci, n 20 e 5 repetições', async () => {
     await abrir();
-    expect(screen.getByRole('radio', { name: 'Tribonacci' })).toBeChecked();
+    expect(screen.getByLabelText('Sequência')).toHaveValue('tribonacci');
     expect(screen.getByLabelText('n')).toHaveValue('20');
     expect(screen.getByLabelText('Repetições')).toHaveValue('5');
     expect(screen.getByText('Nenhuma comparação ainda')).toBeInTheDocument();
@@ -127,6 +129,31 @@ describe('Página comparar', () => {
     await usuario.click(screen.getByRole('button', { name: 'Usar n = 30' }));
     expect(screen.getByLabelText('n')).toHaveValue('30');
     expect(botaoComparar()).toBeEnabled();
+  });
+
+  it('a escala escolhida na coluna vale para os dois gráficos', async () => {
+    const usuario = await abrir();
+    await medir(usuario);
+    await screen.findByTestId('painel-invocacoes', undefined, { timeout: 5000 });
+    expect(screen.getAllByText(/Na escala linear/)).toHaveLength(2);
+
+    await usuario.click(screen.getByRole('radio', { name: 'Logarítmica' }));
+    expect(screen.getAllByText(/Na escala logarítmica/)).toHaveLength(2);
+    expect(screen.queryByText(/Na escala linear/)).not.toBeInTheDocument();
+  });
+
+  it('diz no destaque de memória quando o cache não pesou mais', async () => {
+    const medida = await api.comparar({ sequencia: 'tribonacci', n: 20, repeticoes: 5 });
+    servidorMock.use(
+      http.post('/api/comparar', () =>
+        HttpResponse.json({ ...medida, diferenca_memoria_bytes: -208 }),
+      ),
+    );
+    const usuario = await abrir();
+    await medir(usuario);
+    expect(cartaoMetrica('Memória a mais com cache')).toHaveTextContent(
+      /a execução com cache reteve 208 B a menos: a variação do coletor de lixo/,
+    );
   });
 
   it('guarda repetições no endereço e anuncia o resultado numa região viva', async () => {

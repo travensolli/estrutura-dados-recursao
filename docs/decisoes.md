@@ -149,8 +149,9 @@ A entrada de 28/09 projetava o `relatorio.html` e deixava a aplicação num
 bloco curto de demonstração. Com as telas cabendo na dobra do notebook, a
 relação se inverte.
 
-- **Material projetado:** a própria aplicação, navegada na ordem do
-  enunciado (`/` → `/calcular` → `/arvore` → `/apresentacao` → `/comparar`).
+- **Material projetado:** a própria aplicação, navegada do fato medido à
+  explicação (`/` → `/calcular` → `/arvore` → `/apresentacao` → `/comparar`);
+  a faixa do início mantém os pedidos na ordem do enunciado.
   Todos os números continuam vindo de execuções instrumentadas, ao vivo.
 - **O `relatorio.html` não sai do projeto:** vira material de apoio e o
   primeiro degrau do plano B, porque é estático e não depende do app subir.
@@ -162,3 +163,48 @@ relação se inverte.
 **Consequência:** o roteiro foi reescrito seção a seção com as telas e os
 endereços prontos, e o checklist passou a exigir zoom em 100% e um ensaio
 de navegação antes da aula.
+
+## 2026-09-29: Configuração à esquerda, comparativo lado a lado e a ordem das recorrências
+
+Depois de ensaiar com o app como palco, a leitura das telas de execução pediu
+uma mudança de forma: o que se ajusta à esquerda, o que se mostra à direita.
+
+- **Calcular, Comparar e Árvore** ganharam a mesma grade de duas zonas no
+  notebook: uma coluna de configuração de 300px e o resultado ao lado. Abaixo
+  de 1024px a grade empilha, como antes. A escala dos gráficos do Comparar
+  mudou-se para a coluna, porque é um ajuste de leitura.
+- **Comparativo lado a lado:** no modo comparar do Calcular, os dois placares,
+  sem cache e com cache, mostram as sete contagens na mesma linha de visão. A
+  tabela de métricas saiu; as definições de cada contagem ficaram num bloco
+  sob demanda.
+- **Dobra pós-execução:** o teste `dobra.spec.ts` passou a exigir, além do
+  estado inicial sem rolagem, que os dois placares e, no Comparar, os três
+  destaques e as duas curvas fiquem inteiros na janela depois de executar.
+- **Ordem da recorrência:** o contrato ganhou o campo `ordem` (1, 2 e 3). Um
+  teste do núcleo confere que a raiz de f(7) sem cache abre exatamente essa
+  quantidade de chamadas, para a tela nunca mostrar uma ordem que a recursão
+  não executa. O Início usa a ordem para explicar, em duas linhas, por que
+  sem cache o custo é exponencial a partir da ordem 2.
+- **Notação do crescimento:** as frases viraram `exponencial, Θ(τⁿ), τ ≈
+1,839` e `Θ(φⁿ), φ ≈ 1,618`, a forma do artigo, no lugar de `aproximadamente
+1,839ⁿ`. Em f(7) o Tribonacci faz 46 invocações, e 1,839⁷ ≈ 71: o
+  "aproximadamente" sugeria uma igualdade que a contagem não confirma. Uma
+  primeira versão escreveu `O(1,839ⁿ)`, o que é falso no sentido estrito,
+  porque τ = 1,83928... fica acima de 1,839; a revisão pegou e a constante
+  passou a ter nome. As contagens com cache ganharam o domínio: 2n − 1 e n
+  valem a partir de n = 1, e 3n − 5 a partir de n = 2.
+- **Largura:** o miolo passou de 1152px para 1280px, aproveitando a tela de
+  1366 que a coluna de configuração estreitava.
+- **Árvore inteira:** o piso do enquadramento automático desceu de 0,4 para
+  0,25, para f(7) caber inteira na coluna mais estreita, também num projetor
+  de 1024px; um teste de ponta a ponta confere os 46 nós dentro do desenho. Nesta tela o objetivo
+  é a forma e as repetições pela cor; o zoom continua para ler cada nó.
+
+**Medição:** as telas foram conferidas em 1366x641 com as fontes do sistema e
+com uma simulação de fontes mais largas (Verdana e Courier New), para cobrir
+as fontes do runner Linux do CI, que já tinham estourado a dobra uma vez.
+
+**Consequência:** `docs/resultados-benchmark.md` recebeu à mão as seis linhas
+de crescimento, sem regerar as medições que o roteiro cita; como a fonte do
+texto é o contrato, a próxima regeneração sai igual. O roteiro foi ajustado à
+nova disposição das telas.

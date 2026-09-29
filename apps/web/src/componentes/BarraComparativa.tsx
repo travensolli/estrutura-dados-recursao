@@ -48,26 +48,18 @@ export function BarraComparativa({
     <figure className={juntarClasses('min-w-0', className)}>
       <figcaption className="font-medium">{titulo}</figcaption>
       {descricao ? <p className="mt-0.5 text-sm text-texto-suave">{descricao}</p> : null}
-      <ul className="mt-3 space-y-0.5">
+      <ul className="mt-3 grid grid-cols-[auto_minmax(3rem,1fr)_auto] items-center gap-x-3 gap-y-0.5">
         {series.map((serie) => (
-          <li
-            key={serie.modo}
-            className="grid grid-cols-[5rem_1fr] items-center gap-x-3 sm:grid-cols-[6.5rem_1fr]"
-          >
+          <li key={serie.modo} className="col-span-3 grid grid-cols-subgrid items-center">
             <span className="text-sm text-texto-suave">{rotuloModo(serie.modo)}</span>
-            <span className="flex min-w-0 items-center gap-2">
+            <span aria-hidden="true" className="h-5 rounded-[4px] bg-superficie-suave">
               <span
-                aria-hidden="true"
-                className="h-5 min-w-0 flex-1 rounded-[4px] bg-superficie-suave"
-              >
-                <span
-                  className={juntarClasses('block h-5 rounded-r-[4px]', CLASSES_BARRA[serie.modo])}
-                  style={{ width: largura(serie.valor, topo) }}
-                />
-              </span>
-              <span className="shrink-0 font-semibold tabular-nums">
-                {serie.texto ?? serie.valor}
-              </span>
+                className={juntarClasses('block h-5 rounded-r-[4px]', CLASSES_BARRA[serie.modo])}
+                style={{ width: largura(serie.valor, topo) }}
+              />
+            </span>
+            <span className="text-right font-semibold tabular-nums">
+              {serie.texto ?? serie.valor}
             </span>
           </li>
         ))}
