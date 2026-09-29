@@ -291,3 +291,57 @@ aos outros números. Continua sendo uma medida única da versão instrumentada,
 e a nota ao lado diz isso. Em f(7) os dois modos ficam perto de 0,3 ms, porque
 o custo fixo de uma execução a frio domina 46 chamadas; em n = 20 e n = 25 a
 diferença aparece (3,7 contra 0,4 ms e 46 contra 0,4 ms, medidos na API).
+
+## 2026-09-29: Densidade — o alvo segue o ponteiro, o texto sobe e o desenho cresce
+
+A calibração da dobra valia para o estado inicial das telas. Depois de
+executar, e dentro da apresentação, o conteúdo ainda passava da janela, e
+o peso visual estava invertido: botões de 44px por toda parte e o texto que
+explica o conceito em 14px apagados.
+
+- **O alvo segue o ponteiro.** O piso de 44px continua no toque (WCAG 2.5.5),
+  mas com ponteiro fino e hover, que é o notebook com mouse ou trackpad, cai
+  para 32px, acima dos 24px de WCAG 2.2 SC 2.5.8. A troca é uma variável,
+  `--alvo`, lida pelo token `--spacing-toque`: o Tailwind copia o valor para
+  dentro da utilidade, então `min-h-toque` virou `min-height: var(--alvo)` e
+  nenhum dos cerca de 50 usos precisou mudar. A variante `denso:` usa a mesma
+  consulta, para layout e alvo mudarem juntos, e `data-densidade="confortavel"`
+  devolve os 44px a uma subárvore se um ensaio pedir. A decisão de 29/09 de
+  não reduzir o alvo cai; a de não descer texto de conteúdo abaixo de 14px
+  continua.
+- **O texto sobe, o botão desce.** A tese do Início fica lado a lado, em
+  tamanho de leitura, e os quatro botões de cada cartão viram atalhos
+  discretos. Uma ação principal por tela, a 40px; o resto a 32px. Três
+  entrelinhas nomeadas (dado, interface, prosa) e a utilidade `prosa` para o
+  texto explicativo.
+- **Um cartão por resposta.** No Calcular, o valor, as chamadas evitadas, as
+  barras e os dois placares viram um cartão com réguas; no Comparar, os três
+  destaques. Tempo, memória e ambiente viram abas num único bloco recolhido,
+  com o componente `Abas`, que existia sem uso. Os gráficos sobem de 150 para
+  200px: a reta da escala logarítmica é a prova visual do exponencial.
+- **O desenho da árvore fica com a coluna da direita.** Os contadores descem
+  para a coluna lateral, que estreita para 260px, e a barra de zoom flutua no
+  canto inferior direito do desenho, que as três recorrências deixam vazio
+  porque o ramo mais fundo é o da esquerda. As alturas saem de constantes em
+  `arvore/layout.ts`.
+- **O palco cabe inteiro.** A moldura perde 80px, a etapa 2 põe a árvore na
+  largura toda com a contagem por argumento numa faixa abaixo, e a etapa 6
+  fecha com o critério: o mesmo argumento volta?
+
+**Medição** em 1366x641, antes e depois: Calcular depois de calcular rolava
+188px e não rola; Comparar rolava 774px e rola 347, com destaques e curvas
+na dobra e o resto recolhido abaixo; o desenho da Árvore foi de 292 para
+466px e a reprodução passo a passo, que rolava 112px, cabe; as etapas 2, 3 e
+5 rolavam 265, 334 e 132px por dentro do palco e nenhuma rola, também em
+1366x768. Na etapa 2 a árvore foi de 191 para 291px em 1366x768.
+
+**Limite conhecido:** a árvore sem cache de f(7) tem 31 folhas e é limitada
+pela largura, não pela altura; na Árvore, a altura extra vira espaço para
+aproximar e arrastar, e quem ganha tamanho é a árvore com cache, que é alta.
+
+**Testes:** `e2e/alvos.spec.ts` mede o menor lado de todo controle visível e
+exige 44px no projeto celular e 32px nos outros; `dobra.spec.ts` ganhou a
+janela útil de um 1440x900 e a garantia de que as seis etapas não rolam por
+dentro, em 768 e 641. Os projetos desktop e tablet do Playwright usam o
+Chrome de mesa, com ponteiro fino e hover, e por isso ficam densos; só o
+celular, com toque, vê os 44px.

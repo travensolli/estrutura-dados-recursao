@@ -4,9 +4,9 @@ Trabalho PRJ.ED.1, Estrutura de Dados. As seções vão do fato medido à explic
 sem cache, ver a árvore sem cache, explicar o cache em f(7) e, por fim, medir tempo e memória. A
 tabela abaixo liga cada pedido do enunciado à seção que o responde. O palco é a
 **própria aplicação**, projetada do notebook (`pnpm dev` ou Docker Compose). As telas foram
-calibradas para caber numa janela de 1366×768 sem rolagem: em Calcular, Comparar e Árvore a
-configuração fica numa coluna à esquerda e o resultado inteiro à direita, e as tabelas de prova
-abrem sob demanda.
+calibradas para caber numa janela de 1366×768 sem rolagem, também depois de executar e em todas as
+etapas da apresentação: em Calcular, Comparar e Árvore a configuração fica numa coluna à esquerda e
+o resultado inteiro à direita, e as tabelas de prova abrem sob demanda.
 
 O `docs/relatorio.html` continua no projeto como material de apoio e primeiro degrau do plano B: é
 um arquivo só, estático, com todos os números. A base conceitual e as contas completas estão no
@@ -72,8 +72,8 @@ ao vivo, nunca a seção 5.
 
 ### 1. O enunciado, item a item (0:45) — tela `/`
 
-Na tela: o Início. Logo abaixo do título estão as duas linhas que motivam o trabalho, uma para cada
-modo, e a faixa "O enunciado:".
+Na tela: o Início. Logo abaixo do título estão as duas linhas que motivam o trabalho, lado a lado,
+sem cache à esquerda e com cache à direita, e a faixa "O enunciado:".
 
 - Leia o enunciado em uma frase: calcular três sequências recursivas de dois jeitos, com e sem
   cache, comparar tempo e memória e mostrar a árvore de chamadas.
@@ -96,10 +96,10 @@ termos. Abaixo deles, fechado, o painel **Fórmulas gerais**.
 - Aponte a **ordem** de cada uma: 1 no Fatorial, 2 no Fibonacci, 3 no Tribonacci. É quantos termos
   anteriores a recorrência usa, e portanto quantas chamadas abre cada nó que não é caso base.
   **Guardem esse número, porque é ele que decide tudo.**
-- Clique em **Código** no cartão do Tribonacci: abre o código TypeScript real das duas funções, lido
-  do próprio arquivo que o app executa e cronometra. Aponte as três chamadas recursivas no `return`,
-  que são a ordem 3, e, na versão com cache, as três linhas marcadas: consultar o cache, devolver o
-  acerto e guardar o valor. É tudo o que o cache acrescenta. Feche com Esc; os outros dois cartões
+- Clique em **Código**, no pé do cartão do Tribonacci: abre o código TypeScript real das duas
+  funções, lido do próprio arquivo que o app executa e cronometra. Aponte as três chamadas
+  recursivas no `return`, que são a ordem 3, e, na versão com cache, as três linhas marcadas:
+  consultar o cache, devolver o acerto e guardar o valor. É tudo o que o cache acrescenta. Feche com Esc; os outros dois cartões
   têm o mesmo botão, se alguém pedir.
 - Aponte as linhas de crescimento: sem cache o Fibonacci é Θ(φⁿ), com φ ≈ 1,618, a razão áurea, e
   o Tribonacci é Θ(τⁿ), com τ ≈ 1,839, a constante de Tribonacci: exponenciais. Com cache, os dois
@@ -120,39 +120,40 @@ Tribonacci, o modo **Comparar** e n = 7, e clique em **Calcular**.
 
 Este é o item (a)–(c) do enunciado acontecendo ao vivo, e não uma captura de tela.
 
-- No topo da direita, três cartões: o valor **31**, "igual nos dois modos", porque **o cache muda o
-  caminho, nunca o resultado**; as **30 chamadas evitadas**; e as barras de invocações por modo,
-  46 contra 16.
-- Logo abaixo, os dois placares **lado a lado**, sem cache à esquerda e com cache à direita. Leia
-  linha por linha: 46 contra 16 invocações, 15 contra 5 calculados, 0 contra 5 acertos e a mesma
-  profundidade 6. A explicação do porquê fica para daqui a pouco; agora é só o fato medido.
+- O resultado inteiro é um cartão só. No topo, três colunas: o valor **31**, "igual nos dois
+  modos", porque **o cache muda o caminho, nunca o resultado**; as **30 chamadas evitadas**; e as
+  barras de invocações por modo, 46 contra 16.
+- Logo abaixo, no mesmo cartão, os dois placares **lado a lado**, sem cache à esquerda e com cache
+  à direita. Leia linha por linha: 46 contra 16 invocações, 15 contra 5 calculados, 0 contra 5
+  acertos e a mesma profundidade 6. A explicação do porquê fica para daqui a pouco; agora é só o fato medido.
 - No pé de cada placar está o **tempo desta execução**. Em f(7) os dois modos quase empatam, perto
   de 0,3 ms: é uma medida única, num worker recém-criado, e esse custo fixo pesa mais que 46
   chamadas. Se perguntarem, diga que a diferença aparece com n maior — em Tribonacci n = 20 foram
   cerca de 3,7 ms contra 0,4 ms, e em n = 25, 46 ms contra 0,4 ms — e que a comparação de tempo de
   verdade, com aquecimento e repetições, é a da tela Comparar.
 - Se perguntarem o que cada número significa, abra **O que cada número conta**.
-- Role um pouco, abra o bloco **Invocações por argumento** e aponte a linha de f(3): **7
+- Abra o bloco **Invocações por argumento**, logo abaixo do cartão, e aponte a linha de f(3): **7
   invocações sem cache, 3 com cache**. É o trabalho repetido aparecendo em número.
-- Siga para a árvore pela navegação: a tela Árvore já abre em Tribonacci f(7) sem cache.
+- Siga para a árvore pelo atalho **Ver árvore sem cache**, no título do placar da esquerda: a tela
+  Árvore abre em Tribonacci f(7) sem cache.
 
 ### 4. A árvore de chamadas sem cache (1:45) — tela `/arvore`
 
 Na tela: `/arvore?sequencia=tribonacci&n=7&modo=sem_cache`. A tela abre inteira, sem rolagem: os
-controles à esquerda e, à direita, os contadores e a árvore completa de f(7).
+controles e os contadores à esquerda e, à direita, a árvore completa de f(7) ocupando a coluna.
 
 Este é um pedido explícito do enunciado; dê o tempo dele.
 
 - Cada caixa é uma invocação, cada linha é uma chamada recursiva. São **46 no total**: 1 raiz e 45
-  recursivas. Os contadores em cima do desenho dizem isso.
+  recursivas. Os contadores, na coluna da esquerda, dizem isso.
 - Só **15** dessas chamadas fazem conta. As outras **31** são casos base, que só devolvem 1.
 - A cor mostra o argumento: aponte que **f(3) aparece 7 vezes, sempre na mesma cor**, e f(4), 4
   vezes, sempre com o mesmo resultado. Seis dos sete cálculos de f(3) são trabalho jogado fora.
 - Detalhe bonito para citar: o número de folhas é igual ao valor da sequência. f(7) = 31 porque a
   soma final é 31 parcelas iguais a 1.
-- Os nós aparecem pequenos para a árvore caber inteira: use **+** ou a roda do mouse para
-  aproximar uma região, e **Ajustar à tela** para voltar. Quem precisar ler cada chamada em texto
-  tem a vista **Lista**.
+- Os nós aparecem pequenos para a árvore caber inteira: são 31 folhas lado a lado. Use **+**, no
+  canto inferior direito do desenho, ou a roda do mouse para aproximar uma região, e **Ajustar à
+  tela** para voltar. Quem precisar ler cada chamada em texto tem a vista **Lista**.
 - Se a turma quiser interagir: clique num nó para recolher a subárvore, ou marque **com cache** na
   coluna da esquerda, clique em **Ver árvore** e mostre a árvore podada, com os acertos de cache em
   borda tracejada e marca de triângulo.
@@ -164,7 +165,9 @@ de ver; entre direto na 3 e avance com as setas.
 
 Esta é a resposta que o enunciado pede por escrito. Não corra.
 
-- **Etapa 3, o cache em três regras.** Diga as regras na ordem exata em que a função as executa:
+- **Etapa 3, o cache em três regras.** As regras estão escritas no topo, e cada um dos oito
+  momentos logo abaixo leva a execução ao instante em que f(k) é guardado ou volta do dicionário.
+  Diga as regras na ordem exata em que a função as executa:
   1. **É caso base?** Devolve 1 e não mexe no cache.
   2. **Já está no cache?** Devolve o valor guardado e **não visita nenhum filho**. É o acerto.
   3. **Senão**, calcula, guarda e devolve.
@@ -193,8 +196,8 @@ cartão **Como a comparação é feita**.
   o número escolhido. Depois clique em **Comparar** na coluna da esquerda: o cartão fica recolhido
   abaixo das curvas.
 
-- Os três destaques respondem o item de desempenho do enunciado: **fator de aceleração**, **chamadas
-  evitadas** e **memória a mais com cache**. Leia os três em voz alta; a leitura embaixo do fator já
+- Os três destaques, num cartão só, respondem o item de desempenho do enunciado: **fator de
+  aceleração**, **chamadas evitadas** e **memória a mais com cache**. Leia os três em voz alta; a leitura embaixo do fator já
   traz as medianas dos dois modos. As duas curvas aparecem logo abaixo, na mesma tela.
 - Troque o **n para 25** na frente da turma e compare de novo. O app avisa que a medição é pesada e
   pergunta antes de rodar: confirme em **Medir mesmo assim** e, se demorar, fale por cima: "são 2,7
@@ -204,8 +207,8 @@ cartão **Como a comparação é feita**.
   assinatura do crescimento exponencial, e a com cache fica quase horizontal. As invocações são
   contagem exata; o tempo segue a mesma forma.
 - A memória aparece no terceiro destaque: da ordem de 1 KiB de cache para ganhar quatro ordens de
-  grandeza em tempo. Quem quiser os números completos rola até os blocos **Tempo**, **Memória** e
-  **Ambiente de execução**, fechados de propósito.
+  grandeza em tempo. Quem quiser os números completos abre o bloco **Números completos**, abaixo
+  das curvas e fechado de propósito, com as abas **Tempo**, **Memória** e **Ambiente de execução**.
 - Se o destaque de memória disser que a execução com cache reteve **menos**, não se assuste: com
   poucas entradas, como as 5 de f(7), a variação do coletor de lixo entre rodadas pesa mais que o
   próprio cache, e a tela diz isso. Nos ensaios com n = 20 e 5 repetições a diferença saiu positiva
@@ -226,6 +229,9 @@ Na tela: `/calcular?sequencia=fatorial&n=10&modo=comparar`, e clique em **Calcul
   é idêntica. O cache economiza chamadas, não altura de pilha.
 - Fechamento: memoização é uma troca de espaço por tempo, e ela só compensa onde existe trabalho
   repetido. Medir é o que permite afirmar isso.
+- Se sobrar meio minuto, a etapa 6 da apresentação (`/apresentacao?etapa=6`) põe esse critério na
+  tela: exponencial contra linear, o preço em memória e a pergunta que decide o uso do cache, **o
+  mesmo argumento volta?**
 - Encerre abrindo para perguntas.
 
 ## Checklist dez minutos antes
