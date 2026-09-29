@@ -25,6 +25,7 @@ import {
   BotaoLink,
   CampoNumero,
   Cartao,
+  Detalhes,
   DialogoConfirmacao,
   Esqueleto,
   EstadoErro,
@@ -251,10 +252,7 @@ function TabelaArgumentos({ respostas }: { respostas: CalcularResposta[] }) {
     .join(' e ');
 
   return (
-    <details>
-      <summary className="inline-flex min-h-toque cursor-pointer items-center gap-2 text-sm font-medium text-primaria">
-        Invocações por argumento
-      </summary>
+    <Detalhes resumo={<span className="text-base font-semibold">Invocações por argumento</span>}>
       <Tabela
         legenda="Invocações por argumento, do maior para o menor"
         colunas={colunas}
@@ -263,7 +261,7 @@ function TabelaArgumentos({ respostas }: { respostas: CalcularResposta[] }) {
         alturaMaxima="38vh"
       />
       <p className="mt-2 text-sm text-texto-suave">Somando todos os argumentos: {totais}.</p>
-    </details>
+    </Detalhes>
   );
 }
 
