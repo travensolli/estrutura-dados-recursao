@@ -186,6 +186,7 @@ function TabelaMetricas({ respostas }: { respostas: CalcularResposta[] }) {
       linhas={METRICAS}
       chave={(linha) => linha.chave}
       destacar={(linha) => linha.chave === 'invocacoes'}
+      alturaMaxima="32vh"
     />
   );
 }
@@ -250,17 +251,19 @@ function TabelaArgumentos({ respostas }: { respostas: CalcularResposta[] }) {
     .join(' e ');
 
   return (
-    <div>
+    <details>
+      <summary className="inline-flex min-h-toque cursor-pointer items-center gap-2 text-sm font-medium text-primaria">
+        Invocações por argumento
+      </summary>
       <Tabela
         legenda="Invocações por argumento, do maior para o menor"
-        legendaVisivel
         colunas={colunas}
         linhas={linhas}
         chave={(linha) => linha.argumento}
-        alturaMaxima={linhas.length > 14 ? '30rem' : undefined}
+        alturaMaxima="38vh"
       />
       <p className="mt-2 text-sm text-texto-suave">Somando todos os argumentos: {totais}.</p>
-    </div>
+    </details>
   );
 }
 
@@ -413,14 +416,14 @@ export function PaginaCalcular() {
       : '';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <section aria-labelledby="titulo-pagina">
-        <h1 id="titulo-pagina" className="text-3xl font-semibold">
+        <h1 id="titulo-pagina" className="text-2xl font-semibold">
           Calcular
         </h1>
-        <p className="mt-2 max-w-prose text-texto-suave">
-          Escolha a sequência, o valor de n e o modo. O resultado traz o valor exato e a contagem de
-          invocações da execução instrumentada.
+        <p className="mt-1 max-w-prose text-sm text-texto-suave">
+          Escolha a sequência, o n e o modo: o resultado traz o valor exato e as contagens da
+          execução instrumentada.
         </p>
       </section>
 
@@ -428,8 +431,11 @@ export function PaginaCalcular() {
         {resumoAcessivel}
       </p>
 
-      <Cartao as="section" titulo="O que calcular" nivelTitulo={2}>
-        <form onSubmit={(evento) => void enviar(evento)} className="grid gap-5 lg:grid-cols-2">
+      <Cartao as="section" aria-label="O que calcular" compacto>
+        <form
+          onSubmit={(evento) => void enviar(evento)}
+          className="flex flex-wrap items-end gap-x-5 gap-y-3"
+        >
           <SeletorSegmentado
             className="min-w-0"
             rotulo="Sequência"
@@ -446,7 +452,7 @@ export function PaginaCalcular() {
             empilharNoCelular
           />
           <CampoNumero
-            className="max-w-xs"
+            className="w-32"
             rotulo="n"
             valor={rascunho}
             aoMudar={aoMudarN}
@@ -458,35 +464,33 @@ export function PaginaCalcular() {
                 : undefined
             }
           />
-          <div className="flex flex-col justify-end gap-2">
-            <GrupoBotoes>
+          <GrupoBotoes>
+            <Botao
+              type="submit"
+              tamanho="medio"
+              icone="calcular"
+              carregando={carregando || verificando}
+              rotuloCarregando={carregando ? 'Calculando' : 'Conferindo o tamanho'}
+              disabled={!podeCalcular}
+            >
+              Calcular
+            </Botao>
+            {carregando ? (
               <Botao
-                type="submit"
-                tamanho="grande"
-                icone="calcular"
-                carregando={carregando || verificando}
-                rotuloCarregando={carregando ? 'Calculando' : 'Conferindo o tamanho'}
-                disabled={!podeCalcular}
+                variante="neutra"
+                tamanho="medio"
+                icone="cancelar"
+                onClick={() => void cancelar()}
               >
-                Calcular
+                Cancelar
               </Botao>
-              {carregando ? (
-                <Botao
-                  variante="neutra"
-                  tamanho="grande"
-                  icone="cancelar"
-                  onClick={() => void cancelar()}
-                >
-                  Cancelar
-                </Botao>
-              ) : null}
-            </GrupoBotoes>
-            <p className="min-h-10 text-sm text-texto-suave">
-              {previsao
-                ? `Previsão para f(${previsao.n}) ${rotuloModo(previsao.modo)}: ${formatarInteiro(previsao.invocacoes_previstas)} invocações e profundidade ${formatarInteiro(previsao.profundidade_prevista)}.`
-                : null}
-            </p>
-          </div>
+            ) : null}
+          </GrupoBotoes>
+          <p className="min-h-5 basis-full text-sm text-texto-suave">
+            {previsao
+              ? `Previsão para f(${previsao.n}) ${rotuloModo(previsao.modo)}: ${formatarInteiro(previsao.invocacoes_previstas)} invocações e profundidade ${formatarInteiro(previsao.profundidade_prevista)}.`
+              : null}
+          </p>
         </form>
       </Cartao>
 
@@ -535,7 +539,7 @@ export function PaginaCalcular() {
         />
       ) : null}
 
-      <section aria-labelledby="titulo-resultado" className="space-y-5">
+      <section aria-labelledby="titulo-resultado" className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="titulo-resultado" className="text-xl font-semibold">
             Resultado
@@ -563,7 +567,7 @@ export function PaginaCalcular() {
         ) : null}
 
         {resultado && primeira ? (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {desatualizado ? (
               <p className="text-sm text-texto-suave">
                 O formulário mudou depois deste resultado. Toque em Calcular para atualizar.
@@ -582,7 +586,7 @@ export function PaginaCalcular() {
             />
 
             {segunda ? (
-              <div className="space-y-5">
+              <div className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <Metrica
                     rotulo="Chamadas evitadas pelo cache"
