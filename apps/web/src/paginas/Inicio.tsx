@@ -37,27 +37,26 @@ function CartaoSequencia({ info }: { info: InfoSequencia }) {
   const ultimoTermo = info.primeiros_termos.length - 1;
   return (
     <Cartao as="article" titulo={info.nome} compacto className="flex h-full flex-col">
-      <p className="font-mono text-lg break-words">{info.formula}</p>
+      <p className="font-mono text-base break-words">{info.formula}</p>
       <p className="mt-1 font-mono text-sm text-texto-suave">{info.casos_base}</p>
 
-      <p className="mt-2 text-sm">
+      <p className="mt-1 text-sm">
         De f(0) a f({ultimoTermo}):{' '}
         <span className="font-mono tabular-nums">{info.primeiros_termos.join(', ')}</span>
       </p>
 
-      <ul className="mt-2 space-y-1 text-sm">
+      <ul className="mt-1 space-y-1 text-sm">
         <LinhaCrescimento modo="sem_cache" texto={info.crescimento_sem_cache} />
         <LinhaCrescimento modo="com_cache" texto={info.crescimento_com_cache} />
       </ul>
 
-      <p className="mt-2 text-sm text-texto-suave">{textoLimites(info)}</p>
+      <p className="mt-1 text-sm text-texto-suave">{textoLimites(info)}</p>
 
       <GrupoBotoes className="mt-auto pt-2">
         <BotaoLink
           to={enderecoComEstado('/calcular', { sequencia: info.id })}
           variante="secundaria"
           tamanho="pequeno"
-          icone="calcular"
         >
           Calcular
         </BotaoLink>
@@ -65,7 +64,6 @@ function CartaoSequencia({ info }: { info: InfoSequencia }) {
           to={enderecoComEstado('/comparar', { sequencia: info.id })}
           variante="neutra"
           tamanho="pequeno"
-          icone="comparar"
         >
           Comparar
         </BotaoLink>
@@ -73,9 +71,8 @@ function CartaoSequencia({ info }: { info: InfoSequencia }) {
           to={enderecoComEstado('/arvore', { sequencia: info.id })}
           variante="neutra"
           tamanho="pequeno"
-          icone="arvore"
         >
-          Ver árvore
+          Árvore
         </BotaoLink>
       </GrupoBotoes>
     </Cartao>
@@ -87,15 +84,11 @@ export function PaginaInicio() {
   const { data, isPending, isError, error, refetch } = useSequencias();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <section aria-labelledby="titulo-pagina">
-        <h1 id="titulo-pagina" className="text-2xl font-semibold sm:text-3xl">
+        <h1 id="titulo-pagina" className="text-2xl font-semibold">
           Recursão com e sem cache
         </h1>
-        <p className="mt-2 text-base text-texto-suave">
-          Cada invocação é contada; tempo, memória e a árvore de chamadas mostram onde o cache evita
-          trabalho repetido.
-        </p>
       </section>
 
       <section aria-labelledby="titulo-enunciado" className="flex flex-wrap items-center gap-2">

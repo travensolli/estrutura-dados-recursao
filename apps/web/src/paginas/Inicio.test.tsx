@@ -45,7 +45,7 @@ describe('Página inicial', () => {
       'href',
       '/comparar?sequencia=fibonacci',
     );
-    expect(within(fibonacci).getByRole('link', { name: 'Ver árvore' })).toHaveAttribute(
+    expect(within(fibonacci).getByRole('link', { name: 'Árvore' })).toHaveAttribute(
       'href',
       '/arvore?sequencia=fibonacci',
     );
