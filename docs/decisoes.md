@@ -280,3 +280,7 @@ esquerda, e a memória usa sempre 3 repetições próprias. Isso foi conferido
 numa chamada à API com 5 repetições, que devolveu 5 no tempo e 3 na memória.
 E toda contagem que pode valer 1 passou a concordar no singular: "a mesma 1
 chamada recursiva", "1 invocação", "1 repetição", "Abrir o nó recolhido".
+
+**Sem rodapé (mesmo dia):** o rodapé com a frase de resumo saiu de todas as
+telas, porque repetia o que o início e o roteiro já dizem. Os 37px voltaram
+ao desenho da árvore, cuja altura é calculada a partir da janela.
