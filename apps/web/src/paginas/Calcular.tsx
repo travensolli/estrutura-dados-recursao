@@ -29,6 +29,7 @@ import {
   EstadoErro,
   EstadoVazio,
   GrupoBotoes,
+  Icone,
   Metrica,
   NumeroGrande,
   RotuloModo,
@@ -141,7 +142,7 @@ interface PlacarMetricasProps {
   identificar?: boolean;
 }
 
-/** As sete contagens de uma execução, com as invocações em destaque no topo. */
+/** As sete contagens de uma execução, com as invocações no topo e o tempo no pé. */
 function PlacarMetricas({ resposta, identificar = false }: PlacarMetricasProps) {
   return (
     <Cartao
@@ -176,6 +177,20 @@ function PlacarMetricas({ resposta, identificar = false }: PlacarMetricasProps) 
             </dd>
           </div>
         ))}
+      </dl>
+      <dl className="mt-1 border-t-2 border-borda-forte pt-1.5">
+        <div
+          data-testid={identificar ? 'metrica-tempo' : undefined}
+          className="flex items-baseline justify-between gap-3"
+        >
+          <dt className="flex items-center gap-1.5 font-medium">
+            <Icone nome="relogio" tamanho={16} className="self-center text-texto-suave" />
+            Tempo desta execução
+          </dt>
+          <dd className="text-xl leading-tight font-semibold tabular-nums">
+            {duracaoLegivel(resposta.duracao_ms)}
+          </dd>
+        </div>
       </dl>
     </Cartao>
   );
@@ -637,15 +652,9 @@ export function PaginaCalcular() {
               <TabelaArgumentos respostas={resultado} />
 
               <p className="text-sm text-texto-suave">
-                Duração desta execução:{' '}
-                {resultado
-                  .map(
-                    (resposta) =>
-                      `${duracaoLegivel(resposta.duracao_ms)} ${rotuloModo(resposta.modo)}`,
-                  )
-                  .join(' e ')}
-                . Medida única, só para dar ordem de grandeza: não é benchmark. A tela Comparar
-                repete e mostra mediana, desvio e memória.
+                O tempo no pé do placar é uma medida única da execução instrumentada, com os
+                contadores ligados: dá ordem de grandeza, não é benchmark. A tela Comparar mede as
+                funções puras, com repetições, mediana e memória.
               </p>
 
               <GrupoBotoes>
