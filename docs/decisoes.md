@@ -142,3 +142,23 @@ De quebra, a medição achou o motivo de o trabalho de ponta a ponta falhar
 no CI: o vite subia só em localhost, que em Node recente resolve para o ::1
 do IPv6, enquanto o Playwright esperava em 127.0.0.1. O vite agora nasce
 preso ao IPv4 e a espera dos servidores dobrou para 240 segundos.
+
+## 2026-09-29: O palco da apresentação passa a ser o app
+
+A entrada de 28/09 projetava o `relatorio.html` e deixava a aplicação num
+bloco curto de demonstração. Com as telas cabendo na dobra do notebook, a
+relação se inverte.
+
+- **Material projetado:** a própria aplicação, navegada na ordem do
+  enunciado (`/` → `/calcular` → `/arvore` → `/apresentacao` → `/comparar`).
+  Todos os números continuam vindo de execuções instrumentadas, ao vivo.
+- **O `relatorio.html` não sai do projeto:** vira material de apoio e o
+  primeiro degrau do plano B, porque é estático e não depende do app subir.
+- **Motivo:** a demonstração ao vivo responde os quatro pedidos do enunciado
+  com mais força do que capturas num documento, e a faixa "O enunciado,
+  item a item" do início mostra a cobertura de cara, sem margem para
+  dúvida sobre o que foi ou não atendido.
+
+**Consequência:** o roteiro foi reescrito seção a seção com as telas e os
+endereços prontos, e o checklist passou a exigir zoom em 100% e um ensaio
+de navegação antes da aula.

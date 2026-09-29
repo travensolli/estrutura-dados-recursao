@@ -8,19 +8,19 @@ Aqui ficam o material da aula, a rodada de medições registrada e as decisões 
 
 ## Índice
 
-| Documento                                          | Para que serve                                                           | Origem            |
-| -------------------------------------------------- | ------------------------------------------------------------------------ | ----------------- |
-| [relatorio.html](relatorio.html)                   | **O que vai no projetor**: enunciado, árvore de f(7), gráficos e tabelas | Gerado por script |
-| [roteiro-apresentacao.md](roteiro-apresentacao.md) | O que dizer nos 10 minutos, seção a seção, com plano B                   | Escrito à mão     |
-| [resultados-benchmark.md](resultados-benchmark.md) | A mesma rodada de medições em Markdown, para revisar no editor           | Gerado por script |
-| [decisoes.md](decisoes.md)                         | Registro de decisões: data, contexto, decisão e consequência             | Vivo              |
-| [figuras/](figuras/)                               | Árvores e gráficos em SVG e PNG, para slides e plano B                   | Misto             |
+| Documento                                          | Para que serve                                                          | Origem            |
+| -------------------------------------------------- | ----------------------------------------------------------------------- | ----------------- |
+| [relatorio.html](relatorio.html)                   | Apoio e plano B: enunciado, árvore de f(7), gráficos e tabelas, sem app | Gerado por script |
+| [roteiro-apresentacao.md](roteiro-apresentacao.md) | Os 10 minutos com o app no projetor, seção a seção, com plano B         | Escrito à mão     |
+| [resultados-benchmark.md](resultados-benchmark.md) | A mesma rodada de medições em Markdown, para revisar no editor          | Gerado por script |
+| [decisoes.md](decisoes.md)                         | Registro de decisões: data, contexto, decisão e consequência            | Vivo              |
+| [figuras/](figuras/)                               | Árvores e gráficos em SVG e PNG, para slides e plano B                  | Misto             |
 
 ## Por onde começar
 
 - Quem vai **entender o trabalho**: o [artigo](../README.md), da seção 1 à 7.
-- Quem vai **apresentar**: [roteiro-apresentacao.md](roteiro-apresentacao.md), com o
-  [relatorio.html](relatorio.html) aberto ao lado.
+- Quem vai **apresentar**: [roteiro-apresentacao.md](roteiro-apresentacao.md), com o app no ar
+  (`pnpm dev`) e o [relatorio.html](relatorio.html) numa aba de reserva.
 - Quem vai **duvidar dos números**: seção 3 do artigo (método) e
   [resultados-benchmark.md](resultados-benchmark.md) (a rodada inteira, com dispersão).
 - Quem quer saber **por que foi feito assim**: [decisoes.md](decisoes.md).
