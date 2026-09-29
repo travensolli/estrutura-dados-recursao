@@ -23,8 +23,9 @@ export default defineConfig({
   },
   projects: [
     {
+      /* Janela útil de um notebook 1366x768 com barra de tarefas e navegador. */
       name: 'desktop',
-      use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1366, height: 641 } },
     },
     {
       name: 'tablet',
