@@ -19,12 +19,9 @@ export function Contadores({ metricas, nosExibidos }: ContadoresProps) {
     { rotulo: 'profundidade máxima', valor: metricas.profundidade_maxima },
   ];
   return (
-    <dl className="flex flex-wrap items-stretch gap-x-6 gap-y-3">
+    <dl className="flex flex-wrap items-stretch gap-x-4 gap-y-3">
       {itens.map((item) => (
-        <div
-          key={item.rotulo}
-          className="min-w-24 border-l border-borda pl-3 first:border-l-0 first:pl-0"
-        >
+        <div key={item.rotulo} className="border-l border-borda pl-3 first:border-l-0 first:pl-0">
           <dt className="text-xs text-texto-suave">{item.rotulo}</dt>
           <dd
             className={`font-mono tabular-nums ${item.destaque ? 'text-xl font-semibold' : 'text-lg'}`}
@@ -34,7 +31,7 @@ export function Contadores({ metricas, nosExibidos }: ContadoresProps) {
         </div>
       ))}
       {nosExibidos !== undefined && nosExibidos < metricas.invocacoes && (
-        <div className="min-w-24 border-l border-borda pl-3">
+        <div className="border-l border-borda pl-3">
           <dt className="text-xs text-texto-suave">nós desenhados</dt>
           <dd className="font-mono text-lg tabular-nums text-alerta">
             {formatarInteiro(nosExibidos)}

@@ -29,7 +29,7 @@ const ESCALA_MAXIMA = 2.5;
 /** Espaço reservado para a dica acima do nó, em pixels. */
 const ALTURA_DICA = 170;
 /** Faixa do enquadramento automático: nem ilegível, nem esticado demais. */
-const ENQUADRE_MINIMO = 0.4;
+const ENQUADRE_MINIMO = 0.3;
 const ENQUADRE_MAXIMO = 1.4;
 const PASSO_ZOOM = 1.35;
 const { altura: A } = DIMENSOES;
@@ -91,7 +91,7 @@ export function ArvoreSvg({
   fantasmas,
   selos,
   enquadreMinimo = ENQUADRE_MINIMO,
-  classeAltura = 'max-h-[min(42vh,680px)] min-h-[240px]',
+  classeAltura = 'max-h-[min(46vh,680px)] min-h-[200px]',
 }: ArvoreSvgProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const comportamentoRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
@@ -375,7 +375,7 @@ export function ArvoreSvg({
         )}
         {!compacto && (
           <p className="ml-auto text-sm text-texto-suave">
-            Arraste para mover, role para aproximar, clique num nó para recolher.
+            Arraste para mover, role para aproximar e clique para recolher.
           </p>
         )}
         {erroExportacao && (

@@ -25,8 +25,9 @@ export interface ControlesArvoreProps {
 }
 
 const CAMPO =
-  'h-11 w-full rounded-md border border-borda bg-superficie px-3 text-sm text-texto disabled:opacity-60';
-const ROTULO = 'text-xs text-texto-suave';
+  'min-h-toque w-full rounded-md border border-borda-forte bg-superficie px-3 text-base text-texto disabled:opacity-60';
+const ROTULO = 'font-medium';
+const AJUDA = 'mt-1 text-sm text-texto-suave';
 
 export function ControlesArvore({
   inicial,
@@ -46,13 +47,14 @@ export function ControlesArvore({
 
   return (
     <form
-      className="flex flex-wrap items-start gap-4 rounded-lg border border-borda bg-superficie-suave p-3"
+      aria-label="O que desenhar"
+      className="space-y-3"
       onSubmit={(evento) => {
         evento.preventDefault();
         if (valida) aoAplicar(consulta);
       }}
     >
-      <div className="w-44">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
         <label className={ROTULO} htmlFor={`${identificador}-sequencia`}>
           Sequência
         </label>
@@ -70,32 +72,56 @@ export function ControlesArvore({
         </select>
       </div>
 
-      <div className="w-28">
-        <label className={ROTULO} htmlFor={`${identificador}-n`}>
-          Valor de n
-        </label>
-        <input
-          id={`${identificador}-n`}
-          className={CAMPO}
-          type="number"
-          inputMode="numeric"
-          min={0}
-          max={limites[consulta.modo]}
-          value={consulta.n}
-          aria-describedby={`${identificador}-n-ajuda`}
-          aria-invalid={erros.n !== undefined}
-          onChange={(evento) => trocar({ n: Number(evento.target.value) })}
-        />
-        <p id={`${identificador}-n-ajuda`} className="mt-1 text-xs text-texto-suave">
-          {erros.n ?? `até ${formatarInteiro(limites[consulta.modo])}`}
-        </p>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="min-w-0">
+          <label className={ROTULO} htmlFor={`${identificador}-n`}>
+            Valor de n
+          </label>
+          <input
+            id={`${identificador}-n`}
+            className={CAMPO}
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={limites[consulta.modo]}
+            value={consulta.n}
+            aria-describedby={`${identificador}-n-ajuda`}
+            aria-invalid={erros.n !== undefined}
+            onChange={(evento) => trocar({ n: Number(evento.target.value) })}
+          />
+          <p id={`${identificador}-n-ajuda`} className={AJUDA}>
+            {erros.n ?? `até ${formatarInteiro(limites[consulta.modo])}`}
+          </p>
+        </div>
+
+        <div className="min-w-0">
+          <label className={ROTULO} htmlFor={`${identificador}-limite`}>
+            Limite de nós
+          </label>
+          <input
+            id={`${identificador}-limite`}
+            className={CAMPO}
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={limiteNosMaximo}
+            value={consulta.limite_nos}
+            aria-describedby={`${identificador}-limite-ajuda`}
+            aria-invalid={erros.limite_nos !== undefined}
+            onChange={(evento) => trocar({ limite_nos: Number(evento.target.value) })}
+          />
+          <p id={`${identificador}-limite-ajuda`} className={AJUDA}>
+            {erros.limite_nos ??
+              (pesado ? 'acima de 300 o desenho pesa' : `1 a ${formatarInteiro(limiteNosMaximo)}`)}
+          </p>
+        </div>
       </div>
 
       <fieldset className="border-0 p-0">
         <legend className={ROTULO}>Modo</legend>
-        <div className="mt-1 inline-flex rounded-md border border-borda bg-superficie p-1">
+        <div className="mt-1 flex gap-1 rounded-lg border border-borda bg-superficie-suave p-1">
           {MODOS.map((modo) => (
-            <label key={modo}>
+            <label key={modo} className="flex-1">
               <input
                 type="radio"
                 name={`${identificador}-modo`}
@@ -104,7 +130,11 @@ export function ControlesArvore({
                 checked={consulta.modo === modo}
                 onChange={() => trocar({ modo })}
               />
-              <span className="inline-flex h-9 cursor-pointer items-center rounded px-3 text-sm peer-checked:bg-primaria peer-checked:font-medium peer-checked:text-primaria-contraste peer-focus-visible:outline-3 peer-focus-visible:outline-foco">
+              <span className="flex min-h-toque cursor-pointer items-center justify-center gap-2 rounded-md px-2 text-sm whitespace-nowrap text-texto-suave peer-checked:bg-superficie peer-checked:font-semibold peer-checked:text-texto peer-checked:shadow-cartao peer-checked:ring-1 peer-checked:ring-borda-forte peer-focus-visible:outline-3 peer-focus-visible:outline-foco">
+                <span
+                  aria-hidden="true"
+                  className={`h-1 w-4 shrink-0 rounded-full ${modo === 'sem_cache' ? 'bg-serie-sem-cache' : 'bg-serie-com-cache'}`}
+                />
                 {rotuloModo(modo)}
               </span>
             </label>
@@ -112,32 +142,10 @@ export function ControlesArvore({
         </div>
       </fieldset>
 
-      <div className="w-32">
-        <label className={ROTULO} htmlFor={`${identificador}-limite`}>
-          Limite de nós
-        </label>
-        <input
-          id={`${identificador}-limite`}
-          className={CAMPO}
-          type="number"
-          inputMode="numeric"
-          min={1}
-          max={limiteNosMaximo}
-          value={consulta.limite_nos}
-          aria-describedby={`${identificador}-limite-ajuda`}
-          aria-invalid={erros.limite_nos !== undefined}
-          onChange={(evento) => trocar({ limite_nos: Number(evento.target.value) })}
-        />
-        <p id={`${identificador}-limite-ajuda`} className="mt-1 text-xs text-texto-suave">
-          {erros.limite_nos ??
-            (pesado ? 'acima de 300 o desenho pesa' : `1 a ${formatarInteiro(limiteNosMaximo)}`)}
-        </p>
-      </div>
-
       <button
         type="submit"
         disabled={!valida}
-        className="h-11 self-start rounded-md bg-primaria px-5 font-medium text-primaria-contraste hover:bg-primaria-forte disabled:opacity-50"
+        className="min-h-toque w-full rounded-md bg-primaria px-5 font-medium text-primaria-contraste hover:bg-primaria-forte disabled:opacity-50"
       >
         Ver árvore
       </button>
