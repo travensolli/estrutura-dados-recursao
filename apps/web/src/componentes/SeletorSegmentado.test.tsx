@@ -10,9 +10,17 @@ const OPCOES = [
   { valor: 'tribonacci', rotulo: 'Tribonacci' },
 ] as const;
 
-function SeletorControlado() {
+function SeletorControlado({ vertical = false }: { vertical?: boolean }) {
   const [valor, setValor] = useState<(typeof OPCOES)[number]['valor']>('fatorial');
-  return <SeletorSegmentado rotulo="Sequência" valor={valor} aoMudar={setValor} opcoes={OPCOES} />;
+  return (
+    <SeletorSegmentado
+      rotulo="Sequência"
+      valor={valor}
+      aoMudar={setValor}
+      opcoes={OPCOES}
+      vertical={vertical}
+    />
+  );
 }
 
 describe('SeletorSegmentado', () => {
@@ -43,6 +51,19 @@ describe('SeletorSegmentado', () => {
     expect(screen.getByRole('radio', { name: 'Fatorial' })).toBeChecked();
     await usuario.keyboard('{End}');
     expect(screen.getByRole('radio', { name: 'Tribonacci' })).toBeChecked();
+  });
+
+  it('na vertical empilha em qualquer largura e anda com as setas verticais', async () => {
+    const usuario = userEvent.setup();
+    render(<SeletorControlado vertical />);
+    const grupo = screen.getByRole('radiogroup', { name: 'Sequência' });
+    expect(grupo).toHaveClass('flex-col');
+    expect(grupo).not.toHaveClass('sm:flex-row');
+    await usuario.tab();
+    await usuario.keyboard('{ArrowDown}');
+    expect(screen.getByRole('radio', { name: 'Fibonacci' })).toBeChecked();
+    await usuario.keyboard('{ArrowUp}');
+    expect(screen.getByRole('radio', { name: 'Fatorial' })).toBeChecked();
   });
 
   it('clique também seleciona', async () => {

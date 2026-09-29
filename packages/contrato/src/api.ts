@@ -30,6 +30,7 @@ export const InfoSequenciaSchema = z.object({
   nome: z.string(),
   formula: z.string(),
   casos_base: z.string(),
+  ordem: z.number().int().positive(),
   primeiros_termos: z.array(valorTexto),
   crescimento_sem_cache: z.string(),
   crescimento_com_cache: z.string(),

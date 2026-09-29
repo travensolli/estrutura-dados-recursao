@@ -226,14 +226,14 @@ function PilhaDeChamadas({ pilha }: { pilha: readonly No[] }) {
               key={no.id}
               data-testid="quadro-pilha"
               data-argumento={no.argumento}
-              className={`flex items-center gap-2 rounded-md px-2 py-1 ${
+              className={`flex min-w-0 flex-wrap items-center gap-x-2 rounded-md px-2 py-1 ${
                 posicao === 0 ? 'bg-superficie-suave ring-2 ring-primaria' : ''
               }`}
             >
               <MarcaTipo tipo={no.tipo} cor={corDoArgumento(no.argumento)} />
               <span className="font-mono text-base">f({no.argumento})</span>
               <span className="text-sm text-texto-suave">profundidade {no.profundidade}</span>
-              {posicao === 0 && <span className="ml-auto text-xs text-primaria">topo</span>}
+              {posicao === 0 && <span className="ml-auto text-sm text-primaria">topo</span>}
             </li>
           ))}
         </ol>

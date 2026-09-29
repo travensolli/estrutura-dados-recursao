@@ -38,7 +38,6 @@ import {
 const N_ARVORE = 7;
 
 /** Quantos filhos cada nó calculado gera, por sequência. */
-const ARIDADE: Record<Sequencia, number> = { fatorial: 1, fibonacci: 2, tribonacci: 3 };
 
 const FORMA_ARVORE: Record<Sequencia, string> = {
   fatorial: 'corrente (recursão linear)',
@@ -95,7 +94,7 @@ function secaoSequencias(): string {
       descricao.formula,
       descricao.casos_base,
       descricao.primeiros_termos.join(', ') + ', ...',
-      String(ARIDADE[sequencia]),
+      String(DESCRICAO_SEQUENCIAS[sequencia].ordem),
       FORMA_ARVORE[sequencia],
     ];
   });
