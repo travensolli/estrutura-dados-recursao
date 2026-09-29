@@ -4,8 +4,10 @@ import { useSequencias } from '../api/consultas';
 import { BotaoLink, Cartao, Esqueleto, EstadoErro, GrupoBotoes } from '../componentes';
 import { useTituloPagina } from '../hooks/titulo-pagina';
 import { enderecoComEstado } from '../hooks/useEstadoUrl';
+import { PainelFormulas } from '../inicio/PainelFormulas';
+import { TIPOS } from '../inicio/formulas';
 import { juntarClasses } from '../utilitarios/classes';
-import { formatarInteiro, rotuloModo } from '../utilitarios/formatar';
+import { rotuloModo } from '../utilitarios/formatar';
 
 const CLASSES_MARCA: Record<Modo, string> = {
   sem_cache: 'bg-serie-sem-cache',
@@ -44,22 +46,16 @@ function LinhaMotivacao({ modo, children }: { modo: Modo; children: ReactNode })
   );
 }
 
-function SeloOrdem({ ordem }: { ordem: number }) {
+function SeloTipo({ info }: { info: InfoSequencia }) {
+  const { ordem } = info;
   return (
     <span className="rounded-md bg-primaria-suave px-2 py-0.5 text-sm font-medium text-primaria">
-      ordem {ordem}
+      recursão {TIPOS[info.id].recursao} · ordem {ordem}
       <span className="sr-only">
         : {ordem} {ordem === 1 ? 'chamada recursiva' : 'chamadas recursivas'} em cada caso não base
       </span>
     </span>
   );
-}
-
-function textoLimites(info: InfoSequencia): string {
-  const { sem_cache, com_cache } = info.limites;
-  return sem_cache === com_cache
-    ? `Aqui n vai até ${formatarInteiro(sem_cache)} nos dois modos.`
-    : `Aqui n vai até ${formatarInteiro(sem_cache)} sem cache e ${formatarInteiro(com_cache)} com cache.`;
 }
 
 function CartaoSequencia({ info }: { info: InfoSequencia }) {
@@ -68,7 +64,7 @@ function CartaoSequencia({ info }: { info: InfoSequencia }) {
     <Cartao
       as="article"
       titulo={info.nome}
-      acoes={<SeloOrdem ordem={info.ordem} />}
+      acoes={<SeloTipo info={info} />}
       compacto
       className="flex h-full flex-col"
     >
@@ -84,8 +80,6 @@ function CartaoSequencia({ info }: { info: InfoSequencia }) {
         <LinhaCrescimento modo="sem_cache" texto={info.crescimento_sem_cache} />
         <LinhaCrescimento modo="com_cache" texto={info.crescimento_com_cache} />
       </ul>
-
-      <p className="mt-1 text-sm text-texto-suave">{textoLimites(info)}</p>
 
       <GrupoBotoes className="mt-auto pt-2">
         <BotaoLink
@@ -195,6 +189,8 @@ export function PaginaInicio() {
           </ul>
         ) : null}
       </section>
+
+      <PainelFormulas />
     </div>
   );
 }
