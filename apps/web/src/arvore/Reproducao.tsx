@@ -30,7 +30,7 @@ export interface ReproducaoProps {
 }
 
 const BOTAO =
-  'inline-flex h-11 min-w-11 items-center justify-center gap-2 rounded-md border border-borda bg-superficie px-3 text-sm text-texto hover:bg-superficie-suave disabled:opacity-40';
+  'inline-flex min-h-toque min-w-toque items-center justify-center gap-2 rounded-md border border-borda bg-superficie px-3 text-sm text-texto hover:bg-superficie-suave disabled:opacity-40';
 const CAIXA = 'rounded-lg border border-borda bg-superficie p-3';
 /** Em árvore truncada existem instantes sem nó desenhado. */
 const PASSO_CORTADO = 'Este passo acontece dentro de uma subárvore que o limite de nós cortou.';
@@ -151,7 +151,7 @@ export function Reproducao({
         <label className="ml-auto flex items-center gap-2 text-sm text-texto-suave">
           Velocidade
           <select
-            className="h-11 rounded-md border border-borda bg-superficie px-2 text-sm text-texto"
+            className="min-h-toque rounded-md border border-borda bg-superficie px-2 text-sm text-texto"
             value={relogio.velocidade}
             onChange={(evento) =>
               relogio.definirVelocidade(Number(evento.target.value) as Velocidade)
@@ -175,7 +175,7 @@ export function Reproducao({
           value={passo}
           aria-label="Passo da reprodução"
           aria-valuetext={contagem}
-          className="h-11 w-full accent-primaria"
+          className="min-h-toque w-full accent-primaria"
           onChange={(evento) => relogio.irPara(Number(evento.target.value))}
         />
         <p className="shrink-0 font-mono text-sm tabular-nums text-texto-suave">

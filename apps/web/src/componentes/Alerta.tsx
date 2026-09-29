@@ -61,7 +61,7 @@ export function Alerta({
     <div
       role={papel}
       className={juntarClasses(
-        'flex gap-3 rounded-lg border p-4 text-texto',
+        'flex gap-3 rounded-lg border p-3 text-texto',
         estilo.caixa,
         className,
       )}

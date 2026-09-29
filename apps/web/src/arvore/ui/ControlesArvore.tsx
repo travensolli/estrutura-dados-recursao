@@ -143,7 +143,7 @@ export function ControlesArvore({
                 checked={consulta.modo === modo}
                 onChange={() => trocar({ modo })}
               />
-              <span className="flex min-h-toque cursor-pointer items-center justify-center gap-2 rounded-md px-2 text-sm whitespace-nowrap text-texto-suave peer-checked:bg-superficie peer-checked:font-semibold peer-checked:text-texto peer-checked:shadow-cartao peer-checked:ring-1 peer-checked:ring-borda-forte peer-focus-visible:outline-3 peer-focus-visible:outline-foco">
+              <span className="flex min-h-toque cursor-pointer items-center justify-center gap-2 rounded-md px-2 text-sm whitespace-nowrap text-texto-suave peer-checked:bg-superficie peer-checked:font-semibold peer-checked:text-texto peer-checked:shadow-cartao peer-checked:ring-1 peer-checked:ring-borda-forte peer-focus-visible:outline-(length:--espessura-foco) peer-focus-visible:outline-offset-(--recuo-foco) peer-focus-visible:outline-foco">
                 <RotuloModo modo={modo} />
               </span>
             </label>

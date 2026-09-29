@@ -122,7 +122,7 @@ export function CampoNumero({
           onBlur={() => setTocado(true)}
           onKeyDown={aoTeclar}
           className={juntarClasses(
-            'sem-setas min-h-toque w-full min-w-0 rounded-md border bg-superficie px-3 text-lg tabular-nums',
+            'sem-setas min-h-toque w-full min-w-0 rounded-md border bg-superficie px-3 text-base tabular-nums',
             'disabled:cursor-not-allowed disabled:opacity-60',
             invalido ? 'border-erro' : 'border-borda-forte',
           )}
