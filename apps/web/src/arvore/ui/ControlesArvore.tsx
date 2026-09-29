@@ -7,15 +7,14 @@ import {
   type Sequencia,
 } from '@sequencias/contrato';
 import { useId, useState } from 'react';
-import { formatarInteiro, rotuloModo } from '../../utilitarios/formatar';
+import { RotuloModo } from '../../componentes';
+import { formatarInteiro } from '../../utilitarios/formatar';
 import {
   consultaValida,
   validarConsulta,
   type ConsultaArvore,
   type ErrosConsulta,
 } from '../consulta';
-
-// Peça local da árvore: o Orquestrador harmoniza depois com o design system.
 
 export interface ControlesArvoreProps {
   inicial: ConsultaArvore;
@@ -25,9 +24,10 @@ export interface ControlesArvoreProps {
 }
 
 const CAMPO =
-  'min-h-toque w-full rounded-md border border-borda-forte bg-superficie px-3 text-base text-texto disabled:opacity-60';
+  'min-h-toque w-full rounded-md border border-borda-forte bg-superficie px-3 text-base text-texto aria-invalid:border-erro disabled:opacity-60';
 const ROTULO = 'font-medium';
 const AJUDA = 'mt-1 text-sm text-texto-suave';
+const ERRO = 'text-sm font-medium text-erro';
 
 export function ControlesArvore({
   inicial,
@@ -85,12 +85,19 @@ export function ControlesArvore({
             min={0}
             max={limites[consulta.modo]}
             value={consulta.n}
-            aria-describedby={`${identificador}-n-ajuda`}
+            aria-describedby={
+              erros.n === undefined
+                ? `${identificador}-n-ajuda`
+                : `${identificador}-n-ajuda ${identificador}-n-erro`
+            }
             aria-invalid={erros.n !== undefined}
             onChange={(evento) => trocar({ n: Number(evento.target.value) })}
           />
           <p id={`${identificador}-n-ajuda`} className={AJUDA}>
-            {erros.n ?? `até ${formatarInteiro(limites[consulta.modo])}`}
+            até {formatarInteiro(limites[consulta.modo])}
+          </p>
+          <p id={`${identificador}-n-erro`} aria-live="polite" className={ERRO}>
+            {erros.n}
           </p>
         </div>
 
@@ -106,13 +113,19 @@ export function ControlesArvore({
             min={1}
             max={limiteNosMaximo}
             value={consulta.limite_nos}
-            aria-describedby={`${identificador}-limite-ajuda`}
+            aria-describedby={
+              erros.limite_nos === undefined
+                ? `${identificador}-limite-ajuda`
+                : `${identificador}-limite-ajuda ${identificador}-limite-erro`
+            }
             aria-invalid={erros.limite_nos !== undefined}
             onChange={(evento) => trocar({ limite_nos: Number(evento.target.value) })}
           />
           <p id={`${identificador}-limite-ajuda`} className={AJUDA}>
-            {erros.limite_nos ??
-              (pesado ? 'acima de 300 o desenho pesa' : `1 a ${formatarInteiro(limiteNosMaximo)}`)}
+            {pesado ? 'acima de 300 o desenho pesa' : `1 a ${formatarInteiro(limiteNosMaximo)}`}
+          </p>
+          <p id={`${identificador}-limite-erro`} aria-live="polite" className={ERRO}>
+            {erros.limite_nos}
           </p>
         </div>
       </div>
@@ -131,11 +144,7 @@ export function ControlesArvore({
                 onChange={() => trocar({ modo })}
               />
               <span className="flex min-h-toque cursor-pointer items-center justify-center gap-2 rounded-md px-2 text-sm whitespace-nowrap text-texto-suave peer-checked:bg-superficie peer-checked:font-semibold peer-checked:text-texto peer-checked:shadow-cartao peer-checked:ring-1 peer-checked:ring-borda-forte peer-focus-visible:outline-3 peer-focus-visible:outline-foco">
-                <span
-                  aria-hidden="true"
-                  className={`h-1 w-4 shrink-0 rounded-full ${modo === 'sem_cache' ? 'bg-serie-sem-cache' : 'bg-serie-com-cache'}`}
-                />
-                {rotuloModo(modo)}
+                <RotuloModo modo={modo} />
               </span>
             </label>
           ))}

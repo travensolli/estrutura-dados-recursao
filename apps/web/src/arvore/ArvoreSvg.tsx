@@ -29,7 +29,7 @@ const ESCALA_MAXIMA = 2.5;
 /** Espaço reservado para a dica acima do nó, em pixels. */
 const ALTURA_DICA = 170;
 /** Faixa do enquadramento automático: nem ilegível, nem esticado demais. */
-const ENQUADRE_MINIMO = 0.3;
+const ENQUADRE_MINIMO = 0.25;
 const ENQUADRE_MAXIMO = 1.4;
 const PASSO_ZOOM = 1.35;
 const { altura: A } = DIMENSOES;
@@ -73,7 +73,7 @@ interface Dica {
 }
 
 const BOTAO =
-  'inline-flex h-9 min-w-9 items-center justify-center gap-1 rounded-md border border-borda bg-superficie px-2 text-sm text-texto hover:bg-superficie-suave disabled:opacity-60';
+  'inline-flex min-h-toque min-w-toque items-center justify-center gap-1 rounded-md border border-borda bg-superficie px-2 text-sm text-texto hover:bg-superficie-suave disabled:opacity-60';
 
 export function ArvoreSvg({
   raiz,

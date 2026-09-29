@@ -18,9 +18,9 @@ export interface VisaoArvoreProps {
 }
 
 const BOTAO =
-  'h-10 rounded-md border border-borda bg-superficie px-3 text-sm text-texto hover:bg-superficie-suave';
+  'min-h-toque rounded-md border border-borda bg-superficie px-3 text-sm text-texto hover:bg-superficie-suave';
 const ABA =
-  'h-9 rounded px-3 text-sm aria-pressed:bg-primaria aria-pressed:text-primaria-contraste';
+  'min-h-toque rounded px-3 text-sm aria-pressed:bg-primaria aria-pressed:text-primaria-contraste';
 
 /** Junta as duas visões da árvore e a reprodução passo a passo. */
 export function VisaoArvore({ resposta, podasPorAcerto }: VisaoArvoreProps) {
