@@ -272,3 +272,11 @@ Mais um passe de legibilidade para a apresentação, a partir do ensaio.
 **Consequência:** o roteiro mostra o código na seção das sequências e o
 método antes da medição ao vivo, e a lista de perguntas ganhou a do custo do
 bigint.
+
+**Revisão do texto (mesmo dia):** como a apresentação usa mouse, as instruções
+dizem "clique em", e não "toque em". O cartão do método passou a separar as
+repetições: a mediana do tempo usa as repetições escolhidas na coluna da
+esquerda, e a memória usa sempre 3 repetições próprias. Isso foi conferido
+numa chamada à API com 5 repetições, que devolveu 5 no tempo e 3 na memória.
+E toda contagem que pode valer 1 passou a concordar no singular: "a mesma 1
+chamada recursiva", "1 invocação", "1 repetição", "Abrir o nó recolhido".

@@ -96,7 +96,7 @@ termos. Abaixo deles, fechado, o painel **Fórmulas gerais**.
 - Aponte a **ordem** de cada uma: 1 no Fatorial, 2 no Fibonacci, 3 no Tribonacci. É quantos termos
   anteriores a recorrência usa, e portanto quantas chamadas abre cada nó que não é caso base.
   **Guardem esse número, porque é ele que decide tudo.**
-- Toque em **Código** no cartão do Tribonacci: abre o código TypeScript real das duas funções, lido
+- Clique em **Código** no cartão do Tribonacci: abre o código TypeScript real das duas funções, lido
   do próprio arquivo que o app executa e cronometra. Aponte as três chamadas recursivas no `return`,
   que são a ordem 3, e, na versão com cache, as três linhas marcadas: consultar o cache, devolver o
   acerto e guardar o valor. É tudo o que o cache acrescenta. Feche com Esc; os outros dois cartões
@@ -116,7 +116,7 @@ termos. Abaixo deles, fechado, o painel **Fórmulas gerais**.
 ### 3. Calcular f(7): mesmo valor, contagens opostas (1:30) — tela `/calcular`
 
 Na tela: `/calcular?sequencia=tribonacci&n=7&modo=comparar`. Na coluna da esquerda, confira
-Tribonacci, o modo **Comparar** e n = 7, e toque em **Calcular**.
+Tribonacci, o modo **Comparar** e n = 7, e clique em **Calcular**.
 
 Este é o item (a)–(c) do enunciado acontecendo ao vivo, e não uma captura de tela.
 
@@ -149,7 +149,7 @@ Este é um pedido explícito do enunciado; dê o tempo dele.
   aproximar uma região, e **Ajustar à tela** para voltar. Quem precisar ler cada chamada em texto
   tem a vista **Lista**.
 - Se a turma quiser interagir: clique num nó para recolher a subárvore, ou marque **com cache** na
-  coluna da esquerda, toque em **Ver árvore** e mostre a árvore podada, com os acertos de cache em
+  coluna da esquerda, clique em **Ver árvore** e mostre a árvore podada, com os acertos de cache em
   borda tracejada e marca de triângulo.
 
 ### 5. O palco do f(7): 46 → 16, e as 30 evitadas (2:30) — tela `/apresentacao`
@@ -183,9 +183,10 @@ cartão **Como a comparação é feita**.
 
 - Leia uma frase por item do cartão: as **contagens** são exatas, da versão instrumentada; o
   **tempo** é das funções puras, com aquecimento, coleta de lixo antes de cada bloco, os dois modos
-  alternados e a mediana; a **memória** é o que fica retido entre duas coletas, com o cache ainda
-  vivo. Depois toque em **Comparar** na coluna da esquerda: o cartão fica recolhido abaixo das
-  curvas.
+  alternados e a mediana das repetições escolhidas à esquerda; a **memória** é o que fica retido
+  entre duas coletas, com o cache ainda vivo, e usa sempre 3 repetições próprias, qualquer que seja
+  o número escolhido. Depois clique em **Comparar** na coluna da esquerda: o cartão fica recolhido
+  abaixo das curvas.
 
 - Os três destaques respondem o item de desempenho do enunciado: **fator de aceleração**, **chamadas
   evitadas** e **memória a mais com cache**. Leia os três em voz alta; a leitura embaixo do fator já
@@ -209,7 +210,7 @@ cartão **Como a comparação é feita**.
 
 ### 7. O Fatorial honesto e fechamento (0:45) — tela `/calcular`
 
-Na tela: `/calcular?sequencia=fatorial&n=10&modo=comparar`, e toque em **Calcular**.
+Na tela: `/calcular?sequencia=fatorial&n=10&modo=comparar`, e clique em **Calcular**.
 
 - Olhe para o professor e diga: no Fatorial o cache **não ajuda**, e a ferramenta mostra isso em
   vez de esconder: **10 invocações nos dois modos, zero evitadas**. No placar com cache, zero
