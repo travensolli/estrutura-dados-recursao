@@ -92,6 +92,35 @@ test.describe('dobra do notebook', () => {
     expect(Math.abs((esquerda?.y ?? 0) - (direita?.y ?? 1))).toBeLessThanOrEqual(1);
   });
 
+  test('início: a janela de código cabe na tela, sem rolagem lateral nem interna', async ({
+    page,
+  }) => {
+    await abrir(page, '/');
+    await page.getByRole('button', { name: 'Código de Tribonacci em TypeScript' }).click();
+    const janela = page.getByRole('dialog', { name: 'Tribonacci em TypeScript' });
+    await expect(janela).toBeVisible();
+    await dentroDaJanela(page, janela);
+    const excessos = await janela.evaluate((el) => ({
+      interno: el.scrollHeight - el.clientHeight,
+      lateral: [...el.querySelectorAll('pre')].map((pre) => pre.scrollWidth - pre.clientWidth),
+    }));
+    expect(excessos.interno).toBeLessThanOrEqual(1);
+    expect(excessos.lateral).toEqual([0, 0]);
+  });
+
+  test('início: a tabela de fórmulas não rola para o lado, nem com o maior n', async ({ page }) => {
+    for (const largura of [1366, 1024]) {
+      await page.setViewportSize({ width: largura, height: 641 });
+      await abrir(page, '/');
+      await page.getByText('Fórmulas gerais: invocações, pilha e complexidade').click();
+      await page.getByLabel('n do exemplo', { exact: true }).fill('40');
+      const tabela = page.getByRole('region', { name: /Fórmulas gerais aplicadas.*n = 40/ });
+      await expect(tabela).toBeVisible();
+      const lateral = await tabela.evaluate((el) => el.scrollWidth - el.clientWidth);
+      expect(lateral, `rolagem lateral em ${largura}px`).toBeLessThanOrEqual(0);
+    }
+  });
+
   test('comparar mostra os destaques e as duas curvas numa tela', async ({ page }) => {
     await abrir(page, '/comparar?sequencia=tribonacci&n=12&repeticoes=2');
     await page.getByRole('button', { name: /^Comparar$/ }).click();
