@@ -96,6 +96,11 @@ termos. Abaixo deles, fechado, o painel **Fórmulas gerais**.
 - Aponte a **ordem** de cada uma: 1 no Fatorial, 2 no Fibonacci, 3 no Tribonacci. É quantos termos
   anteriores a recorrência usa, e portanto quantas chamadas abre cada nó que não é caso base.
   **Guardem esse número, porque é ele que decide tudo.**
+- Toque em **Código** no cartão do Tribonacci: abre o código TypeScript real das duas funções, lido
+  do próprio arquivo que o app executa e cronometra. Aponte as três chamadas recursivas no `return`,
+  que são a ordem 3, e, na versão com cache, as três linhas marcadas: consultar o cache, devolver o
+  acerto e guardar o valor. É tudo o que o cache acrescenta. Feche com Esc; os outros dois cartões
+  têm o mesmo botão, se alguém pedir.
 - Aponte as linhas de crescimento: sem cache o Fibonacci é Θ(φⁿ), com φ ≈ 1,618, a razão áurea, e
   o Tribonacci é Θ(τⁿ), com τ ≈ 1,839, a constante de Tribonacci: exponenciais. Com cache, os dois
   viram lineares, com 2n − 1 invocações a partir de n = 1 e 3n − 5 a partir de n = 2; abaixo disso
@@ -173,8 +178,14 @@ Esta é a resposta que o enunciado pede por escrito. Não corra.
 
 ### 6. Tempo e memória, medidos ao vivo (1:45) — tela `/comparar`
 
-Na tela: `/comparar?sequencia=tribonacci&n=20&repeticoes=5`. Toque em **Comparar** na coluna da
-esquerda.
+Na tela: `/comparar?sequencia=tribonacci&n=20&repeticoes=5`. Antes de medir, o resultado mostra o
+cartão **Como a comparação é feita**.
+
+- Leia uma frase por item do cartão: as **contagens** são exatas, da versão instrumentada; o
+  **tempo** é das funções puras, com aquecimento, coleta de lixo antes de cada bloco, os dois modos
+  alternados e a mediana; a **memória** é o que fica retido entre duas coletas, com o cache ainda
+  vivo. Depois toque em **Comparar** na coluna da esquerda: o cartão fica recolhido abaixo das
+  curvas.
 
 - Os três destaques respondem o item de desempenho do enunciado: **fator de aceleração**, **chamadas
   evitadas** e **memória a mais com cache**. Leia os três em voz alta; a leitura embaixo do fator já
@@ -269,6 +280,12 @@ captura do erro, que vira mensagem clara em vez de derrubar o servidor.
 propósito, não dá para forçar a coleta de lixo e a aba disputa processador com a renderização. No
 Node temos relógio de nanossegundos, coleta sob demanda e leitura do heap.
 
-**Qual é a complexidade dos dois modos?** Sem cache, as invocações crescem como 1,839ⁿ no Tribonacci
-e 1,618ⁿ no Fibonacci. Com cache, são 3n − 5 e 2n − 1. A memória é O(n) de pilha nos dois modos, mais
-O(n) entradas de cache no modo com cache.
+**Qual é a complexidade dos dois modos?** Sem cache, as invocações são Θ(τⁿ) no Tribonacci, com
+τ ≈ 1,839, e Θ(φⁿ) no Fibonacci, com φ ≈ 1,618. Com cache, são exatamente 3n − 5 (a partir de n = 2)
+e 2n − 1 (a partir de n = 1). A pilha é Θ(n) nos dois modos, mais Θ(n) entradas de cache no modo com
+cache.
+
+**Se o bigint cresce, por que o tempo com cache é Θ(n)?** Porque a análise conta invocações, como diz
+o artigo: cada chamada vale uma unidade. Com `bigint`, uma multiplicação ou soma fica mais cara
+conforme o número ganha dígitos, então o tempo real cresce mais rápido que n para n grande,
+sobretudo no Fatorial. O que o cache elimina são chamadas, e isso a contagem mostra sem ruído.

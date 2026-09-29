@@ -241,3 +241,34 @@ rolagem por causa do piso de 200px; numa janela de 1024x768 não rola.
 **Consequência:** a árvore sem cache é larga, e o enquadramento continua
 limitado pela largura. A altura extra vira espaço para aproximar e arrastar,
 não nós maiores. `e2e/dobra.spec.ts` ganhou o caso com cache sem rolagem.
+
+## 2026-09-29: O código real no início, a tabela com grade e o método à vista
+
+Mais um passe de legibilidade para a apresentação, a partir do ensaio.
+
+- **Código em TypeScript:** cada cartão do início ganhou o botão Código, que
+  abre uma janela larga com as duas funções da sequência. O texto não é
+  copiado: vem de `packages/nucleo/src/puros.ts` no build, com `?raw` do Vite,
+  e são essas as funções que o comparar cronometra. Um teste recorta cada
+  função e confere que o número de chamadas recursivas é a ordem do contrato
+  e que o caso base é o do enunciado. A janela foi escolhida em vez de código
+  dentro do cartão porque a linha mais longa tem 92 caracteres e o cartão
+  comporta uns 48: dentro dele, o código quebraria e empurraria a página.
+- **Tabela de fórmulas:** grade entre todas as células, zebra nas linhas e
+  colunas de largura fixa com quebra de texto, sem rolagem lateral em 1366 e
+  1024px, mesmo com n = 40. As opções ficaram na Tabela compartilhada,
+  desligadas por padrão.
+- **Sem previsão:** a linha de previsão de invocações saiu do calcular e do
+  comparar, porque repetia o que o resultado mostra logo depois. A estimativa
+  continua por trás do bloqueio de n, do aviso de cálculo pesado e da
+  confirmação.
+- **Método à vista:** o comparar explica como mede, aberto antes da primeira
+  medição e recolhido depois dela: contagens da versão instrumentada, tempo das
+  funções puras com relógio de nanossegundos, aquecimento que calibra blocos de
+  200 ms, coleta de lixo antes de cada bloco, modos alternados e mediana, e a
+  memória retida entre duas coletas. Cada número do texto foi conferido contra
+  a API.
+
+**Consequência:** o roteiro mostra o código na seção das sequências e o
+método antes da medição ao vivo, e a lista de perguntas ganhou a do custo do
+bigint.
