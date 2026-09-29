@@ -1,5 +1,5 @@
 import type { Modo, No } from '@sequencias/contrato';
-import { abreviarValor } from '../utilitarios/formatar';
+import { abreviarValor, formatarInteiro, formatarQuantidade } from '../utilitarios/formatar';
 
 export type EstadoNo = 'futuro' | 'ativo' | 'resolvido';
 
@@ -174,6 +174,13 @@ export function rotuloTipo(tipo: No['tipo']): string {
   return 'calculado';
 }
 
+/** Rótulo do botão que reabre os nós recolhidos pelo clique. */
+export function rotuloAbrirRecolhidos(quantidade: number): string {
+  return quantidade === 1
+    ? 'Abrir o nó recolhido'
+    : `Abrir os ${formatarInteiro(quantidade)} nós recolhidos`;
+}
+
 /** Descrição textual da árvore para leitores de tela. */
 export function descreverArvore(
   nomeSequencia: string,
@@ -189,10 +196,10 @@ export function descreverArvore(
 ): string {
   const partes = [
     `Árvore de chamadas de ${nomeSequencia} f(${n}) ${modo === 'com_cache' ? 'com' : 'sem'} cache:`,
-    `${metricas.invocacoes} invocações,`,
-    `${metricas.casos_base} casos base,`,
-    `${metricas.calculados} calculados,`,
-    `${metricas.acertos_cache} acertos de cache,`,
+    `${formatarQuantidade(metricas.invocacoes, 'invocação', 'invocações')},`,
+    `${formatarQuantidade(metricas.casos_base, 'caso base', 'casos base')},`,
+    `${formatarQuantidade(metricas.calculados, 'calculado', 'calculados')},`,
+    `${formatarQuantidade(metricas.acertos_cache, 'acerto de cache', 'acertos de cache')},`,
     `profundidade máxima ${metricas.profundidade_maxima}.`,
   ];
   return partes.join(' ');

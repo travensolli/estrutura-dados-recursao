@@ -109,7 +109,7 @@ describe('ArvoreSvg', () => {
     expect(screen.getByText('+24')).toBeInTheDocument();
     expect(f6).toHaveAttribute('aria-expanded', 'false');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Abrir os 1 nós recolhidos' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir o nó recolhido' }));
     expect(nos()).toHaveLength(46);
   });
 

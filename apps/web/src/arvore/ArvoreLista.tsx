@@ -8,6 +8,7 @@ import {
   eventoNoPasso,
   indexarPassos,
   rotuloTipo,
+  rotuloAbrirRecolhidos,
 } from './modelo';
 import { MarcaTipo } from './ui/MarcaTipo';
 
@@ -128,7 +129,7 @@ export function ArvoreLista({
           className="self-start rounded-md border border-borda bg-superficie px-3 py-2 text-sm hover:bg-superficie-suave"
           onClick={() => setRecolhidos(new Set<number>())}
         >
-          Abrir os {formatarInteiro(recolhidos.size)} nós recolhidos
+          {rotuloAbrirRecolhidos(recolhidos.size)}
         </button>
       )}
       <ul

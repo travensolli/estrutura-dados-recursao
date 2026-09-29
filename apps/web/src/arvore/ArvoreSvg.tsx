@@ -8,6 +8,7 @@ import {
   corDoArgumento,
   formatarInteiro,
   rotuloModo,
+  primeirosNos,
 } from '../utilitarios/formatar';
 import { baixarPng, baixarSvg, type Extensao } from './exportar';
 import { estiloDoTipo } from './formas';
@@ -20,6 +21,7 @@ import {
   indexarPassos,
   rotuloTipo,
   type EstadoNo,
+  rotuloAbrirRecolhidos,
 } from './modelo';
 import { Contadores } from './ui/Contadores';
 import { Legenda } from './ui/Legenda';
@@ -293,7 +295,7 @@ export function ArvoreSvg({
   const descricao = useMemo(() => {
     const base = descreverArvore(DESCRICAO_SEQUENCIAS[sequencia].nome, n, modo, metricas);
     return truncada
-      ? `${base} A figura mostra os primeiros ${formatarInteiro(nosExibidos ?? layout.nos.length)} nós.`
+      ? `${base} A figura mostra ${primeirosNos(nosExibidos ?? layout.nos.length)}.`
       : base;
   }, [layout.nos.length, metricas, modo, n, nosExibidos, sequencia, truncada]);
 
@@ -370,7 +372,7 @@ export function ArvoreSvg({
         </div>
         {recolhidos.size > 0 && (
           <button type="button" className={BOTAO} onClick={() => setRecolhidos(new Set<number>())}>
-            Abrir os {formatarInteiro(recolhidos.size)} nós recolhidos
+            {rotuloAbrirRecolhidos(recolhidos.size)}
           </button>
         )}
         {!compacto && (

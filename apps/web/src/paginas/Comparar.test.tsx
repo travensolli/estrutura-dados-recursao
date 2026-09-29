@@ -55,11 +55,35 @@ describe('Página comparar', () => {
       expect(within(metodo).getByText(termo)).toBeInTheDocument();
     }
     expect(within(metodo).getByText(/mede só as funções puras, sem contadores/)).toBeVisible();
+    expect(within(metodo).getByText(/clique em Comparar/)).toBeInTheDocument();
+    expect(within(metodo).getByText(/mediana das repetições escolhidas à esquerda/)).toBeVisible();
+    expect(
+      within(metodo).getByText(/sempre 3, qualquer que seja o número escolhido para o tempo/),
+    ).toBeVisible();
 
     await medir(usuario);
     expect(screen.queryByRole('region', { name: 'Como a comparação é feita' })).toBeNull();
     const resumo = screen.getByRole('heading', { name: 'Como a comparação é feita' });
     expect(resumo.closest('summary')).not.toBeNull();
+  });
+
+  it('concorda no singular quando há uma invocação e uma repetição', async () => {
+    const usuario = await abrir('/comparar?sequencia=fatorial&n=1&repeticoes=1');
+    await medir(usuario);
+    expect(cartaoMetrica('Chamadas evitadas pelo cache')).toHaveTextContent(
+      'Nenhum argumento se repetiu: 1 invocação nos dois modos.',
+    );
+    expect(
+      screen.getByText(/Os dois modos fizeram a mesma 1 invocação e o cache evitou zero chamadas/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/A mediana de 1 repetição foi/)).toBeInTheDocument();
+    expect(screen.getByText(/1 repetição por modo, com/)).toBeInTheDocument();
+  });
+
+  it('diz uma entrada guardada quando o cache guarda um valor só', async () => {
+    const usuario = await abrir('/comparar?sequencia=fatorial&n=2&repeticoes=2');
+    await medir(usuario);
+    expect(cartaoMetrica('Memória a mais com cache')).toHaveTextContent(/1 entrada guardada\b/);
   });
 
   it('mede tribonacci f(20) e mostra o fator de aceleração medido', async () => {

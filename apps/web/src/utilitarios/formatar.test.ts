@@ -6,6 +6,7 @@ import {
   formatarCompacto,
   formatarFator,
   formatarInteiro,
+  formatarQuantidade,
   formatarTempoNs,
 } from './formatar';
 
@@ -15,6 +16,13 @@ describe('formatar', () => {
       '15.511.210.043.330.985.984.000.000',
     );
     expect(formatarInteiro(1234)).toBe('1.234');
+  });
+  it('concorda o substantivo com a quantidade, singular só para um', () => {
+    expect(formatarQuantidade(1, 'invocação', 'invocações')).toBe('1 invocação');
+    expect(formatarQuantidade(0, 'invocação', 'invocações')).toBe('0 invocações');
+    expect(formatarQuantidade(46, 'invocação', 'invocações')).toBe('46 invocações');
+    expect(formatarQuantidade(1n, 'entrada', 'entradas')).toBe('1 entrada');
+    expect(formatarQuantidade(128287, 'invocação', 'invocações')).toBe('128.287 invocações');
   });
   it('abrevia valores enormes mantendo o texto completo', () => {
     const r = abreviarValor('15511210043330985984000000');
