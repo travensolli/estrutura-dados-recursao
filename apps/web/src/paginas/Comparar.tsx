@@ -881,7 +881,10 @@ export function PaginaComparar() {
             ) : null}
           </div>
 
-          {medindo ? <Esqueleto linhas={4} altura="h-20" rotulo="Medindo os dois modos" /> : null}
+          {/* Destaques e curvas somam uns 28rem: o esqueleto guarda o lugar dos dois. */}
+          {medindo ? (
+            <Esqueleto linhas={1} altura="h-[28rem]" rotulo="Medindo os dois modos" />
+          ) : null}
 
           {medicao === null && !medindo ? <ComoMedimos recolhido={false} /> : null}
 

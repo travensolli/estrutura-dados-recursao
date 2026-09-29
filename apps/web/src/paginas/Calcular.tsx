@@ -606,7 +606,14 @@ export function PaginaCalcular() {
             ) : null}
           </div>
 
-          {carregando ? <Esqueleto linhas={4} altura="h-16" rotulo="Calculando" /> : null}
+          {/* Com a altura do cartão que vai chegar: a tela não salta quando o resultado assenta. */}
+          {carregando ? (
+            <Esqueleto
+              linhas={1}
+              altura={modo === 'comparar' ? 'h-[29rem]' : 'h-[19rem]'}
+              rotulo="Calculando"
+            />
+          ) : null}
 
           {execucao === null && !carregando ? (
             <EstadoVazio
