@@ -29,35 +29,34 @@ function LinhaCrescimento({ modo, texto }: { modo: Modo; texto: string }) {
 function textoLimites(info: InfoSequencia): string {
   const { sem_cache, com_cache } = info.limites;
   return sem_cache === com_cache
-    ? `Nesta demonstração n vai até ${formatarInteiro(sem_cache)} nos dois modos.`
-    : `Nesta demonstração n vai até ${formatarInteiro(sem_cache)} sem cache e ${formatarInteiro(com_cache)} com cache.`;
+    ? `Aqui n vai até ${formatarInteiro(sem_cache)} nos dois modos.`
+    : `Aqui n vai até ${formatarInteiro(sem_cache)} sem cache e ${formatarInteiro(com_cache)} com cache.`;
 }
 
 function CartaoSequencia({ info }: { info: InfoSequencia }) {
   const ultimoTermo = info.primeiros_termos.length - 1;
   return (
-    <Cartao as="article" titulo={info.nome} className="flex h-full flex-col">
-      <p className="font-mono text-lg break-words">{info.formula}</p>
+    <Cartao as="article" titulo={info.nome} compacto className="flex h-full flex-col">
+      <p className="font-mono text-base break-words">{info.formula}</p>
       <p className="mt-1 font-mono text-sm text-texto-suave">{info.casos_base}</p>
 
-      <p className="mt-4 text-sm">
+      <p className="mt-1 text-sm">
         De f(0) a f({ultimoTermo}):{' '}
         <span className="font-mono tabular-nums">{info.primeiros_termos.join(', ')}</span>
       </p>
 
-      <ul className="mt-4 space-y-1 text-sm">
+      <ul className="mt-1 space-y-1 text-sm">
         <LinhaCrescimento modo="sem_cache" texto={info.crescimento_sem_cache} />
         <LinhaCrescimento modo="com_cache" texto={info.crescimento_com_cache} />
       </ul>
 
-      <p className="mt-3 text-sm text-texto-suave">{textoLimites(info)}</p>
+      <p className="mt-1 text-sm text-texto-suave">{textoLimites(info)}</p>
 
-      <GrupoBotoes className="mt-auto pt-5">
+      <GrupoBotoes className="mt-auto pt-2">
         <BotaoLink
           to={enderecoComEstado('/calcular', { sequencia: info.id })}
           variante="secundaria"
           tamanho="pequeno"
-          icone="calcular"
         >
           Calcular
         </BotaoLink>
@@ -65,7 +64,6 @@ function CartaoSequencia({ info }: { info: InfoSequencia }) {
           to={enderecoComEstado('/comparar', { sequencia: info.id })}
           variante="neutra"
           tamanho="pequeno"
-          icone="comparar"
         >
           Comparar
         </BotaoLink>
@@ -73,9 +71,8 @@ function CartaoSequencia({ info }: { info: InfoSequencia }) {
           to={enderecoComEstado('/arvore', { sequencia: info.id })}
           variante="neutra"
           tamanho="pequeno"
-          icone="arvore"
         >
-          Ver árvore
+          Árvore
         </BotaoLink>
       </GrupoBotoes>
     </Cartao>
@@ -87,40 +84,65 @@ export function PaginaInicio() {
   const { data, isPending, isError, error, refetch } = useSequencias();
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-3">
       <section aria-labelledby="titulo-pagina">
-        <h1 id="titulo-pagina" className="text-3xl font-semibold sm:text-4xl">
+        <h1 id="titulo-pagina" className="text-2xl font-semibold">
           Recursão com e sem cache
         </h1>
-        <p className="mt-3 max-w-prose text-lg text-texto-suave">
-          Escolha uma sequência e veja f(n) ser calculado por recursão. Cada invocação é contada, os
-          dois modos são medidos lado a lado em tempo e memória, e a árvore de chamadas mostra onde
-          o cache evita trabalho repetido.
-        </p>
       </section>
 
-      <section aria-labelledby="titulo-sequencias">
-        <h2 id="titulo-sequencias" className="text-xl font-semibold">
-          As três sequências
+      <section aria-labelledby="titulo-enunciado" className="flex flex-wrap items-center gap-2">
+        <h2 id="titulo-enunciado" className="mr-1 text-sm font-medium text-texto-suave">
+          O enunciado, item a item:
         </h2>
+        <BotaoLink
+          to={enderecoComEstado('/calcular', { sequencia: 'tribonacci', n: 7 })}
+          variante="neutra"
+          tamanho="pequeno"
+          icone="verificado"
+        >
+          1 · Calcular com e sem cache
+        </BotaoLink>
+        <BotaoLink
+          to={enderecoComEstado('/comparar', { sequencia: 'tribonacci' })}
+          variante="neutra"
+          tamanho="pequeno"
+          icone="verificado"
+        >
+          2 · Comparar tempo e memória
+        </BotaoLink>
+        <BotaoLink
+          to={enderecoComEstado('/arvore', { sequencia: 'tribonacci', n: 7, modo: 'sem_cache' })}
+          variante="neutra"
+          tamanho="pequeno"
+          icone="verificado"
+        >
+          3 · Árvore de chamadas
+        </BotaoLink>
+        <BotaoLink to="/apresentacao" variante="secundaria" tamanho="pequeno" icone="apresentacao">
+          4 · Apresentação do f(7)
+        </BotaoLink>
+      </section>
+
+      <section aria-label="As três sequências">
         {isError ? (
           <EstadoErro erro={error} aoTentarDeNovo={() => void refetch()} className="mt-4" />
         ) : null}
         {isPending ? (
-          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[0, 1, 2].map((indice) => (
               <Esqueleto
                 key={indice}
                 linhas={5}
                 altura="h-6"
                 rotulo="Carregando as sequências"
-                className="rounded-xl border border-borda bg-superficie p-4 sm:p-6"
+                className="rounded-xl border border-borda bg-superficie p-4"
               />
             ))}
           </div>
         ) : null}
         {data ? (
-          <ul className="mt-4 grid list-none gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid list-none gap-4 md:grid-cols-2 lg:grid-cols-3">
             {data.sequencias.map((info) => (
               <li key={info.id} className="min-w-0">
                 <CartaoSequencia info={info} />
@@ -129,18 +151,6 @@ export function PaginaInicio() {
           </ul>
         ) : null}
       </section>
-
-      <Cartao
-        as="section"
-        titulo="Modo apresentação"
-        descricao="Tela cheia, números grandes e as duas execuções lado a lado, para projetar em sala."
-        destaque
-        acoes={
-          <BotaoLink to="/apresentacao" icone="apresentacao">
-            Abrir modo apresentação
-          </BotaoLink>
-        }
-      />
     </div>
   );
 }

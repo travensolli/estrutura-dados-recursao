@@ -92,3 +92,73 @@ vir da API, que usa `packages/nucleo`. O modo apresentacao tem um plano B que
 executa o mesmo nucleo num Web Worker do navegador: as contagens continuam
 exatas, os tempos aparecem marcados como indicativos e a memoria nao e
 exibida, porque o navegador nao oferece medida confiavel.
+
+## 2026-09-28: Contexto informado — apresentação de 10 minutos
+
+O contexto que faltava no briefing foi informado e substitui a suposição de 15
+minutos registrada em 17/09.
+
+- **Tempo:** 10 minutos. O roteiro foi refeito com essa duração e organizado na
+  ordem do enunciado, para que nenhum dos quatro pedidos fique de fora.
+- **Base da apresentação:** o próprio enunciado. Cada seção do roteiro e do
+  relatório responde a um pedido dele, na mesma ordem.
+- **Material projetado:** `docs/relatorio.html`, gerado por `pnpm relatorio`. É
+  um arquivo único, estático, sem servidor e sem dependência de rede, então a
+  apresentação não depende de a aplicação subir na hora.
+- **A aplicação continua no projeto**, com front e back em Docker Compose, para
+  que seja possível informar o n das três funções e conferir os resultados ao
+  vivo. A demonstração passou a ser um bloco curto dentro da seção de
+  desempenho, e não mais o centro da apresentação.
+
+**Consequência:** a documentação didática foi consolidada no `README.md`, agora
+em formato de artigo, que passa a ser a fonte para montar a apresentação. Os
+documentos `explicacao-tribonacci.md` e `metodologia-medicao.md` foram
+incorporados a ele (seções 2, 3, 5 e 6) e removidos, para não haver duas versões
+dos mesmos números.
+
+## 2026-09-29: A resposta acima da dobra — as telas cabem num notebook
+
+A apresentação será projetada de um notebook comum, então o pior caso de
+janela útil é 1366x641 (1366x768 menos a barra de tarefas e o navegador).
+As telas de navegação foram compactadas com um princípio único: **acima da
+dobra fica a resposta; a prova abre sob demanda.**
+
+- Início, Calcular e Comparar abrem sem rolagem do documento. O teste de
+  ponta a ponta `dobra.spec.ts` trava isso no projeto desktop, que passou a
+  medir 1366x641.
+- As tabelas longas (tempo, memória, ambiente e invocações por argumento)
+  viraram blocos recolhidos no componente novo `Detalhes`, com seta que gira
+  ao abrir e alvo de toque de 44px no resumo.
+- O Início ganhou uma faixa que liga cada item do enunciado à tela que o
+  responde, já com Tribonacci e n igual a 7 no endereço.
+- Na Árvore os controles podem rolar para fora da primeira dobra, mas
+  contadores, ferramentas e desenho cabem juntos numa tela; o teto do
+  desenho é min(42vh, 680px), o mesmo espírito do palco da apresentação.
+- Nenhum texto de conteúdo desce de 14px: a densidade veio de margens,
+  rótulos e ajudas mais curtas, nunca de fonte menor nem de alvo de toque
+  menor.
+
+De quebra, a medição achou o motivo de o trabalho de ponta a ponta falhar
+no CI: o vite subia só em localhost, que em Node recente resolve para o ::1
+do IPv6, enquanto o Playwright esperava em 127.0.0.1. O vite agora nasce
+preso ao IPv4 e a espera dos servidores dobrou para 240 segundos.
+
+## 2026-09-29: O palco da apresentação passa a ser o app
+
+A entrada de 28/09 projetava o `relatorio.html` e deixava a aplicação num
+bloco curto de demonstração. Com as telas cabendo na dobra do notebook, a
+relação se inverte.
+
+- **Material projetado:** a própria aplicação, navegada na ordem do
+  enunciado (`/` → `/calcular` → `/arvore` → `/apresentacao` → `/comparar`).
+  Todos os números continuam vindo de execuções instrumentadas, ao vivo.
+- **O `relatorio.html` não sai do projeto:** vira material de apoio e o
+  primeiro degrau do plano B, porque é estático e não depende do app subir.
+- **Motivo:** a demonstração ao vivo responde os quatro pedidos do enunciado
+  com mais força do que capturas num documento, e a faixa "O enunciado,
+  item a item" do início mostra a cobertura de cara, sem margem para
+  dúvida sobre o que foi ou não atendido.
+
+**Consequência:** o roteiro foi reescrito seção a seção com as telas e os
+endereços prontos, e o checklist passou a exigir zoom em 100% e um ensaio
+de navegação antes da aula.

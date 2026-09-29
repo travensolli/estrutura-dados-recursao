@@ -91,7 +91,7 @@ export function ArvoreSvg({
   fantasmas,
   selos,
   enquadreMinimo = ENQUADRE_MINIMO,
-  classeAltura = 'max-h-[680px] min-h-[320px]',
+  classeAltura = 'max-h-[min(42vh,680px)] min-h-[240px]',
 }: ArvoreSvgProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const comportamentoRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);

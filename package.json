@@ -1,6 +1,6 @@
 {
   "name": "sequencias-recursivas",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "PRJ.ED.1: cálculo recursivo de Fatorial, Fibonacci e Tribonacci com e sem cache, comparação de desempenho e árvore de chamadas",
   "type": "module",
@@ -21,7 +21,7 @@
     "test:repo": "vitest run --config vitest.repo.config.ts",
     "e2e": "pnpm --filter @sequencias/web e2e",
     "cli": "tsx apps/cli/src/index.ts",
-    "benchmark:relatorio": "node --expose-gc --import tsx apps/api/src/relatorio/gerar.ts && prettier --write docs/resultados-benchmark.md",
+    "relatorio": "node --expose-gc --import tsx apps/api/src/relatorio/gerar.ts && prettier --write docs/resultados-benchmark.md docs/relatorio.html",
     "ci:local": "sh scripts/ci-local.sh"
   },
   "devDependencies": {

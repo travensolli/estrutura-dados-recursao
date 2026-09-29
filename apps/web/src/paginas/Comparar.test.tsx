@@ -74,6 +74,8 @@ describe('Página comparar', () => {
   it('mostra as cinco estatísticas de tempo e o bloco de memória', async () => {
     const usuario = await abrir();
     await medir(usuario);
+    await usuario.click(screen.getByRole('heading', { name: 'Tempo' }));
+    await usuario.click(screen.getByRole('heading', { name: 'Memória' }));
 
     for (const rotulo of [/^Mediana/, /^Média/, /^Mínimo/, /^Máximo/, /^Desvio padrão/]) {
       expect(within(linhaDaTabela(rotulo)).getAllByRole('cell')).toHaveLength(2);
@@ -103,7 +105,7 @@ describe('Página comparar', () => {
     const aviso = screen.getByText('Dados simulados').closest('[role="status"]');
     expect(aviso).not.toBeNull();
     expect(aviso).toHaveTextContent('A API real ainda não está ligada');
-    expect(screen.getByRole('heading', { name: 'Ambiente de execução' })).toBeInTheDocument();
+    await usuario.click(screen.getByRole('heading', { name: 'Ambiente de execução' }));
     expect(screen.getByText('navegador (mock MSW) x64')).toBeInTheDocument();
   });
 

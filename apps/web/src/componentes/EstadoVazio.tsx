@@ -14,7 +14,7 @@ export function EstadoVazio({ icone, titulo, descricao, acoes, className }: Esta
   return (
     <div
       className={juntarClasses(
-        'flex flex-col items-center rounded-xl bg-superficie-suave px-6 py-10 text-center',
+        'flex flex-col items-center rounded-xl bg-superficie-suave px-6 py-6 text-center',
         className,
       )}
     >

@@ -22,9 +22,9 @@ export const PLANO_PADRAO: PlanoRelatorio = {
   repeticoes: REPETICOES_PADRAO,
   prazo_ms: PRAZO_RELATORIO_MS,
   casos: [
-    { sequencia: 'fatorial', ns: [10, 100, 1000, 5000] },
-    { sequencia: 'fibonacci', ns: [10, 25, 30, 35] },
-    { sequencia: 'tribonacci', ns: [7, 20, 25, 30] },
+    { sequencia: 'fatorial', ns: [10, 100, 500, 1000, 2500, 5000] },
+    { sequencia: 'fibonacci', ns: [10, 15, 20, 25, 30, 35] },
+    { sequencia: 'tribonacci', ns: [7, 10, 15, 20, 25, 30] },
   ],
 };
 

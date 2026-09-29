@@ -23,8 +23,9 @@ export default defineConfig({
   },
   projects: [
     {
+      /* Janela útil de um notebook 1366x768 com barra de tarefas e navegador. */
       name: 'desktop',
-      use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1366, height: 641 } },
     },
     {
       name: 'tablet',
@@ -38,15 +39,15 @@ export default defineConfig({
       env: { PORTA: String(PORTA_API), HOST: '127.0.0.1', NODE_ENV: 'test' },
       url: `http://127.0.0.1:${PORTA_API}/api/saude`,
       reuseExistingServer: false,
-      timeout: 120_000,
+      timeout: 240_000,
       stdout: 'ignore',
     },
     {
-      command: `pnpm --filter @sequencias/web exec vite --port ${PORTA_WEB} --strictPort`,
+      command: `pnpm --filter @sequencias/web exec vite --host 127.0.0.1 --port ${PORTA_WEB} --strictPort`,
       env: { VITE_USAR_MOCKS: 'false', VITE_API_URL: `http://127.0.0.1:${PORTA_API}` },
       url: BASE,
       reuseExistingServer: false,
-      timeout: 120_000,
+      timeout: 240_000,
       stdout: 'ignore',
     },
   ],
