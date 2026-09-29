@@ -87,6 +87,7 @@ describe('Página calcular', () => {
     const usuario = await abrir();
     await usuario.click(botaoCalcular());
     await valorHeroi('Tribonacci f(7) vale');
+    await usuario.click(screen.getByText('Invocações por argumento'));
 
     const esperado: Array<[number, string]> = [
       [7, '1'],
@@ -134,6 +135,7 @@ describe('Página calcular', () => {
     const usuario = await abrir('/calcular?sequencia=tribonacci&n=7&modo=comparar');
     await usuario.click(botaoCalcular());
     await valorHeroi('Tribonacci f(7) vale');
+    await usuario.click(screen.getByText('Invocações por argumento'));
 
     const invocacoes = linhaDaTabela(/^Invocações/);
     expect(within(invocacoes).getByText('46')).toBeInTheDocument();

@@ -55,13 +55,25 @@ describe('Página inicial', () => {
     await renderizar();
     const tribonacci = screen.getByRole('article', { name: 'Tribonacci' });
     expect(
-      within(tribonacci).getByText('Nesta demonstração n vai até 30 sem cache e 5.000 com cache.'),
+      within(tribonacci).getByText('Aqui n vai até 30 sem cache e 5.000 com cache.'),
     ).toBeInTheDocument();
   });
 
-  it('destaca o atalho para o modo apresentação', async () => {
+  it('mapeia os quatro itens do enunciado nas telas', async () => {
     await renderizar();
-    expect(screen.getByRole('link', { name: 'Abrir modo apresentação' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: '1 · Calcular com e sem cache' })).toHaveAttribute(
+      'href',
+      '/calcular?sequencia=tribonacci&n=7',
+    );
+    expect(screen.getByRole('link', { name: '2 · Comparar tempo e memória' })).toHaveAttribute(
+      'href',
+      '/comparar?sequencia=tribonacci',
+    );
+    expect(screen.getByRole('link', { name: '3 · Árvore de chamadas' })).toHaveAttribute(
+      'href',
+      '/arvore?sequencia=tribonacci&n=7&modo=sem_cache',
+    );
+    expect(screen.getByRole('link', { name: '4 · Apresentação do f(7)' })).toHaveAttribute(
       'href',
       '/apresentacao',
     );

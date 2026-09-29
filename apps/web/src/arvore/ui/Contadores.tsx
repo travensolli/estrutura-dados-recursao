@@ -27,7 +27,7 @@ export function Contadores({ metricas, nosExibidos }: ContadoresProps) {
         >
           <dt className="text-xs text-texto-suave">{item.rotulo}</dt>
           <dd
-            className={`font-mono tabular-nums ${item.destaque ? 'text-2xl font-semibold' : 'text-xl'}`}
+            className={`font-mono tabular-nums ${item.destaque ? 'text-xl font-semibold' : 'text-lg'}`}
           >
             {formatarInteiro(item.valor)}
           </dd>
@@ -36,7 +36,7 @@ export function Contadores({ metricas, nosExibidos }: ContadoresProps) {
       {nosExibidos !== undefined && nosExibidos < metricas.invocacoes && (
         <div className="min-w-24 border-l border-borda pl-3">
           <dt className="text-xs text-texto-suave">nós desenhados</dt>
-          <dd className="font-mono text-xl tabular-nums text-alerta">
+          <dd className="font-mono text-lg tabular-nums text-alerta">
             {formatarInteiro(nosExibidos)}
           </dd>
         </div>

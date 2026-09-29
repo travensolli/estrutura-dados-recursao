@@ -19,6 +19,7 @@ export {
 export { BotaoTema, type BotaoTemaProps } from './BotaoTema';
 export { CampoNumero, type CampoNumeroProps } from './CampoNumero';
 export { Cartao, type CartaoProps } from './Cartao';
+export { Detalhes, type DetalhesProps } from './Detalhes';
 export {
   Dialogo,
   DialogoConfirmacao,
