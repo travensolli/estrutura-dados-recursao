@@ -180,6 +180,10 @@ function PlacarMetricas({ resposta, identificar = false }: PlacarMetricasProps) 
 function DefinicoesMetricas({ modo }: { modo: Modo | null }) {
   return (
     <Detalhes resumo={<span className="text-base font-semibold">O que cada número conta</span>}>
+      <p className="mb-2 text-sm text-texto-suave">
+        Os números vêm de uma versão instrumentada da recursão, que conta cada chamada enquanto
+        calcula: são contagens exatas, sem relógio. Tempo e memória são medidos na tela Comparar.
+      </p>
       <dl className="space-y-1 text-sm">
         {METRICAS.map((descricao) => (
           <div key={descricao.chave} className="gap-x-4 sm:grid sm:grid-cols-[12rem_1fr]">

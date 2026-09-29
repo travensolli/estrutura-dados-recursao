@@ -48,6 +48,20 @@ describe('Página comparar', () => {
     expect(screen.getByText('Nenhuma comparação ainda')).toBeInTheDocument();
   });
 
+  it('explica o método antes de medir e o guarda recolhido depois', async () => {
+    const usuario = await abrir();
+    const metodo = screen.getByRole('region', { name: 'Como a comparação é feita' });
+    for (const termo of ['Contagens', 'Tempo', 'Memória', 'Curvas']) {
+      expect(within(metodo).getByText(termo)).toBeInTheDocument();
+    }
+    expect(within(metodo).getByText(/mede só as funções puras, sem contadores/)).toBeVisible();
+
+    await medir(usuario);
+    expect(screen.queryByRole('region', { name: 'Como a comparação é feita' })).toBeNull();
+    const resumo = screen.getByRole('heading', { name: 'Como a comparação é feita' });
+    expect(resumo.closest('summary')).not.toBeNull();
+  });
+
   it('mede tribonacci f(20) e mostra o fator de aceleração medido', async () => {
     const esperado = await api.comparar({ sequencia: 'tribonacci', n: 20, repeticoes: 5 });
     const usuario = await abrir();

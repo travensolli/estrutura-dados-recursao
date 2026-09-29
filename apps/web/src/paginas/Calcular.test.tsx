@@ -103,6 +103,7 @@ describe('Página calcular', () => {
       ),
     ).toBeVisible();
     expect(screen.getByText('Sem cache nada é reaproveitado.')).toBeVisible();
+    expect(screen.getByText(/versão instrumentada da recursão/)).toBeVisible();
   });
 
   it('mostra as invocações por argumento com barra proporcional', async () => {
