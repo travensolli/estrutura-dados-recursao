@@ -50,7 +50,12 @@ import {
   type OpcoesEstadoUrl,
 } from '../hooks/useEstadoUrl';
 import { juntarClasses } from '../utilitarios/classes';
-import { formatarInteiro, formatarTempoNs, rotuloModo } from '../utilitarios/formatar';
+import {
+  formatarInteiro,
+  formatarQuantidade,
+  formatarTempoNs,
+  rotuloModo,
+} from '../utilitarios/formatar';
 import { validarInteiro } from '../utilitarios/validacao';
 
 const OPCOES_URL: OpcoesEstadoUrl = {};
@@ -416,7 +421,7 @@ export function PaginaCalcular() {
       ? `${DESCRICAO_SEQUENCIAS[primeira.sequencia].nome} f(${primeira.n}) = ${valorFalado(primeira.metricas)}. ${resultado
           .map(
             (item) =>
-              `${formatarInteiro(item.metricas.invocacoes)} invocações ${rotuloModo(item.modo)}`,
+              `${formatarQuantidade(item.metricas.invocacoes, 'invocação', 'invocações')} ${rotuloModo(item.modo)}`,
           )
           .join(', ')}.`
       : '';

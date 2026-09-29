@@ -72,6 +72,11 @@ describe('Página inicial', () => {
         'export function tribonacciComCache(n: number, cache: Map<number, bigint>): bigint {',
       ),
     ).toBeInTheDocument();
+    expect(
+      within(janela).getByText(
+        '— as mesmas 3 chamadas recursivas; as linhas marcadas consultam e gravam o cache',
+      ),
+    ).toBeInTheDocument();
     const marcadas = [...janela.querySelectorAll('mark')].map((linha) => linha.textContent?.trim());
     expect(marcadas).toEqual([
       'const guardado = cache.get(n);',
@@ -82,6 +87,19 @@ describe('Página inicial', () => {
     await usuario.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(botao).toHaveFocus();
+  });
+
+  it('concorda a legenda do código com a ordem: no fatorial, a mesma 1 chamada', async () => {
+    const usuario = userEvent.setup();
+    await renderizar();
+    await usuario.click(screen.getByRole('button', { name: 'Código de Fatorial em TypeScript' }));
+    const janela = screen.getByRole('dialog', { name: 'Fatorial em TypeScript' });
+    expect(within(janela).getByText('— 1 chamada recursiva por caso não base')).toBeInTheDocument();
+    expect(
+      within(janela).getByText(
+        '— a mesma 1 chamada recursiva; as linhas marcadas consultam e gravam o cache',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('diz que o fatorial não ganha nada com o cache', async () => {

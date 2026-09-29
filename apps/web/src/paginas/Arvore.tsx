@@ -18,7 +18,7 @@ import {
 import { Aviso } from '../arvore/ui/Aviso';
 import { ControlesArvore } from '../arvore/ui/ControlesArvore';
 import { useArvoreComPlanoB } from '../arvore/usarArvore';
-import { formatarInteiro, rotuloModo } from '../utilitarios/formatar';
+import { formatarInteiro, primeirosNos, rotuloModo } from '../utilitarios/formatar';
 
 const BOTAO_SECUNDARIO =
   'h-10 shrink-0 rounded-md border border-borda bg-superficie px-4 text-sm font-medium text-texto hover:bg-superficie-suave';
@@ -117,7 +117,7 @@ export function PaginaArvore() {
 
             {dados.resposta.truncada && (
               <Aviso tom="alerta" titulo="A árvore foi cortada no limite de nós">
-                {`O desenho traz os primeiros ${formatarInteiro(dados.resposta.nos_exibidos)} nós de ${formatarInteiro(dados.resposta.metricas.invocacoes)} invocações. Os nós com o selo "ocultos" escondem o resto da subárvore; os contadores continuam sendo os da execução inteira.`}
+                {`O desenho traz ${primeirosNos(dados.resposta.nos_exibidos)} de ${formatarInteiro(dados.resposta.metricas.invocacoes)} invocações. Os nós com o selo "ocultos" escondem o resto da subárvore; os contadores continuam sendo os da execução inteira.`}
               </Aviso>
             )}
 

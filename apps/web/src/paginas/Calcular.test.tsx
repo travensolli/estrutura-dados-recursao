@@ -137,6 +137,16 @@ describe('Página calcular', () => {
     expect(resumo).toHaveAttribute('aria-live', 'polite');
   });
 
+  it('anuncia no singular uma execução de uma invocação só', async () => {
+    const usuario = await abrir('/calcular?sequencia=fatorial&n=1&modo=sem_cache');
+    await usuario.click(botaoCalcular());
+    await valorHeroi('Fatorial f(1) vale');
+    expect(screen.getByText('Fatorial f(1) = 1. 1 invocação sem cache.')).toHaveAttribute(
+      'role',
+      'status',
+    );
+  });
+
   it('liga o resultado à árvore da mesma execução', async () => {
     const usuario = await abrir();
     await usuario.click(botaoCalcular());

@@ -1,5 +1,6 @@
 import { DESCRICAO_SEQUENCIAS, MODOS, type Modo, type Sequencia } from '@sequencias/contrato';
 import { Dialogo, RotuloModo } from '../componentes';
+import { formatarQuantidade } from '../utilitarios/formatar';
 import { codigoDaFuncao, LINHA_DO_CACHE } from './codigo';
 
 function BlocoCodigo({ sequencia, modo }: { sequencia: Sequencia; modo: Modo }) {
@@ -27,10 +28,10 @@ function BlocoCodigo({ sequencia, modo }: { sequencia: Sequencia; modo: Modo }) 
 }
 
 function legendaDoModo(modo: Modo, ordem: number): string {
-  const chamadas = ordem === 1 ? '1 chamada recursiva' : `${ordem} chamadas recursivas`;
-  return modo === 'sem_cache'
-    ? `${chamadas} por caso não base`
-    : `as mesmas ${chamadas}; as linhas marcadas consultam e gravam o cache`;
+  const chamadas = formatarQuantidade(ordem, 'chamada recursiva', 'chamadas recursivas');
+  if (modo === 'sem_cache') return `${chamadas} por caso não base`;
+  const mesmas = ordem === 1 ? 'a mesma' : 'as mesmas';
+  return `${mesmas} ${chamadas}; as linhas marcadas consultam e gravam o cache`;
 }
 
 export interface JanelaCodigoProps {

@@ -10,6 +10,21 @@ export function formatarInteiro(valor: number | bigint | string): string {
   return grande.toLocaleString(LOCALE);
 }
 
+/** Número e substantivo concordando: 1 invocação, 2 invocações, 0 invocações. */
+export function formatarQuantidade(
+  quantidade: number | bigint,
+  singular: string,
+  plural: string,
+): string {
+  const umaSo = typeof quantidade === 'bigint' ? quantidade === 1n : quantidade === 1;
+  return `${formatarInteiro(quantidade)} ${umaSo ? singular : plural}`;
+}
+
+/** Os primeiros nós desenhados de uma árvore cortada: "o primeiro nó" quando é um só. */
+export function primeirosNos(quantidade: number): string {
+  return quantidade === 1 ? 'o primeiro nó' : `os primeiros ${formatarInteiro(quantidade)} nós`;
+}
+
 /** Forma curta para marcas de eixo, onde não cabe o separador de milhar. */
 export function formatarCompacto(valor: number): string {
   if (!Number.isFinite(valor)) return '–';

@@ -1,3 +1,4 @@
+import { executarInstrumentado } from '@sequencias/nucleo';
 import { describe, expect, it } from 'vitest';
 import { executarMock, truncarArvore } from '../mocks/referencia-mock';
 import {
@@ -131,6 +132,16 @@ describe('agrupamento e podas', () => {
   it('descreve a árvore em texto', () => {
     expect(descreverArvore('Tribonacci', 7, 'sem_cache', sem.metricas)).toBe(
       'Árvore de chamadas de Tribonacci f(7) sem cache: 46 invocações, 31 casos base, 15 calculados, 0 acertos de cache, profundidade máxima 6.',
+    );
+  });
+  it('põe no singular cada contagem que vale 1', () => {
+    const fatorial = executarInstrumentado('fatorial', 1, 'sem_cache').metricas;
+    expect(descreverArvore('Fatorial', 1, 'sem_cache', fatorial)).toBe(
+      'Árvore de chamadas de Fatorial f(1) sem cache: 1 invocação, 1 caso base, 0 calculados, 0 acertos de cache, profundidade máxima 1.',
+    );
+    const fibonacci = executarInstrumentado('fibonacci', 4, 'com_cache').metricas;
+    expect(descreverArvore('Fibonacci', 4, 'com_cache', fibonacci)).toBe(
+      'Árvore de chamadas de Fibonacci f(4) com cache: 7 invocações, 3 casos base, 3 calculados, 1 acerto de cache, profundidade máxima 4.',
     );
   });
 });

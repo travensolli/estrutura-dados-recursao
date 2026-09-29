@@ -62,6 +62,24 @@ describe('Página comparar', () => {
     expect(resumo.closest('summary')).not.toBeNull();
   });
 
+  it('concorda no singular quando há uma invocação e uma repetição', async () => {
+    const usuario = await abrir('/comparar?sequencia=fatorial&n=1&repeticoes=1');
+    await medir(usuario);
+    expect(cartaoMetrica('Chamadas evitadas pelo cache')).toHaveTextContent(
+      'Nenhum argumento se repetiu: 1 invocação nos dois modos.',
+    );
+    expect(
+      screen.getByText(/Os dois modos fizeram a mesma 1 invocação e o cache evitou zero chamadas/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/A mediana de 1 repetição foi/)).toBeInTheDocument();
+  });
+
+  it('diz uma entrada guardada quando o cache guarda um valor só', async () => {
+    const usuario = await abrir('/comparar?sequencia=fatorial&n=2&repeticoes=2');
+    await medir(usuario);
+    expect(cartaoMetrica('Memória a mais com cache')).toHaveTextContent(/1 entrada guardada\b/);
+  });
+
   it('mede tribonacci f(20) e mostra o fator de aceleração medido', async () => {
     const esperado = await api.comparar({ sequencia: 'tribonacci', n: 20, repeticoes: 5 });
     const usuario = await abrir();

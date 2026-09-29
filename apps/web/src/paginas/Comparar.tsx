@@ -55,6 +55,7 @@ import {
   formatarCompacto,
   formatarFator,
   formatarInteiro,
+  formatarQuantidade,
   formatarTempoNs,
   rotuloModo,
 } from '../utilitarios/formatar';
@@ -128,7 +129,11 @@ function lerMemoria(bytes: number): string {
 
 /** Sem ganho de memória, o sinal vem do coletor de lixo e não do cache: diga isso no destaque. */
 function detalheMemoria(resposta: CompararResposta): string {
-  const entradas = `${formatarInteiro(resposta.memoria.com_cache.entradas_cache)} entradas guardadas`;
+  const entradas = formatarQuantidade(
+    resposta.memoria.com_cache.entradas_cache,
+    'entrada guardada',
+    'entradas guardadas',
+  );
   const leitura = lerMemoria(resposta.diferenca_memoria_bytes);
   return resposta.diferenca_memoria_bytes > 0
     ? `${entradas}: ${leitura}.`
@@ -230,7 +235,7 @@ function TabelaTempo({ resposta }: { resposta: CompararResposta }) {
   const ordem = resposta.ordem_execucao.map(rotuloModo).join(', ');
   return (
     <TabelaComparada
-      legenda={`Tempo de execução em ${formatarInteiro(resposta.repeticoes)} repetições`}
+      legenda={`Tempo de execução em ${formatarQuantidade(resposta.repeticoes, 'repetição', 'repetições')}`}
       linhas={linhas}
       destacar={(linha) => linha.chave === 'mediana'}
       rodape={
@@ -314,16 +319,18 @@ function TabelaMemoria({ resposta }: { resposta: CompararResposta }) {
 function interpretar(resposta: CompararResposta, info: InfoSequencia | undefined): string[] {
   const nome = DESCRICAO_SEQUENCIAS[resposta.sequencia].nome;
   const chamada = `${nome} f(${resposta.n})`;
-  const sem = formatarInteiro(resposta.invocacoes.sem_cache);
+  const semCache = resposta.invocacoes.sem_cache;
+  const invocacoesSem = formatarQuantidade(semCache, 'invocação', 'invocações');
   const com = formatarInteiro(resposta.invocacoes.com_cache);
-  const entradas = formatarInteiro(resposta.memoria.com_cache.entradas_cache);
+  const entradasCache = resposta.memoria.com_cache.entradas_cache;
   const retida = formatarBytes(resposta.memoria.com_cache.retida_cache_bytes);
-  const tempo = `A mediana de ${formatarInteiro(resposta.repeticoes)} repetições foi ${formatarTempoNs(resposta.tempo.sem_cache.mediana_ns)} sem cache e ${formatarTempoNs(resposta.tempo.com_cache.mediana_ns)} com cache, ou seja, ${lerFator(resposta.fator_aceleracao)}.`;
+  const tempo = `A mediana de ${formatarQuantidade(resposta.repeticoes, 'repetição', 'repetições')} foi ${formatarTempoNs(resposta.tempo.sem_cache.mediana_ns)} sem cache e ${formatarTempoNs(resposta.tempo.com_cache.mediana_ns)} com cache, ou seja, ${lerFator(resposta.fator_aceleracao)}.`;
 
   if (resposta.chamadas_evitadas === 0) {
+    const mesmas = semCache === 1 ? 'a mesma' : 'as mesmas';
     return [
-      `Em ${chamada} cada argumento é pedido uma vez só, então não existe trabalho repetido para reaproveitar. Os dois modos fizeram as mesmas ${sem} invocações e o cache evitou zero chamadas.`,
-      `${tempo} O que o cache acrescentou foi memória: ${entradas} entradas guardadas e ${retida} retidos, ${lerMemoria(resposta.diferenca_memoria_bytes)}. Numa execução isolada o cache aqui só cobra, e mostrar isso também é resultado.`,
+      `Em ${chamada} cada argumento é pedido uma vez só, então não existe trabalho repetido para reaproveitar. Os dois modos fizeram ${mesmas} ${invocacoesSem} e o cache evitou zero chamadas.`,
+      `${tempo} O que o cache acrescentou foi memória: ${formatarQuantidade(entradasCache, 'entrada guardada', 'entradas guardadas')} e ${retida} retidos, ${lerMemoria(resposta.diferenca_memoria_bytes)}. Numa execução isolada o cache aqui só cobra, e mostrar isso também é resultado.`,
     ];
   }
 
@@ -331,8 +338,8 @@ function interpretar(resposta: CompararResposta, info: InfoSequencia | undefined
     ? ` Sem cache o crescimento é ${info.crescimento_sem_cache}; com cache, ${info.crescimento_com_cache}.`
     : '';
   return [
-    `Sem cache, ${chamada} fez ${sem} invocações; com cache foram ${com}. A diferença, ${formatarInteiro(resposta.chamadas_evitadas)} chamadas, é trabalho repetido que o cache não precisou refazer: cada argumento já resolvido volta pronto.${crescimento}`,
-    `${tempo} O preço é memória: ${entradas} entradas no cache e ${retida} retidos ao fim, ${lerMemoria(resposta.diferenca_memoria_bytes)}. É a troca de sempre: guardar resultado para não recalcular.`,
+    `Sem cache, ${chamada} fez ${invocacoesSem}; com cache foram ${com}. A diferença, ${formatarQuantidade(resposta.chamadas_evitadas, 'chamada', 'chamadas')}, é trabalho repetido que o cache não precisou refazer: cada argumento já resolvido volta pronto.${crescimento}`,
+    `${tempo} O preço é memória: ${formatarQuantidade(entradasCache, 'entrada', 'entradas')} no cache e ${retida} retidos ao fim, ${lerMemoria(resposta.diferenca_memoria_bytes)}. É a troca de sempre: guardar resultado para não recalcular.`,
   ];
 }
 
@@ -372,7 +379,10 @@ function descreverSerie(
     if (inicio === null || fim === null || semValor === pontos.length) {
       return `${rotuloModo(modo)} ficou sem medida em ${formatarInteiro(semValor)} dos ${formatarInteiro(pontos.length)} pontos`;
     }
-    const vazios = semValor > 0 ? ` (${formatarInteiro(semValor)} pontos sem medida no meio)` : '';
+    const vazios =
+      semValor > 0
+        ? ` (${formatarQuantidade(semValor, 'ponto', 'pontos')} sem medida no meio)`
+        : '';
     return `${rotuloModo(modo)} vai de ${formatar(inicio)} a ${formatar(fim)}${vazios}`;
   });
   return `De f(${primeiro.n}) a f(${ultimo.n}), ${trechos.join('; ')}.`;
@@ -486,7 +496,7 @@ function descreverFaixa(dados: SerieResposta | undefined): string {
     dados.passo > 1
       ? `, de ${formatarInteiro(dados.passo)} em ${formatarInteiro(dados.passo)}`
       : '';
-  return `Cada ponto é uma execução dos dois modos: ${formatarInteiro(dados.pontos.length)} pontos de f(${dados.n_inicial}) a f(${dados.n_final})${passo}, com ${formatarInteiro(dados.repeticoes)} repetições por ponto. A escala escolhida vale para os dois gráficos.`;
+  return `Cada ponto é uma execução dos dois modos: ${formatarQuantidade(dados.pontos.length, 'ponto', 'pontos')} de f(${dados.n_inicial}) a f(${dados.n_final})${passo}, com ${formatarQuantidade(dados.repeticoes, 'repetição', 'repetições')} por ponto. A escala escolhida vale para os dois gráficos.`;
 }
 
 interface SecaoCurvasProps {
@@ -725,7 +735,7 @@ export function PaginaComparar() {
   }
 
   const resumoAcessivel = resposta
-    ? `${DESCRICAO_SEQUENCIAS[resposta.sequencia].nome} f(${resposta.n}): ${formatarInteiro(resposta.invocacoes.sem_cache)} invocações sem cache e ${formatarInteiro(resposta.invocacoes.com_cache)} com cache. Mediana de ${formatarTempoNs(resposta.tempo.sem_cache.mediana_ns)} contra ${formatarTempoNs(resposta.tempo.com_cache.mediana_ns)}: ${lerFator(resposta.fator_aceleracao)}.`
+    ? `${DESCRICAO_SEQUENCIAS[resposta.sequencia].nome} f(${resposta.n}): ${formatarQuantidade(resposta.invocacoes.sem_cache, 'invocação', 'invocações')} sem cache e ${formatarInteiro(resposta.invocacoes.com_cache)} com cache. Mediana de ${formatarTempoNs(resposta.tempo.sem_cache.mediana_ns)} contra ${formatarTempoNs(resposta.tempo.com_cache.mediana_ns)}: ${lerFator(resposta.fator_aceleracao)}.`
     : '';
 
   return (
@@ -903,8 +913,8 @@ export function PaginaComparar() {
                   destaque
                   detalhe={
                     resposta.chamadas_evitadas > 0
-                      ? `${formatarInteiro(resposta.invocacoes.sem_cache)} invocações sem cache contra ${formatarInteiro(resposta.invocacoes.com_cache)} com cache.`
-                      : `Nenhum argumento se repetiu: ${formatarInteiro(resposta.invocacoes.sem_cache)} invocações nos dois modos.`
+                      ? `${formatarQuantidade(resposta.invocacoes.sem_cache, 'invocação', 'invocações')} sem cache contra ${formatarInteiro(resposta.invocacoes.com_cache)} com cache.`
+                      : `Nenhum argumento se repetiu: ${formatarQuantidade(resposta.invocacoes.sem_cache, 'invocação', 'invocações')} nos dois modos.`
                   }
                 />
 

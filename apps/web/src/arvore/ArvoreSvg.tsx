@@ -8,6 +8,7 @@ import {
   corDoArgumento,
   formatarInteiro,
   rotuloModo,
+  primeirosNos,
 } from '../utilitarios/formatar';
 import { baixarPng, baixarSvg, type Extensao } from './exportar';
 import { estiloDoTipo } from './formas';
@@ -293,7 +294,7 @@ export function ArvoreSvg({
   const descricao = useMemo(() => {
     const base = descreverArvore(DESCRICAO_SEQUENCIAS[sequencia].nome, n, modo, metricas);
     return truncada
-      ? `${base} A figura mostra os primeiros ${formatarInteiro(nosExibidos ?? layout.nos.length)} nós.`
+      ? `${base} A figura mostra ${primeirosNos(nosExibidos ?? layout.nos.length)}.`
       : base;
   }, [layout.nos.length, metricas, modo, n, nosExibidos, sequencia, truncada]);
 
