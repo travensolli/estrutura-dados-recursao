@@ -46,7 +46,7 @@ export function ControlesArvore({
 
   return (
     <form
-      className="flex flex-wrap items-start gap-4 rounded-lg border border-borda bg-superficie-suave p-4"
+      className="flex flex-wrap items-start gap-4 rounded-lg border border-borda bg-superficie-suave p-3"
       onSubmit={(evento) => {
         evento.preventDefault();
         if (valida) aoAplicar(consulta);

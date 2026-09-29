@@ -44,14 +44,14 @@ export function PaginaArvore() {
   const dados = arvore.data;
 
   return (
-    <section aria-labelledby="titulo-pagina" className="flex flex-col gap-5">
+    <section aria-labelledby="titulo-pagina" className="flex flex-col gap-3">
       <header>
         <h1 id="titulo-pagina" className="text-2xl font-semibold">
           Árvore de chamadas
         </h1>
-        <p className="mt-1 max-w-prose text-texto-suave">
-          Cada caixa é uma invocação da função. A cor mostra o argumento e a forma mostra o que
-          aconteceu na chamada: caso base, cálculo ou acerto no dicionário.
+        <p className="mt-1 max-w-prose text-sm text-texto-suave">
+          Cada caixa é uma invocação: a cor mostra o argumento e a forma o que aconteceu na chamada
+          — caso base, cálculo ou acerto no dicionário.
         </p>
       </header>
 
@@ -72,7 +72,7 @@ export function PaginaArvore() {
       {valida && arvore.isPending && (
         <div
           role="status"
-          className="flex h-[clamp(320px,58vh,680px)] items-center justify-center rounded-lg border border-borda bg-superficie text-texto-suave"
+          className="flex h-[clamp(240px,42vh,680px)] items-center justify-center rounded-lg border border-borda bg-superficie text-texto-suave"
         >
           <span className="animate-pulse">
             Calculando {DESCRICAO_SEQUENCIAS[consulta.sequencia].nome} f({consulta.n}){' '}
@@ -102,7 +102,7 @@ export function PaginaArvore() {
       {dados && (
         <>
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-lg font-medium">
+            <h2 className="text-base font-medium">
               {DESCRICAO_SEQUENCIAS[dados.resposta.sequencia].nome} f({dados.resposta.n}){' '}
               {rotuloModo(dados.resposta.modo)}
             </h2>
