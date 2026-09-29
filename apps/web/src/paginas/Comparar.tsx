@@ -29,6 +29,7 @@ import {
   BotaoLink,
   CampoNumero,
   Cartao,
+  Detalhes,
   DialogoConfirmacao,
   Esqueleto,
   EstadoErro,
@@ -408,7 +409,7 @@ function PainelGrafico({
   ];
 
   return (
-    <Cartao className="min-w-0">
+    <Cartao compacto className="min-w-0">
       <figure className="m-0">
         <figcaption className="space-y-1">
           <h3 className="text-base font-semibold sm:text-lg">{titulo}</h3>
@@ -429,6 +430,7 @@ function PainelGrafico({
             formatar={formatar}
             formatarEixo={formatarEixo}
             grandeza={grandeza}
+            altura={200}
           />
         </Suspense>
       </figure>
@@ -525,7 +527,7 @@ function SecaoCurvas({ consulta, escala, aoMudarEscala, aoTentarDeNovo }: SecaoC
       return (
         <div className="grid gap-4 xl:grid-cols-2">
           {['Tempo por n', 'Invocações por n'].map((titulo) => (
-            <Cartao key={titulo} className="min-w-0">
+            <Cartao key={titulo} compacto className="min-w-0">
               <h3 className="text-base font-semibold sm:text-lg">{titulo}</h3>
               <p className="mt-1 text-sm text-texto-suave">
                 Medindo ponto a ponto. Os trabalhos pesados entram numa fila, um de cada vez.
@@ -592,7 +594,7 @@ function BlocoAmbiente({ ambiente }: { ambiente: AmbienteExecucao }) {
     ],
   ];
   return (
-    <Cartao as="section" titulo="Ambiente de execução" nivelTitulo={2} compacto>
+    <Detalhes resumo={<h2 className="text-base font-semibold">Ambiente de execução</h2>}>
       <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
         {itens.map(([rotulo, valor]) => (
           <div
@@ -604,7 +606,7 @@ function BlocoAmbiente({ ambiente }: { ambiente: AmbienteExecucao }) {
           </div>
         ))}
       </dl>
-    </Cartao>
+    </Detalhes>
   );
 }
 
@@ -717,14 +719,14 @@ export function PaginaComparar() {
     : '';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <section aria-labelledby="titulo-pagina">
-        <h1 id="titulo-pagina" className="text-3xl font-semibold">
+        <h1 id="titulo-pagina" className="text-2xl font-semibold">
           Comparar desempenho
         </h1>
-        <p className="mt-2 max-w-prose text-texto-suave">
-          A mesma função roda várias vezes com e sem cache. Aqui aparecem o tempo das repetições, a
-          memória de cada modo e quantas chamadas o cache evitou.
+        <p className="mt-1 max-w-prose text-sm text-texto-suave">
+          A mesma função roda várias vezes com e sem cache: aqui aparecem o tempo, a memória e as
+          chamadas que o cache evitou.
         </p>
       </section>
 
@@ -732,62 +734,63 @@ export function PaginaComparar() {
         {resumoAcessivel}
       </p>
 
-      <Cartao as="section" titulo="O que medir" nivelTitulo={2}>
-        <form onSubmit={(evento) => void enviar(evento)} className="grid gap-5 lg:grid-cols-2">
+      <Cartao as="section" aria-label="O que medir" compacto>
+        <form
+          onSubmit={(evento) => void enviar(evento)}
+          className="flex flex-wrap items-end gap-x-5 gap-y-3"
+        >
           <SeletorSegmentado
-            className="min-w-0 lg:col-span-2"
+            className="min-w-0"
             rotulo="Sequência"
             valor={sequencia}
             aoMudar={(valor) => definir({ sequencia: valor })}
             opcoes={OPCOES_SEQUENCIA}
           />
           <CampoNumero
-            className="max-w-xs"
+            className="w-32"
             rotulo="n"
             valor={rascunhoN}
             aoMudar={aoMudarN}
             minimo={0}
             maximo={limite}
-            ajuda="O limite segue o modo sem cache, que é o mais caro."
+            ajuda="O limite segue o modo sem cache."
           />
           <CampoNumero
-            className="max-w-xs"
+            className="w-32"
             rotulo="Repetições"
             valor={rascunhoRepeticoes}
             aoMudar={aoMudarRepeticoes}
             minimo={1}
             maximo={REPETICOES_MAXIMO}
-            ajuda="Quantas vezes cada modo é executado antes de resumir o tempo."
+            ajuda="Quantas vezes cada modo roda."
           />
-          <div className="flex flex-col justify-end gap-2 lg:col-span-2">
-            <GrupoBotoes>
+          <GrupoBotoes>
+            <Botao
+              type="submit"
+              tamanho="medio"
+              icone="comparar"
+              carregando={medindo || verificando}
+              rotuloCarregando={medindo ? 'Medindo' : 'Conferindo o tamanho'}
+              disabled={!podeComparar}
+            >
+              Comparar
+            </Botao>
+            {medindo ? (
               <Botao
-                type="submit"
-                tamanho="grande"
-                icone="comparar"
-                carregando={medindo || verificando}
-                rotuloCarregando={medindo ? 'Medindo' : 'Conferindo o tamanho'}
-                disabled={!podeComparar}
+                variante="neutra"
+                tamanho="medio"
+                icone="cancelar"
+                onClick={() => void cancelar()}
               >
-                Comparar
+                Cancelar
               </Botao>
-              {medindo ? (
-                <Botao
-                  variante="neutra"
-                  tamanho="grande"
-                  icone="cancelar"
-                  onClick={() => void cancelar()}
-                >
-                  Cancelar
-                </Botao>
-              ) : null}
-            </GrupoBotoes>
-            <p className="min-h-10 text-sm text-texto-suave">
-              {previsao
-                ? `Previsão: cada execução sem cache faz ${formatarInteiro(previsao.invocacoes_previstas)} invocações, e são ${formatarInteiro(repeticoes)} repetições em cada modo.`
-                : null}
-            </p>
-          </div>
+            ) : null}
+          </GrupoBotoes>
+          <p className="min-h-5 basis-full text-sm text-texto-suave">
+            {previsao
+              ? `Previsão: cada execução sem cache faz ${formatarInteiro(previsao.invocacoes_previstas)} invocações, e são ${formatarInteiro(repeticoes)} repetições em cada modo.`
+              : null}
+          </p>
         </form>
       </Cartao>
 
@@ -832,7 +835,7 @@ export function PaginaComparar() {
         />
       ) : null}
 
-      <section aria-labelledby="titulo-resultado" className="space-y-6">
+      <section aria-labelledby="titulo-resultado" className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="titulo-resultado" className="text-xl font-semibold">
             Resultado
@@ -861,7 +864,7 @@ export function PaginaComparar() {
         ) : null}
 
         {resposta && !medindo ? (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {desatualizada ? (
               <p className="text-sm text-texto-suave">
                 O formulário mudou depois desta medição. Toque em Comparar para atualizar.
@@ -879,12 +882,12 @@ export function PaginaComparar() {
             ) : null}
 
             <div className="grid gap-4 lg:grid-cols-3">
-              <Cartao destaque>
+              <Cartao destaque compacto>
                 <p className="text-sm text-texto-suave">Fator de aceleração</p>
-                <p className="mt-1 text-5xl leading-none font-semibold sm:text-6xl">
+                <p className="mt-1 text-4xl leading-none font-semibold">
                   {formatarFator(resposta.fator_aceleracao)}
                 </p>
-                <p className="mt-3 text-sm text-texto-suave">
+                <p className="mt-2 text-sm text-texto-suave">
                   Mediana de {formatarInteiro(resposta.repeticoes)} repetições:{' '}
                   {formatarTempoNs(resposta.tempo.sem_cache.mediana_ns)} sem cache contra{' '}
                   {formatarTempoNs(resposta.tempo.com_cache.mediana_ns)} com cache, ou seja,{' '}
@@ -911,7 +914,7 @@ export function PaginaComparar() {
               />
             </div>
 
-            <Cartao as="section" titulo="O que esses números dizem" nivelTitulo={2}>
+            <Cartao as="section" titulo="O que esses números dizem" nivelTitulo={2} compacto>
               <div className="space-y-3">
                 {interpretar(resposta, info).map((paragrafo) => (
                   <p key={paragrafo.slice(0, 40)} className="max-w-prose">
@@ -926,6 +929,7 @@ export function PaginaComparar() {
               titulo="Valor calculado"
               nivelTitulo={2}
               descricao="Os dois modos chegam ao mesmo valor: o cache muda o caminho, nunca o resultado."
+              compacto
             >
               <NumeroGrande
                 valor={resposta.valor}
@@ -942,19 +946,25 @@ export function PaginaComparar() {
               aoTentarDeNovo={() => void serie.refetch()}
             />
 
-            <section aria-labelledby="titulo-tempo" className="space-y-3">
-              <h2 id="titulo-tempo" className="text-xl font-semibold">
-                Tempo
-              </h2>
+            <Detalhes
+              resumo={
+                <h2 id="titulo-tempo" className="text-base font-semibold">
+                  Tempo
+                </h2>
+              }
+            >
               <TabelaTempo resposta={resposta} />
-            </section>
+            </Detalhes>
 
-            <section aria-labelledby="titulo-memoria" className="space-y-3">
-              <h2 id="titulo-memoria" className="text-xl font-semibold">
-                Memória
-              </h2>
+            <Detalhes
+              resumo={
+                <h2 id="titulo-memoria" className="text-base font-semibold">
+                  Memória
+                </h2>
+              }
+            >
               <TabelaMemoria resposta={resposta} />
-            </section>
+            </Detalhes>
 
             <BlocoAmbiente ambiente={resposta.ambiente} />
 
