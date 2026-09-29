@@ -227,7 +227,7 @@ function PilhaDeChamadas({ pilha }: { pilha: readonly No[] }) {
       {doTopoParaBase.length === 0 ? (
         <p className="mt-2 text-sm text-texto-suave">A pilha está vazia: a execução terminou.</p>
       ) : (
-        <ol className="mt-2 flex max-h-56 flex-col gap-1 overflow-y-auto">
+        <ol className="mt-2 flex max-h-36 flex-col gap-1 overflow-y-auto">
           {doTopoParaBase.map((no, posicao) => (
             <li
               key={no.id}
@@ -278,7 +278,7 @@ function Dicionario({ modo, entradas, argumentoUsado }: DicionarioProps) {
       {entradas.length === 0 ? (
         <p className="mt-2 text-sm text-texto-suave">Ainda vazio: nada foi calculado até aqui.</p>
       ) : (
-        <dl className="mt-2 flex max-h-56 flex-col gap-1 overflow-y-auto">
+        <dl className="mt-2 flex max-h-36 flex-col gap-1 overflow-y-auto">
           {entradas.map((entrada) => {
             const usada = entrada.argumento === argumentoUsado;
             const valor = abreviarValor(entrada.valor, 18);

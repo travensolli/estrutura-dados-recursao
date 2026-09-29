@@ -21,7 +21,7 @@ export function EtapaSemCache({ dados }: { dados: DadosApresentacao }) {
   );
 
   return (
-    <div className="flex min-w-0 flex-col gap-[clamp(0.75rem,1.5vh,1.25rem)]">
+    <div className="flex min-w-0 flex-col gap-[clamp(0.5rem,1.2vh,1rem)]">
       <Placar
         rotulo="Números da execução sem cache"
         itens={[
@@ -36,41 +36,42 @@ export function EtapaSemCache({ dados }: { dados: DadosApresentacao }) {
         ]}
       />
 
-      <div className="grid min-w-0 gap-[clamp(0.75rem,1.5vw,1.5rem)] xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <ArvoreSvg
-          raiz={semCache.raiz}
-          metricas={metricas}
-          sequencia={semCache.sequencia}
-          n={semCache.n}
-          modo={semCache.modo}
-          truncada={semCache.truncada}
-          nosExibidos={semCache.nos_exibidos}
-          compacto
-          palco
-          argumentoRealcado={argumento}
-          aoRealcarArgumento={setRealce}
-          enquadreMinimo={ENQUADRE_APRESENTACAO}
-          classeAltura={ALTURA_ARVORE}
-        />
+      {/* A árvore sem cache é larga: na largura toda ela cresce, e a contagem por argumento
+          vira uma faixa curta embaixo em vez de uma coluna que disputa a largura. */}
+      <ArvoreSvg
+        raiz={semCache.raiz}
+        metricas={metricas}
+        sequencia={semCache.sequencia}
+        n={semCache.n}
+        modo={semCache.modo}
+        truncada={semCache.truncada}
+        nosExibidos={semCache.nos_exibidos}
+        compacto
+        palco
+        argumentoRealcado={argumento}
+        aoRealcarArgumento={setRealce}
+        enquadreMinimo={ENQUADRE_APRESENTACAO}
+        classeAltura={ALTURA_ARVORE}
+      />
 
-        <div className="flex min-w-0 flex-col gap-3">
-          <TabelaArgumentos
-            linhas={comparacao.linhas}
-            maximo={comparacao.maiorInvocacao}
-            legenda="Invocações por argumento"
-            argumentoRealcado={argumento}
-            argumentoFixado={fixado}
-            aoRealcar={setRealce}
-            aoFixar={fixar}
-          />
-          {comparacao.argumentoMaisChamado && (
-            <p className="text-[clamp(0.9rem,1.2vw,1.2rem)] text-balance">
-              {`Sozinho, f(${comparacao.argumentoMaisChamado.argumento}) é chamado ${formatarInteiro(
-                comparacao.argumentoMaisChamado.semCache,
-              )} vezes das ${formatarInteiro(metricas.invocacoes)} invocações, sempre para devolver o mesmo resultado.`}
-            </p>
-          )}
-        </div>
+      <div className="grid min-w-0 items-end gap-x-[clamp(1rem,2.5vw,2.5rem)] gap-y-2 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,22rem)]">
+        <TabelaArgumentos
+          disposicao="faixa"
+          linhas={comparacao.linhas}
+          maximo={comparacao.maiorInvocacao}
+          legenda="Invocações por argumento"
+          argumentoRealcado={argumento}
+          argumentoFixado={fixado}
+          aoRealcar={setRealce}
+          aoFixar={fixar}
+        />
+        {comparacao.argumentoMaisChamado && (
+          <p className="pb-2 text-[clamp(0.95rem,1.3vw,1.3rem)] text-balance">
+            {`Sozinho, f(${comparacao.argumentoMaisChamado.argumento}) é chamado ${formatarInteiro(
+              comparacao.argumentoMaisChamado.semCache,
+            )} vezes das ${formatarInteiro(metricas.invocacoes)} invocações, sempre para devolver o mesmo resultado.`}
+          </p>
+        )}
       </div>
     </div>
   );
