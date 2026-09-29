@@ -1,6 +1,8 @@
 # Roteiro da apresentação (10 minutos)
 
-Trabalho PRJ.ED.1, Estrutura de Dados. As seções seguem a **ordem do enunciado**, e o palco é a
+Trabalho PRJ.ED.1, Estrutura de Dados. As seções vão do fato medido à explicação: calcular com e
+sem cache, ver a árvore sem cache, explicar o cache em f(7) e, por fim, medir tempo e memória. A
+tabela abaixo liga cada pedido do enunciado à seção que o responde. O palco é a
 **própria aplicação**, projetada do notebook (`pnpm dev` ou Docker Compose). As telas foram
 calibradas para caber numa janela de 1366×768 sem rolagem: em Calcular, Comparar e Árvore a
 configuração fica numa coluna à esquerda e o resultado inteiro à direita, e as tabelas de prova
@@ -26,9 +28,9 @@ Se sobrar tempo para uma tela só, é a etapa 5 da apresentação: 46 chamadas v
 | Explicar o cache no Tribonacci e **quantas** evita  | 5                | `/apresentacao` | seção 5            |
 | Comparar desempenho em **tempo e memória**          | 6                | `/comparar`     | seção 4            |
 
-A tela inicial mostra essa mesma tabela como uma faixa de atalhos ("O enunciado:", com os itens
-numerados de 1 a 4): use-a para navegar na frente da turma, porque ela prova de cara que nada ficou
-de fora.
+A tela inicial mostra os quatro pedidos como uma faixa de atalhos ("O enunciado:", numerados de 1 a
+4 na ordem em que o enunciado os faz): aponte-a no começo, porque ela prova de cara que nada ficou de
+fora, e use-a para navegar.
 
 Nenhum dos quatro pode ser cortado: cada um vale nota. O que é cortável está marcado na tabela de
 tempos.
@@ -75,11 +77,11 @@ modo, e a faixa "O enunciado:".
 
 - Leia o enunciado em uma frase: calcular três sequências recursivas de dois jeitos, com e sem
   cache, comparar tempo e memória e mostrar a árvore de chamadas.
-- Leia as duas linhas do topo, que são a tese da apresentação: **sem cache**, cada chamada abre uma
-  chamada por termo anterior, e com ordem 2 ou mais os subproblemas se repetem em custo
-  exponencial; **com cache**, cada f(k) é calculado uma vez e o custo vira linear.
-- Aponte a faixa: **cada item do enunciado tem uma tela, e é por elas que a apresentação vai
-  passar, na ordem.**
+- Leia as duas linhas do topo, que são a tese da apresentação: **sem cache**, cada chamada que não
+  é caso base abre uma chamada por termo anterior, e com ordem 2 ou mais os subproblemas se repetem
+  em custo exponencial; **com cache**, cada f(k) acima dos casos base é calculado uma vez e, quando
+  se repete, só consulta o cache: o custo vira linear.
+- Aponte a faixa: **cada pedido do enunciado tem uma tela, e a apresentação passa por todas.**
 - A pergunta que atravessa tudo: **quantas vezes o computador calcula a mesma coisa?**
 
 ### 2. As três sequências (1:00) — tela `/`
@@ -91,11 +93,12 @@ enunciado ("com f(0) = f(1) = 1") e os primeiros termos.
   Fibonacci aqui começa em 1, 1, 2, 3, 5 e não em 0, 1: é a convenção do enunciado, e por isso os
   valores ficam deslocados em relação ao que se vê na internet.
 - Aponte a **ordem** de cada uma: 1 no Fatorial, 2 no Fibonacci, 3 no Tribonacci. É quantos termos
-  anteriores a recorrência usa, e portanto quantas chamadas cada nó abre. **Guardem esse número,
-  porque é ele que decide tudo.**
-- Aponte as linhas de crescimento: sem cache o Fibonacci é O(1,618ⁿ) e o Tribonacci O(1,839ⁿ),
-  exponenciais; com cache, os dois viram lineares, com 2n − 1 e 3n − 5 invocações. O Fatorial é
-  linear nos dois modos, sem ganho.
+  anteriores a recorrência usa, e portanto quantas chamadas abre cada nó que não é caso base.
+  **Guardem esse número, porque é ele que decide tudo.**
+- Aponte as linhas de crescimento: sem cache o Fibonacci é Θ(φⁿ), com φ ≈ 1,618, a razão áurea, e
+  o Tribonacci é Θ(τⁿ), com τ ≈ 1,839, a constante de Tribonacci: exponenciais. Com cache, os dois
+  viram lineares, com 2n − 1 invocações a partir de n = 1 e 3n − 5 a partir de n = 2; abaixo disso
+  a chamada já é caso base. O Fatorial é linear nos dois modos, sem ganho.
 - Fatorial é uma corrente. Fibonacci e Tribonacci são árvores. Só quem é árvore repete subproblema.
 - Anuncie o exemplo que atravessa a apresentação: **Tribonacci f(7) = 31**. Clique no item
   **1 · Calcular com e sem cache** da faixa.
@@ -133,10 +136,11 @@ Este é um pedido explícito do enunciado; dê o tempo dele.
 - Detalhe bonito para citar: o número de folhas é igual ao valor da sequência. f(7) = 31 porque a
   soma final é 31 parcelas iguais a 1.
 - Os nós aparecem pequenos para a árvore caber inteira: use **+** ou a roda do mouse para
-  aproximar uma região, e **Ajustar à tela** para voltar.
-- Se a turma quiser interagir: clique num nó para recolher a subárvore, ou troque o modo para
-  **com cache** na coluna da esquerda e mostre a árvore podada, com os acertos de cache em borda
-  tracejada e marca de triângulo.
+  aproximar uma região, e **Ajustar à tela** para voltar. Quem precisar ler cada chamada em texto
+  tem a vista **Lista**.
+- Se a turma quiser interagir: clique num nó para recolher a subárvore, ou marque **com cache** na
+  coluna da esquerda, toque em **Ver árvore** e mostre a árvore podada, com os acertos de cache em
+  borda tracejada e marca de triângulo.
 
 ### 5. O palco do f(7): 46 → 16, e as 30 evitadas (2:30) — tela `/apresentacao`
 
@@ -180,6 +184,10 @@ esquerda.
 - A memória aparece no terceiro destaque: da ordem de 1 KiB de cache para ganhar quatro ordens de
   grandeza em tempo. Quem quiser os números completos rola até os blocos **Tempo**, **Memória** e
   **Ambiente de execução**, fechados de propósito.
+- Se o destaque de memória disser que a execução com cache reteve **menos**, não se assuste: com
+  poucas entradas, como as 5 de f(7), a variação do coletor de lixo entre rodadas pesa mais que o
+  próprio cache, e a tela diz isso. Nos ensaios com n = 20 e 5 repetições a diferença saiu positiva
+  em todas as rodadas.
 - Diga a frase do método: "o tempo é mediana de várias repetições, com aquecimento, e o cache
   começa vazio a cada execução".
 

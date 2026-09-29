@@ -149,8 +149,9 @@ A entrada de 28/09 projetava o `relatorio.html` e deixava a aplicação num
 bloco curto de demonstração. Com as telas cabendo na dobra do notebook, a
 relação se inverte.
 
-- **Material projetado:** a própria aplicação, navegada na ordem do
-  enunciado (`/` → `/calcular` → `/arvore` → `/apresentacao` → `/comparar`).
+- **Material projetado:** a própria aplicação, navegada do fato medido à
+  explicação (`/` → `/calcular` → `/arvore` → `/apresentacao` → `/comparar`);
+  a faixa do início mantém os pedidos na ordem do enunciado.
   Todos os números continuam vindo de execuções instrumentadas, ao vivo.
 - **O `relatorio.html` não sai do projeto:** vira material de apoio e o
   primeiro degrau do plano B, porque é estático e não depende do app subir.
@@ -184,14 +185,19 @@ uma mudança de forma: o que se ajusta à esquerda, o que se mostra à direita.
   quantidade de chamadas, para a tela nunca mostrar uma ordem que a recursão
   não executa. O Início usa a ordem para explicar, em duas linhas, por que
   sem cache o custo é exponencial a partir da ordem 2.
-- **Notação do crescimento:** as frases viraram `exponencial, O(1,839ⁿ)` no
-  lugar de `aproximadamente 1,839ⁿ`. Em f(7) o Tribonacci faz 46 invocações,
-  e 1,839⁷ ≈ 71: o "aproximadamente" sugeria uma igualdade que a contagem não
-  confirma, e a notação assintótica diz exatamente o que é verdade.
+- **Notação do crescimento:** as frases viraram `exponencial, Θ(τⁿ), τ ≈
+1,839` e `Θ(φⁿ), φ ≈ 1,618`, a forma do artigo, no lugar de `aproximadamente
+1,839ⁿ`. Em f(7) o Tribonacci faz 46 invocações, e 1,839⁷ ≈ 71: o
+  "aproximadamente" sugeria uma igualdade que a contagem não confirma. Uma
+  primeira versão escreveu `O(1,839ⁿ)`, o que é falso no sentido estrito,
+  porque τ = 1,83928... fica acima de 1,839; a revisão pegou e a constante
+  passou a ter nome. As contagens com cache ganharam o domínio: 2n − 1 e n
+  valem a partir de n = 1, e 3n − 5 a partir de n = 2.
 - **Largura:** o miolo passou de 1152px para 1280px, aproveitando a tela de
   1366 que a coluna de configuração estreitava.
 - **Árvore inteira:** o piso do enquadramento automático desceu de 0,4 para
-  0,3, para f(7) caber inteira na coluna mais estreita. Nesta tela o objetivo
+  0,25, para f(7) caber inteira na coluna mais estreita, também num projetor
+  de 1024px; um teste de ponta a ponta confere os 46 nós dentro do desenho. Nesta tela o objetivo
   é a forma e as repetições pela cor; o zoom continua para ler cada nó.
 
 **Medição:** as telas foram conferidas em 1366x641 com as fontes do sistema e
