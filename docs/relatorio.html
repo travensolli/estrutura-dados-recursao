@@ -1,0 +1,2081 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PRJ.ED.1 — Sequências recursivas com e sem cache</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --superficie: #fcfcfb;
+        --pagina: #f4f4f1;
+        --texto: #14140f;
+        --texto-suave: #52514e;
+        --apagado: #8a8880;
+        --grade: #e3e2da;
+        --eixo: #c2c1b6;
+        --borda: rgba(20, 20, 15, 0.12);
+        --serie-1: #2a6fd6;
+        --serie-2: #e0662c;
+        --sobre-serie-1: #ffffff;
+        --sobre-serie-2: #14140f;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          color-scheme: dark;
+          --superficie: #1b1b19;
+          --pagina: #101010;
+          --texto: #f7f7f4;
+          --texto-suave: #c4c3ba;
+          --apagado: #8a8880;
+          --grade: #2e2e2b;
+          --eixo: #3b3b37;
+          --borda: rgba(255, 255, 255, 0.12);
+          --serie-1: #4b90ea;
+          --serie-2: #ef7c43;
+          --sobre-serie-1: #101010;
+          --sobre-serie-2: #101010;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 32px 16px;
+        background: var(--pagina);
+        color: var(--texto);
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+      }
+      .folha {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 28px;
+        background: var(--superficie);
+        border: 1px solid var(--borda);
+        border-radius: 14px;
+      }
+      h1 {
+        margin: 0 0 6px;
+        font-size: 22px;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+      }
+      h2 {
+        margin: 42px 0 8px;
+        font-size: 17px;
+        font-weight: 650;
+      }
+      h3 {
+        margin: 26px 0 8px;
+        font-size: 14px;
+        font-weight: 650;
+      }
+      p,
+      li {
+        font-size: 13.5px;
+        line-height: 1.65;
+        color: var(--texto-suave);
+      }
+      strong {
+        color: var(--texto);
+        font-weight: 650;
+      }
+      .subtitulo {
+        margin: 0 0 4px;
+        font-size: 13.5px;
+      }
+      .meta {
+        margin: 0;
+        font-size: 12px;
+        color: var(--apagado);
+      }
+      blockquote {
+        margin: 12px 0;
+        padding: 12px 18px;
+        border-left: 3px solid var(--serie-1);
+        background: var(--pagina);
+        border-radius: 0 8px 8px 0;
+      }
+      blockquote p {
+        margin: 6px 0;
+      }
+      ol.sequencias {
+        margin: 8px 0;
+        padding-left: 22px;
+        list-style-type: lower-alpha;
+      }
+      ol.sequencias li {
+        margin: 2px 0;
+      }
+      .legenda {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin: 10px 0;
+        padding: 0;
+        list-style: none;
+        font-size: 12.5px;
+        color: var(--texto-suave);
+      }
+      .legenda li {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .chave {
+        display: inline-block;
+        width: 16px;
+        height: 2px;
+        border-radius: 1px;
+      }
+      .chave.s1 {
+        background: var(--serie-1);
+      }
+      .chave.s2 {
+        background: var(--serie-2);
+      }
+      .bolinha {
+        display: inline-block;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+      }
+      .bolinha.calculado {
+        background: var(--serie-1);
+      }
+      .bolinha.acerto {
+        background: var(--serie-2);
+      }
+      .bolinha.base {
+        background: var(--superficie);
+        border: 1.5px solid var(--eixo);
+      }
+      .bolinha.evitado {
+        background: var(--superficie);
+        border: 1px solid var(--grade);
+      }
+      .grade-paineis {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+        gap: 20px;
+      }
+      .painel,
+      .arvore {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .arvore {
+        margin: 12px 0 8px;
+      }
+
+      .fundo {
+        fill: var(--superficie);
+      }
+      .titulo-painel {
+        fill: var(--texto);
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .grade {
+        stroke: var(--grade);
+        stroke-width: 1;
+      }
+      .linha-base {
+        stroke: var(--eixo);
+        stroke-width: 1;
+      }
+      .eixo {
+        fill: var(--apagado);
+        font-size: 11px;
+        font-variant-numeric: tabular-nums;
+      }
+      .legenda-texto {
+        fill: var(--texto-suave);
+        font-size: 12px;
+      }
+      .serie {
+        fill: none;
+        stroke-width: 2;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+      }
+      .serie.s1,
+      .chave-linha.s1 {
+        stroke: var(--serie-1);
+      }
+      .serie.s2,
+      .chave-linha.s2 {
+        stroke: var(--serie-2);
+      }
+      .chave-linha {
+        stroke-width: 2;
+        stroke-linecap: round;
+      }
+      .ponto {
+        stroke: var(--superficie);
+        stroke-width: 2;
+      }
+      .ponto.s1 {
+        fill: var(--serie-1);
+      }
+      .ponto.s2 {
+        fill: var(--serie-2);
+      }
+      .aresta {
+        stroke: var(--eixo);
+        stroke-width: 1.5;
+      }
+      .aresta.evitado {
+        stroke: var(--grade);
+      }
+      .no circle {
+        stroke: var(--superficie);
+        stroke-width: 2;
+      }
+      .no.calculado circle {
+        fill: var(--serie-1);
+      }
+      .no.acerto circle {
+        fill: var(--serie-2);
+      }
+      .no.base circle {
+        fill: var(--superficie);
+        stroke: var(--eixo);
+        stroke-width: 1.5;
+      }
+      .no.evitado circle {
+        fill: var(--superficie);
+        stroke: var(--grade);
+        stroke-width: 1;
+      }
+      .no text {
+        font-size: 11px;
+        font-weight: 600;
+        text-anchor: middle;
+        dominant-baseline: central;
+      }
+      .no.calculado text {
+        fill: var(--sobre-serie-1);
+      }
+      .no.acerto text {
+        fill: var(--sobre-serie-2);
+      }
+      .no.base text {
+        fill: var(--texto-suave);
+      }
+      .no.evitado text {
+        fill: var(--apagado);
+        font-weight: 400;
+      }
+      .rolagem {
+        overflow-x: auto;
+        margin: 10px 0;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12.5px;
+      }
+      th,
+      td {
+        padding: 7px 10px;
+        text-align: right;
+        border-bottom: 1px solid var(--grade);
+      }
+      th {
+        font-weight: 650;
+        color: var(--texto-suave);
+        vertical-align: bottom;
+      }
+      td {
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        color: var(--texto);
+      }
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+      .destaques {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 36px;
+        margin: 18px 0 22px;
+      }
+      .destaques div {
+        display: grid;
+        gap: 2px;
+      }
+      .destaques .rotulo {
+        font-size: 12px;
+        color: var(--texto-suave);
+      }
+      .destaques .valor {
+        font-size: 34px;
+        font-weight: 650;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.1;
+      }
+      .destaques .destaque-forte {
+        color: var(--serie-2);
+      }
+      .resposta {
+        padding: 12px 16px;
+        background: var(--pagina);
+        border: 1px solid var(--borda);
+        border-radius: 8px;
+      }
+      .nota {
+        font-size: 12.5px;
+        color: var(--apagado);
+      }
+      details {
+        margin: 8px 0;
+      }
+      summary {
+        cursor: pointer;
+        font-size: 12.5px;
+        color: var(--texto-suave);
+        padding: 4px 0;
+      }
+      pre {
+        font-size: 11.5px;
+        line-height: 1.45;
+        background: var(--pagina);
+        border: 1px solid var(--borda);
+        border-radius: 8px;
+        padding: 12px;
+        overflow-x: auto;
+        color: var(--texto);
+      }
+      code {
+        font-size: 0.92em;
+      }
+      footer {
+        margin-top: 36px;
+        padding-top: 16px;
+        border-top: 1px solid var(--grade);
+        font-size: 12px;
+        color: var(--apagado);
+      }
+      @media print {
+        body {
+          padding: 0;
+          background: #fff;
+        }
+        .folha {
+          max-width: none;
+          border: 0;
+          padding: 0;
+        }
+        details {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="folha">
+      <h1>Sequências recursivas com e sem cache</h1>
+      <p class="subtitulo">
+        Fatorial, Fibonacci e Tribonacci: árvore de chamadas, tempo e memória. PRJ.ED.1 — Estrutura
+        de Dados.
+      </p>
+      <p class="meta">
+        Medições de 28/09/2026, 19:40:53. Todos os números desta página vêm dessa execução; nenhum
+        está escrito à mão.
+      </p>
+
+      <section>
+        <h2>1. O enunciado</h2>
+        <blockquote>
+          <p>
+            Desenvolva um programa que efetue o cálculo recursivo,
+            <strong>com cache e sem cache</strong>, das seguintes sequências numéricas:
+          </p>
+          <ol class="sequencias">
+            <li><strong>Fatorial:</strong> f(n) = n · f(n-1), com f(0) = f(1) = 1</li>
+            <li><strong>Fibonacci:</strong> f(n) = f(n-1) + f(n-2), com f(0) = f(1) = 1</li>
+            <li>
+              <strong>Tribonacci:</strong> f(n) = f(n-1) + f(n-2) + f(n-3), com f(0) = f(1) = f(2) =
+              1
+            </li>
+          </ol>
+          <p>
+            Para cada caso, compare o desempenho, em <strong>tempo e memória</strong>, para os casos
+            com e sem a utilização de cache. Além disso, o seu programa deve exibir a
+            <strong>árvore de chamadas</strong> para os casos sem a utilização de cache.
+          </p>
+          <p>
+            Explique, para o caso da sequência de Tribonacci, como um cache evita chamadas
+            recursivas repetidas. Nesse caso, desenhe a árvore de chamadas para
+            <strong>f(7)</strong> e diga <strong>quantas chamadas recursivas são evitadas</strong>.
+          </p>
+        </blockquote>
+        <p>As seções seguintes respondem a cada pedido na ordem em que ele aparece.</p>
+      </section>
+
+      <section>
+        <h2>2. As três sequências</h2>
+        <p>
+          Os casos base são os do enunciado: o Fibonacci começa em 1, 1, 2, 3, 5 e não em 0, 1, 1,
+          2, 3. Com essa definição, <strong>Tribonacci f(7) = 31</strong>. O número de chamadas
+          recursivas por nível é o que decide a forma da árvore, e é ele que decide se o cache tem
+          algo a evitar.
+        </p>
+        <div class="rolagem">
+          <table>
+            <thead>
+              <tr>
+                <th>Sequência</th>
+                <th>Recorrência</th>
+                <th>Casos base</th>
+                <th>Primeiros termos</th>
+                <th>Filhos por nó</th>
+                <th>Forma da árvore</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Fatorial</td>
+                <td>f(n) = n · f(n-1)</td>
+                <td>f(0) = f(1) = 1</td>
+                <td>1, 1, 2, 6, 24, 120, 720, 5040, ...</td>
+                <td>1</td>
+                <td>corrente (recursão linear)</td>
+              </tr>
+              <tr>
+                <td>Fibonacci</td>
+                <td>f(n) = f(n-1) + f(n-2)</td>
+                <td>f(0) = f(1) = 1</td>
+                <td>1, 1, 2, 3, 5, 8, 13, 21, ...</td>
+                <td>2</td>
+                <td>árvore binária (recursão dupla)</td>
+              </tr>
+              <tr>
+                <td>Tribonacci</td>
+                <td>f(n) = f(n-1) + f(n-2) + f(n-3)</td>
+                <td>f(0) = f(1) = f(2) = 1</td>
+                <td>1, 1, 1, 3, 5, 9, 17, 31, ...</td>
+                <td>3</td>
+                <td>árvore ternária (recursão tripla)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>3. A árvore de chamadas sem cache</h2>
+        <p>
+          Cada nó é uma invocação da função e cada aresta é uma chamada recursiva. A figura é a
+          árvore de <strong>Tribonacci f(7) sem cache</strong>, com os seus 46 nós. As cores
+          antecipam a seção 5: azul é a primeira vez que um argumento aparece, laranja é uma
+          consulta que o cache responderia na hora, e os nós vazios abaixo dos laranja são as
+          chamadas que deixariam de existir.
+        </p>
+        <ul class="legenda">
+          <li><span class="bolinha calculado"></span>Calculada pela primeira vez: 5</li>
+          <li><span class="bolinha base"></span>Caso base: 6</li>
+          <li><span class="bolinha acerto"></span>Viraria acerto de cache: 5</li>
+          <li><span class="bolinha evitado"></span>Seria evitada pelo cache: 30</li>
+        </ul>
+        <svg
+          class="arvore"
+          viewBox="0 0 844 328"
+          role="img"
+          aria-label="Árvore de chamadas de Tribonacci f(7) sem cache, com 46 nós. A cor de cada nó indica o que aconteceria com o cache ligado."
+        >
+          <line class="aresta" x1="534.1" y1="30" x2="295.3" y2="84" />
+          <line class="aresta" x1="295.3" y1="84" x2="168.5" y2="138" />
+          <line class="aresta" x1="168.5" y1="138" x2="97.0" y2="192" />
+          <line class="aresta" x1="97.0" y1="192" x2="58.0" y2="246" />
+          <line class="aresta" x1="58.0" y1="246" x2="32.0" y2="300" />
+          <line class="aresta" x1="58.0" y1="246" x2="58.0" y2="300" />
+          <line class="aresta" x1="58.0" y1="246" x2="84.0" y2="300" />
+          <line class="aresta" x1="97.0" y1="192" x2="110.0" y2="246" />
+          <line class="aresta" x1="97.0" y1="192" x2="136.0" y2="246" />
+          <line class="aresta" x1="168.5" y1="138" x2="188.0" y2="192" />
+          <line class="aresta evitado" x1="188.0" y1="192" x2="162.0" y2="246" />
+          <line class="aresta evitado" x1="188.0" y1="192" x2="188.0" y2="246" />
+          <line class="aresta evitado" x1="188.0" y1="192" x2="214.0" y2="246" />
+          <line class="aresta" x1="168.5" y1="138" x2="240.0" y2="192" />
+          <line class="aresta" x1="295.3" y1="84" x2="331.0" y2="138" />
+          <line class="aresta evitado" x1="331.0" y1="138" x2="292.0" y2="192" />
+          <line class="aresta evitado" x1="292.0" y1="192" x2="266.0" y2="246" />
+          <line class="aresta evitado" x1="292.0" y1="192" x2="292.0" y2="246" />
+          <line class="aresta evitado" x1="292.0" y1="192" x2="318.0" y2="246" />
+          <line class="aresta evitado" x1="331.0" y1="138" x2="344.0" y2="192" />
+          <line class="aresta evitado" x1="331.0" y1="138" x2="370.0" y2="192" />
+          <line class="aresta" x1="295.3" y1="84" x2="422.0" y2="138" />
+          <line class="aresta evitado" x1="422.0" y1="138" x2="396.0" y2="192" />
+          <line class="aresta evitado" x1="422.0" y1="138" x2="422.0" y2="192" />
+          <line class="aresta evitado" x1="422.0" y1="138" x2="448.0" y2="192" />
+          <line class="aresta" x1="534.1" y1="30" x2="610.5" y2="84" />
+          <line class="aresta evitado" x1="610.5" y1="84" x2="539.0" y2="138" />
+          <line class="aresta evitado" x1="539.0" y1="138" x2="500.0" y2="192" />
+          <line class="aresta evitado" x1="500.0" y1="192" x2="474.0" y2="246" />
+          <line class="aresta evitado" x1="500.0" y1="192" x2="500.0" y2="246" />
+          <line class="aresta evitado" x1="500.0" y1="192" x2="526.0" y2="246" />
+          <line class="aresta evitado" x1="539.0" y1="138" x2="552.0" y2="192" />
+          <line class="aresta evitado" x1="539.0" y1="138" x2="578.0" y2="192" />
+          <line class="aresta evitado" x1="610.5" y1="84" x2="630.0" y2="138" />
+          <line class="aresta evitado" x1="630.0" y1="138" x2="604.0" y2="192" />
+          <line class="aresta evitado" x1="630.0" y1="138" x2="630.0" y2="192" />
+          <line class="aresta evitado" x1="630.0" y1="138" x2="656.0" y2="192" />
+          <line class="aresta evitado" x1="610.5" y1="84" x2="682.0" y2="138" />
+          <line class="aresta" x1="534.1" y1="30" x2="773.0" y2="84" />
+          <line class="aresta evitado" x1="773.0" y1="84" x2="734.0" y2="138" />
+          <line class="aresta evitado" x1="734.0" y1="138" x2="708.0" y2="192" />
+          <line class="aresta evitado" x1="734.0" y1="138" x2="734.0" y2="192" />
+          <line class="aresta evitado" x1="734.0" y1="138" x2="760.0" y2="192" />
+          <line class="aresta evitado" x1="773.0" y1="84" x2="786.0" y2="138" />
+          <line class="aresta evitado" x1="773.0" y1="84" x2="812.0" y2="138" />
+          <g class="no base">
+            <title>f(2) = 1 — caso base (responde 1 sem tocar no cache)</title>
+            <circle cx="32.0" cy="300" r="10.5" />
+            <text x="32.0" y="300">2</text>
+          </g>
+          <g class="no base">
+            <title>f(1) = 1 — caso base (responde 1 sem tocar no cache)</title>
+            <circle cx="58.0" cy="300" r="10.5" />
+            <text x="58.0" y="300">1</text>
+          </g>
+          <g class="no base">
+            <title>f(0) = 1 — caso base (responde 1 sem tocar no cache)</title>
+            <circle cx="84.0" cy="300" r="10.5" />
+            <text x="84.0" y="300">0</text>
+          </g>
+          <g class="no calculado">
+            <title>f(3) = 3 — calculada pela primeira vez (guarda no cache)</title>
+            <circle cx="58.0" cy="246" r="10.5" />
+            <text x="58.0" y="246">3</text>
+          </g>
+          <g class="no base">
+            <title>f(2) = 1 — caso base (responde 1 sem tocar no cache)</title>
+            <circle cx="110.0" cy="246" r="10.5" />
+            <text x="110.0" y="246">2</text>
+          </g>
+          <g class="no base">
+            <title>f(1) = 1 — caso base (responde 1 sem tocar no cache)</title>
+            <circle cx="136.0" cy="246" r="10.5" />
+            <text x="136.0" y="246">1</text>
+          </g>
+          <g class="no calculado">
+            <title>f(4) = 5 — calculada pela primeira vez (guarda no cache)</title>
+            <circle cx="97.0" cy="192" r="10.5" />
+            <text x="97.0" y="192">4</text>
+          </g>
+          <g class="no evitado">
+            <title>f(2) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="162.0" cy="246" r="10.5" />
+            <text x="162.0" y="246">2</text>
+          </g>
+          <g class="no evitado">
+            <title>f(1) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="188.0" cy="246" r="10.5" />
+            <text x="188.0" y="246">1</text>
+          </g>
+          <g class="no evitado">
+            <title>f(0) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="214.0" cy="246" r="10.5" />
+            <text x="214.0" y="246">0</text>
+          </g>
+          <g class="no acerto">
+            <title>f(3) = 3 — acerto de cache (retorna sem descer)</title>
+            <circle cx="188.0" cy="192" r="10.5" />
+            <text x="188.0" y="192">3</text>
+          </g>
+          <g class="no base">
+            <title>f(2) = 1 — caso base (responde 1 sem tocar no cache)</title>
+            <circle cx="240.0" cy="192" r="10.5" />
+            <text x="240.0" y="192">2</text>
+          </g>
+          <g class="no calculado">
+            <title>f(5) = 9 — calculada pela primeira vez (guarda no cache)</title>
+            <circle cx="168.5" cy="138" r="10.5" />
+            <text x="168.5" y="138">5</text>
+          </g>
+          <g class="no evitado">
+            <title>f(2) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="266.0" cy="246" r="10.5" />
+            <text x="266.0" y="246">2</text>
+          </g>
+          <g class="no evitado">
+            <title>f(1) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="292.0" cy="246" r="10.5" />
+            <text x="292.0" y="246">1</text>
+          </g>
+          <g class="no evitado">
+            <title>f(0) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="318.0" cy="246" r="10.5" />
+            <text x="318.0" y="246">0</text>
+          </g>
+          <g class="no evitado">
+            <title>f(3) = 3 — evitada pelo cache (não acontece)</title>
+            <circle cx="292.0" cy="192" r="10.5" />
+            <text x="292.0" y="192">3</text>
+          </g>
+          <g class="no evitado">
+            <title>f(2) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="344.0" cy="192" r="10.5" />
+            <text x="344.0" y="192">2</text>
+          </g>
+          <g class="no evitado">
+            <title>f(1) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="370.0" cy="192" r="10.5" />
+            <text x="370.0" y="192">1</text>
+          </g>
+          <g class="no acerto">
+            <title>f(4) = 5 — acerto de cache (retorna sem descer)</title>
+            <circle cx="331.0" cy="138" r="10.5" />
+            <text x="331.0" y="138">4</text>
+          </g>
+          <g class="no evitado">
+            <title>f(2) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="396.0" cy="192" r="10.5" />
+            <text x="396.0" y="192">2</text>
+          </g>
+          <g class="no evitado">
+            <title>f(1) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="422.0" cy="192" r="10.5" />
+            <text x="422.0" y="192">1</text>
+          </g>
+          <g class="no evitado">
+            <title>f(0) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="448.0" cy="192" r="10.5" />
+            <text x="448.0" y="192">0</text>
+          </g>
+          <g class="no acerto">
+            <title>f(3) = 3 — acerto de cache (retorna sem descer)</title>
+            <circle cx="422.0" cy="138" r="10.5" />
+            <text x="422.0" y="138">3</text>
+          </g>
+          <g class="no calculado">
+            <title>f(6) = 17 — calculada pela primeira vez (guarda no cache)</title>
+            <circle cx="295.3" cy="84" r="10.5" />
+            <text x="295.3" y="84">6</text>
+          </g>
+          <g class="no evitado">
+            <title>f(2) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="474.0" cy="246" r="10.5" />
+            <text x="474.0" y="246">2</text>
+          </g>
+          <g class="no evitado">
+            <title>f(1) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="500.0" cy="246" r="10.5" />
+            <text x="500.0" y="246">1</text>
+          </g>
+          <g class="no evitado">
+            <title>f(0) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="526.0" cy="246" r="10.5" />
+            <text x="526.0" y="246">0</text>
+          </g>
+          <g class="no evitado">
+            <title>f(3) = 3 — evitada pelo cache (não acontece)</title>
+            <circle cx="500.0" cy="192" r="10.5" />
+            <text x="500.0" y="192">3</text>
+          </g>
+          <g class="no evitado">
+            <title>f(2) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="552.0" cy="192" r="10.5" />
+            <text x="552.0" y="192">2</text>
+          </g>
+          <g class="no evitado">
+            <title>f(1) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="578.0" cy="192" r="10.5" />
+            <text x="578.0" y="192">1</text>
+          </g>
+          <g class="no evitado">
+            <title>f(4) = 5 — evitada pelo cache (não acontece)</title>
+            <circle cx="539.0" cy="138" r="10.5" />
+            <text x="539.0" y="138">4</text>
+          </g>
+          <g class="no evitado">
+            <title>f(2) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="604.0" cy="192" r="10.5" />
+            <text x="604.0" y="192">2</text>
+          </g>
+          <g class="no evitado">
+            <title>f(1) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="630.0" cy="192" r="10.5" />
+            <text x="630.0" y="192">1</text>
+          </g>
+          <g class="no evitado">
+            <title>f(0) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="656.0" cy="192" r="10.5" />
+            <text x="656.0" y="192">0</text>
+          </g>
+          <g class="no evitado">
+            <title>f(3) = 3 — evitada pelo cache (não acontece)</title>
+            <circle cx="630.0" cy="138" r="10.5" />
+            <text x="630.0" y="138">3</text>
+          </g>
+          <g class="no evitado">
+            <title>f(2) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="682.0" cy="138" r="10.5" />
+            <text x="682.0" y="138">2</text>
+          </g>
+          <g class="no acerto">
+            <title>f(5) = 9 — acerto de cache (retorna sem descer)</title>
+            <circle cx="610.5" cy="84" r="10.5" />
+            <text x="610.5" y="84">5</text>
+          </g>
+          <g class="no evitado">
+            <title>f(2) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="708.0" cy="192" r="10.5" />
+            <text x="708.0" y="192">2</text>
+          </g>
+          <g class="no evitado">
+            <title>f(1) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="734.0" cy="192" r="10.5" />
+            <text x="734.0" y="192">1</text>
+          </g>
+          <g class="no evitado">
+            <title>f(0) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="760.0" cy="192" r="10.5" />
+            <text x="760.0" y="192">0</text>
+          </g>
+          <g class="no evitado">
+            <title>f(3) = 3 — evitada pelo cache (não acontece)</title>
+            <circle cx="734.0" cy="138" r="10.5" />
+            <text x="734.0" y="138">3</text>
+          </g>
+          <g class="no evitado">
+            <title>f(2) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="786.0" cy="138" r="10.5" />
+            <text x="786.0" y="138">2</text>
+          </g>
+          <g class="no evitado">
+            <title>f(1) = 1 — evitada pelo cache (não acontece)</title>
+            <circle cx="812.0" cy="138" r="10.5" />
+            <text x="812.0" y="138">1</text>
+          </g>
+          <g class="no acerto">
+            <title>f(4) = 5 — acerto de cache (retorna sem descer)</title>
+            <circle cx="773.0" cy="84" r="10.5" />
+            <text x="773.0" y="84">4</text>
+          </g>
+          <g class="no calculado">
+            <title>f(7) = 31 — calculada pela primeira vez (guarda no cache)</title>
+            <circle cx="534.1" cy="30" r="10.5" />
+            <text x="534.1" y="30">7</text>
+          </g>
+        </svg>
+        <p class="nota">As três árvores em texto, como o programa as imprime:</p>
+
+        <details>
+          <summary>Fatorial — f(7) = 5040 em 7 invocações</summary>
+          <pre>
+f(7) = 5040 [calculado]
+  f(6) = 720 [calculado]
+    f(5) = 120 [calculado]
+      f(4) = 24 [calculado]
+        f(3) = 6 [calculado]
+          f(2) = 2 [calculado]
+            f(1) = 1 [base]</pre>
+        </details>
+        <details>
+          <summary>Fibonacci — f(7) = 21 em 41 invocações</summary>
+          <pre>
+f(7) = 21 [calculado]
+  f(6) = 13 [calculado]
+    f(5) = 8 [calculado]
+      f(4) = 5 [calculado]
+        f(3) = 3 [calculado]
+          f(2) = 2 [calculado]
+            f(1) = 1 [base]
+            f(0) = 1 [base]
+          f(1) = 1 [base]
+        f(2) = 2 [calculado]
+          f(1) = 1 [base]
+          f(0) = 1 [base]
+      f(3) = 3 [calculado]
+        f(2) = 2 [calculado]
+          f(1) = 1 [base]
+          f(0) = 1 [base]
+        f(1) = 1 [base]
+    f(4) = 5 [calculado]
+      f(3) = 3 [calculado]
+        f(2) = 2 [calculado]
+          f(1) = 1 [base]
+          f(0) = 1 [base]
+        f(1) = 1 [base]
+      f(2) = 2 [calculado]
+        f(1) = 1 [base]
+        f(0) = 1 [base]
+  f(5) = 8 [calculado]
+    f(4) = 5 [calculado]
+      f(3) = 3 [calculado]
+        f(2) = 2 [calculado]
+          f(1) = 1 [base]
+          f(0) = 1 [base]
+        f(1) = 1 [base]
+      f(2) = 2 [calculado]
+        f(1) = 1 [base]
+        f(0) = 1 [base]
+    f(3) = 3 [calculado]
+      f(2) = 2 [calculado]
+        f(1) = 1 [base]
+        f(0) = 1 [base]
+      f(1) = 1 [base]</pre>
+        </details>
+        <details>
+          <summary>Tribonacci — f(7) = 31 em 46 invocações</summary>
+          <pre>
+f(7) = 31 [calculado]
+  f(6) = 17 [calculado]
+    f(5) = 9 [calculado]
+      f(4) = 5 [calculado]
+        f(3) = 3 [calculado]
+          f(2) = 1 [base]
+          f(1) = 1 [base]
+          f(0) = 1 [base]
+        f(2) = 1 [base]
+        f(1) = 1 [base]
+      f(3) = 3 [calculado]
+        f(2) = 1 [base]
+        f(1) = 1 [base]
+        f(0) = 1 [base]
+      f(2) = 1 [base]
+    f(4) = 5 [calculado]
+      f(3) = 3 [calculado]
+        f(2) = 1 [base]
+        f(1) = 1 [base]
+        f(0) = 1 [base]
+      f(2) = 1 [base]
+      f(1) = 1 [base]
+    f(3) = 3 [calculado]
+      f(2) = 1 [base]
+      f(1) = 1 [base]
+      f(0) = 1 [base]
+  f(5) = 9 [calculado]
+    f(4) = 5 [calculado]
+      f(3) = 3 [calculado]
+        f(2) = 1 [base]
+        f(1) = 1 [base]
+        f(0) = 1 [base]
+      f(2) = 1 [base]
+      f(1) = 1 [base]
+    f(3) = 3 [calculado]
+      f(2) = 1 [base]
+      f(1) = 1 [base]
+      f(0) = 1 [base]
+    f(2) = 1 [base]
+  f(4) = 5 [calculado]
+    f(3) = 3 [calculado]
+      f(2) = 1 [base]
+      f(1) = 1 [base]
+      f(0) = 1 [base]
+    f(2) = 1 [base]
+    f(1) = 1 [base]</pre>
+        </details>
+      </section>
+
+      <section>
+        <h2>4. Desempenho: tempo e memória</h2>
+
+        <h3>4.1 Invocações</h3>
+        <p>
+          Esta é a medida exata: ela não depende da máquina nem do relógio, e dá o mesmo número em
+          qualquer execução. O eixo vertical é logarítmico, então uma reta subindo é crescimento
+          exponencial.
+        </p>
+
+        <ul class="legenda">
+          <li><span class="chave s1"></span>Recursiva sem cache</li>
+          <li><span class="chave s2"></span>Recursiva com cache</li>
+        </ul>
+        <div class="grade-paineis">
+          <div class="caixa-painel">
+            <svg
+              class="painel"
+              viewBox="0 0 320 230"
+              role="img"
+              aria-label="Invocações por n: Fatorial"
+            >
+              <text class="titulo-painel" x="0" y="14">Fatorial</text>
+              <line class="grade" x1="60" x2="306" y1="188.0" y2="188.0" />
+              <text class="eixo" x="52" y="188.0" dy="0.32em" text-anchor="end">10</text>
+              <line class="grade" x1="60" x2="306" y1="136.7" y2="136.7" />
+              <text class="eixo" x="52" y="136.7" dy="0.32em" text-anchor="end">100</text>
+              <line class="grade" x1="60" x2="306" y1="85.3" y2="85.3" />
+              <text class="eixo" x="52" y="85.3" dy="0.32em" text-anchor="end">10³</text>
+              <line class="grade" x1="60" x2="306" y1="34.0" y2="34.0" />
+              <text class="eixo" x="52" y="34.0" dy="0.32em" text-anchor="end">10⁴</text>
+              <line class="linha-base" x1="60" x2="306" y1="188" y2="188" />
+              <text class="eixo" x="72.0" y="205" text-anchor="middle">10</text>
+              <text class="eixo" x="116.0" y="205" text-anchor="middle">1.000</text>
+              <text class="eixo" x="182.8" y="205" text-anchor="middle">2.500</text>
+              <text class="eixo" x="294.0" y="205" text-anchor="middle">5.000</text>
+              <text class="eixo" x="183" y="222" text-anchor="middle">n</text>
+              <path
+                class="serie s1"
+                d="M72.0,188.0 L76.0,136.7 L93.8,100.8 L116.0,85.3 L182.8,64.9 L294.0,49.5"
+              />
+              <path
+                class="serie s2"
+                d="M72.0,188.0 L76.0,136.7 L93.8,100.8 L116.0,85.3 L182.8,64.9 L294.0,49.5"
+              />
+              <circle class="ponto s1" cx="72.0" cy="188.0" r="3.5">
+                <title>Sem cache — n = 10: 10</title>
+              </circle>
+              <circle class="ponto s1" cx="76.0" cy="136.7" r="3.5">
+                <title>Sem cache — n = 100: 100</title>
+              </circle>
+              <circle class="ponto s1" cx="93.8" cy="100.8" r="3.5">
+                <title>Sem cache — n = 500: 500</title>
+              </circle>
+              <circle class="ponto s1" cx="116.0" cy="85.3" r="3.5">
+                <title>Sem cache — n = 1.000: 1.000</title>
+              </circle>
+              <circle class="ponto s1" cx="182.8" cy="64.9" r="3.5">
+                <title>Sem cache — n = 2.500: 2.500</title>
+              </circle>
+              <circle class="ponto s1" cx="294.0" cy="49.5" r="3.5">
+                <title>Sem cache — n = 5.000: 5.000</title>
+              </circle>
+              <circle class="ponto s2" cx="72.0" cy="188.0" r="3.5">
+                <title>Com cache — n = 10: 10</title>
+              </circle>
+              <circle class="ponto s2" cx="76.0" cy="136.7" r="3.5">
+                <title>Com cache — n = 100: 100</title>
+              </circle>
+              <circle class="ponto s2" cx="93.8" cy="100.8" r="3.5">
+                <title>Com cache — n = 500: 500</title>
+              </circle>
+              <circle class="ponto s2" cx="116.0" cy="85.3" r="3.5">
+                <title>Com cache — n = 1.000: 1.000</title>
+              </circle>
+              <circle class="ponto s2" cx="182.8" cy="64.9" r="3.5">
+                <title>Com cache — n = 2.500: 2.500</title>
+              </circle>
+              <circle class="ponto s2" cx="294.0" cy="49.5" r="3.5">
+                <title>Com cache — n = 5.000: 5.000</title>
+              </circle>
+            </svg>
+          </div>
+          <div class="caixa-painel">
+            <svg
+              class="painel"
+              viewBox="0 0 320 230"
+              role="img"
+              aria-label="Invocações por n: Fibonacci"
+            >
+              <text class="titulo-painel" x="0" y="14">Fibonacci</text>
+              <line class="grade" x1="60" x2="306" y1="188.0" y2="188.0" />
+              <text class="eixo" x="52" y="188.0" dy="0.32em" text-anchor="end">10</text>
+              <line class="grade" x1="60" x2="306" y1="166.0" y2="166.0" />
+              <text class="eixo" x="52" y="166.0" dy="0.32em" text-anchor="end">100</text>
+              <line class="grade" x1="60" x2="306" y1="144.0" y2="144.0" />
+              <text class="eixo" x="52" y="144.0" dy="0.32em" text-anchor="end">10³</text>
+              <line class="grade" x1="60" x2="306" y1="122.0" y2="122.0" />
+              <text class="eixo" x="52" y="122.0" dy="0.32em" text-anchor="end">10⁴</text>
+              <line class="grade" x1="60" x2="306" y1="100.0" y2="100.0" />
+              <text class="eixo" x="52" y="100.0" dy="0.32em" text-anchor="end">10⁵</text>
+              <line class="grade" x1="60" x2="306" y1="78.0" y2="78.0" />
+              <text class="eixo" x="52" y="78.0" dy="0.32em" text-anchor="end">10⁶</text>
+              <line class="grade" x1="60" x2="306" y1="56.0" y2="56.0" />
+              <text class="eixo" x="52" y="56.0" dy="0.32em" text-anchor="end">10⁷</text>
+              <line class="grade" x1="60" x2="306" y1="34.0" y2="34.0" />
+              <text class="eixo" x="52" y="34.0" dy="0.32em" text-anchor="end">10⁸</text>
+              <line class="linha-base" x1="60" x2="306" y1="188" y2="188" />
+              <text class="eixo" x="72.0" y="205" text-anchor="middle">10</text>
+              <text class="eixo" x="116.4" y="205" text-anchor="middle">15</text>
+              <text class="eixo" x="160.8" y="205" text-anchor="middle">20</text>
+              <text class="eixo" x="205.2" y="205" text-anchor="middle">25</text>
+              <text class="eixo" x="249.6" y="205" text-anchor="middle">30</text>
+              <text class="eixo" x="294.0" y="205" text-anchor="middle">35</text>
+              <text class="eixo" x="183" y="222" text-anchor="middle">n</text>
+              <path
+                class="serie s1"
+                d="M72.0,160.5 L116.4,137.5 L160.8,114.5 L205.2,91.5 L249.6,68.5 L294.0,45.5"
+              />
+              <path
+                class="serie s2"
+                d="M72.0,181.9 L116.4,177.8 L160.8,175.0 L205.2,172.8 L249.6,171.0 L294.0,169.5"
+              />
+              <circle class="ponto s1" cx="72.0" cy="160.5" r="3.5">
+                <title>Sem cache — n = 10: 177</title>
+              </circle>
+              <circle class="ponto s1" cx="116.4" cy="137.5" r="3.5">
+                <title>Sem cache — n = 15: 1.973</title>
+              </circle>
+              <circle class="ponto s1" cx="160.8" cy="114.5" r="3.5">
+                <title>Sem cache — n = 20: 21.891</title>
+              </circle>
+              <circle class="ponto s1" cx="205.2" cy="91.5" r="3.5">
+                <title>Sem cache — n = 25: 242.785</title>
+              </circle>
+              <circle class="ponto s1" cx="249.6" cy="68.5" r="3.5">
+                <title>Sem cache — n = 30: 2.692.537</title>
+              </circle>
+              <circle class="ponto s1" cx="294.0" cy="45.5" r="3.5">
+                <title>Sem cache — n = 35: 29.860.703</title>
+              </circle>
+              <circle class="ponto s2" cx="72.0" cy="181.9" r="3.5">
+                <title>Com cache — n = 10: 19</title>
+              </circle>
+              <circle class="ponto s2" cx="116.4" cy="177.8" r="3.5">
+                <title>Com cache — n = 15: 29</title>
+              </circle>
+              <circle class="ponto s2" cx="160.8" cy="175.0" r="3.5">
+                <title>Com cache — n = 20: 39</title>
+              </circle>
+              <circle class="ponto s2" cx="205.2" cy="172.8" r="3.5">
+                <title>Com cache — n = 25: 49</title>
+              </circle>
+              <circle class="ponto s2" cx="249.6" cy="171.0" r="3.5">
+                <title>Com cache — n = 30: 59</title>
+              </circle>
+              <circle class="ponto s2" cx="294.0" cy="169.5" r="3.5">
+                <title>Com cache — n = 35: 69</title>
+              </circle>
+            </svg>
+          </div>
+          <div class="caixa-painel">
+            <svg
+              class="painel"
+              viewBox="0 0 320 230"
+              role="img"
+              aria-label="Invocações por n: Tribonacci"
+            >
+              <text class="titulo-painel" x="0" y="14">Tribonacci</text>
+              <line class="grade" x1="60" x2="306" y1="188.0" y2="188.0" />
+              <text class="eixo" x="52" y="188.0" dy="0.32em" text-anchor="end">10</text>
+              <line class="grade" x1="60" x2="306" y1="166.0" y2="166.0" />
+              <text class="eixo" x="52" y="166.0" dy="0.32em" text-anchor="end">100</text>
+              <line class="grade" x1="60" x2="306" y1="144.0" y2="144.0" />
+              <text class="eixo" x="52" y="144.0" dy="0.32em" text-anchor="end">10³</text>
+              <line class="grade" x1="60" x2="306" y1="122.0" y2="122.0" />
+              <text class="eixo" x="52" y="122.0" dy="0.32em" text-anchor="end">10⁴</text>
+              <line class="grade" x1="60" x2="306" y1="100.0" y2="100.0" />
+              <text class="eixo" x="52" y="100.0" dy="0.32em" text-anchor="end">10⁵</text>
+              <line class="grade" x1="60" x2="306" y1="78.0" y2="78.0" />
+              <text class="eixo" x="52" y="78.0" dy="0.32em" text-anchor="end">10⁶</text>
+              <line class="grade" x1="60" x2="306" y1="56.0" y2="56.0" />
+              <text class="eixo" x="52" y="56.0" dy="0.32em" text-anchor="end">10⁷</text>
+              <line class="grade" x1="60" x2="306" y1="34.0" y2="34.0" />
+              <text class="eixo" x="52" y="34.0" dy="0.32em" text-anchor="end">10⁸</text>
+              <line class="linha-base" x1="60" x2="306" y1="188" y2="188" />
+              <text class="eixo" x="72.0" y="205" text-anchor="middle">7</text>
+              <text class="eixo" x="149.2" y="205" text-anchor="middle">15</text>
+              <text class="eixo" x="197.5" y="205" text-anchor="middle">20</text>
+              <text class="eixo" x="245.7" y="205" text-anchor="middle">25</text>
+              <text class="eixo" x="294.0" y="205" text-anchor="middle">30</text>
+              <text class="eixo" x="183" y="222" text-anchor="middle">n</text>
+              <path
+                class="serie s1"
+                d="M72.0,173.4 L101.0,155.9 L149.2,126.7 L197.5,97.6 L245.7,68.5 L294.0,39.4"
+              />
+              <path
+                class="serie s2"
+                d="M72.0,183.5 L101.0,179.2 L149.2,174.8 L197.5,171.7 L245.7,169.4 L294.0,167.6"
+              />
+              <circle class="ponto s1" cx="72.0" cy="173.4" r="3.5">
+                <title>Sem cache — n = 7: 46</title>
+              </circle>
+              <circle class="ponto s1" cx="101.0" cy="155.9" r="3.5">
+                <title>Sem cache — n = 10: 289</title>
+              </circle>
+              <circle class="ponto s1" cx="149.2" cy="126.7" r="3.5">
+                <title>Sem cache — n = 15: 6.094</title>
+              </circle>
+              <circle class="ponto s1" cx="197.5" cy="97.6" r="3.5">
+                <title>Sem cache — n = 20: 128.287</title>
+              </circle>
+              <circle class="ponto s1" cx="245.7" cy="68.5" r="3.5">
+                <title>Sem cache — n = 25: 2.700.421</title>
+              </circle>
+              <circle class="ponto s1" cx="294.0" cy="39.4" r="3.5">
+                <title>Sem cache — n = 30: 56.843.233</title>
+              </circle>
+              <circle class="ponto s2" cx="72.0" cy="183.5" r="3.5">
+                <title>Com cache — n = 7: 16</title>
+              </circle>
+              <circle class="ponto s2" cx="101.0" cy="179.2" r="3.5">
+                <title>Com cache — n = 10: 25</title>
+              </circle>
+              <circle class="ponto s2" cx="149.2" cy="174.8" r="3.5">
+                <title>Com cache — n = 15: 40</title>
+              </circle>
+              <circle class="ponto s2" cx="197.5" cy="171.7" r="3.5">
+                <title>Com cache — n = 20: 55</title>
+              </circle>
+              <circle class="ponto s2" cx="245.7" cy="169.4" r="3.5">
+                <title>Com cache — n = 25: 70</title>
+              </circle>
+              <circle class="ponto s2" cx="294.0" cy="167.6" r="3.5">
+                <title>Com cache — n = 30: 85</title>
+              </circle>
+            </svg>
+          </div>
+        </div>
+
+        <h3>4.2 Tempo</h3>
+        <p>
+          Mediana de várias repetições, com aquecimento e cache vazio a cada execução. Eixo vertical
+          logarítmico.
+        </p>
+
+        <ul class="legenda">
+          <li><span class="chave s1"></span>Recursiva sem cache</li>
+          <li><span class="chave s2"></span>Recursiva com cache</li>
+        </ul>
+        <div class="grade-paineis">
+          <div class="caixa-painel">
+            <svg class="painel" viewBox="0 0 320 230" role="img" aria-label="Tempo por n: Fatorial">
+              <text class="titulo-painel" x="0" y="14">Fatorial</text>
+              <line class="grade" x1="60" x2="306" y1="188.0" y2="188.0" />
+              <text class="eixo" x="52" y="188.0" dy="0.32em" text-anchor="end">100 ns</text>
+              <line class="grade" x1="60" x2="306" y1="157.2" y2="157.2" />
+              <text class="eixo" x="52" y="157.2" dy="0.32em" text-anchor="end">1,00 µs</text>
+              <line class="grade" x1="60" x2="306" y1="126.4" y2="126.4" />
+              <text class="eixo" x="52" y="126.4" dy="0.32em" text-anchor="end">10,00 µs</text>
+              <line class="grade" x1="60" x2="306" y1="95.6" y2="95.6" />
+              <text class="eixo" x="52" y="95.6" dy="0.32em" text-anchor="end">100,00 µs</text>
+              <line class="grade" x1="60" x2="306" y1="64.8" y2="64.8" />
+              <text class="eixo" x="52" y="64.8" dy="0.32em" text-anchor="end">1,00 ms</text>
+              <line class="grade" x1="60" x2="306" y1="34.0" y2="34.0" />
+              <text class="eixo" x="52" y="34.0" dy="0.32em" text-anchor="end">10,00 ms</text>
+              <line class="linha-base" x1="60" x2="306" y1="188" y2="188" />
+              <text class="eixo" x="72.0" y="205" text-anchor="middle">10</text>
+              <text class="eixo" x="116.0" y="205" text-anchor="middle">1.000</text>
+              <text class="eixo" x="182.8" y="205" text-anchor="middle">2.500</text>
+              <text class="eixo" x="294.0" y="205" text-anchor="middle">5.000</text>
+              <text class="eixo" x="183" y="222" text-anchor="middle">n</text>
+              <path
+                class="serie s1"
+                d="M72.0,174.5 L76.0,130.1 L93.8,102.1 L116.0,87.0 L182.8,64.5 L294.0,46.1"
+              />
+              <path
+                class="serie s2"
+                d="M72.0,163.1 L76.0,125.9 L93.8,98.9 L116.0,84.5 L182.8,62.0 L294.0,43.8"
+              />
+              <circle class="ponto s1" cx="72.0" cy="174.5" r="3.5">
+                <title>Sem cache — n = 10: 274 ns</title>
+              </circle>
+              <circle class="ponto s1" cx="76.0" cy="130.1" r="3.5">
+                <title>Sem cache — n = 100: 7,58 µs</title>
+              </circle>
+              <circle class="ponto s1" cx="93.8" cy="102.1" r="3.5">
+                <title>Sem cache — n = 500: 61,35 µs</title>
+              </circle>
+              <circle class="ponto s1" cx="116.0" cy="87.0" r="3.5">
+                <title>Sem cache — n = 1.000: 189,81 µs</title>
+              </circle>
+              <circle class="ponto s1" cx="182.8" cy="64.5" r="3.5">
+                <title>Sem cache — n = 2.500: 1,02 ms</title>
+              </circle>
+              <circle class="ponto s1" cx="294.0" cy="46.1" r="3.5">
+                <title>Sem cache — n = 5.000: 4,06 ms</title>
+              </circle>
+              <circle class="ponto s2" cx="72.0" cy="163.1" r="3.5">
+                <title>Com cache — n = 10: 645 ns</title>
+              </circle>
+              <circle class="ponto s2" cx="76.0" cy="125.9" r="3.5">
+                <title>Com cache — n = 100: 10,34 µs</title>
+              </circle>
+              <circle class="ponto s2" cx="93.8" cy="98.9" r="3.5">
+                <title>Com cache — n = 500: 78,07 µs</title>
+              </circle>
+              <circle class="ponto s2" cx="116.0" cy="84.5" r="3.5">
+                <title>Com cache — n = 1.000: 228,68 µs</title>
+              </circle>
+              <circle class="ponto s2" cx="182.8" cy="62.0" r="3.5">
+                <title>Com cache — n = 2.500: 1,23 ms</title>
+              </circle>
+              <circle class="ponto s2" cx="294.0" cy="43.8" r="3.5">
+                <title>Com cache — n = 5.000: 4,79 ms</title>
+              </circle>
+            </svg>
+          </div>
+          <div class="caixa-painel">
+            <svg
+              class="painel"
+              viewBox="0 0 320 230"
+              role="img"
+              aria-label="Tempo por n: Fibonacci"
+            >
+              <text class="titulo-painel" x="0" y="14">Fibonacci</text>
+              <line class="grade" x1="60" x2="306" y1="188.0" y2="188.0" />
+              <text class="eixo" x="52" y="188.0" dy="0.32em" text-anchor="end">100 ns</text>
+              <line class="grade" x1="60" x2="306" y1="166.0" y2="166.0" />
+              <text class="eixo" x="52" y="166.0" dy="0.32em" text-anchor="end">1,00 µs</text>
+              <line class="grade" x1="60" x2="306" y1="144.0" y2="144.0" />
+              <text class="eixo" x="52" y="144.0" dy="0.32em" text-anchor="end">10,00 µs</text>
+              <line class="grade" x1="60" x2="306" y1="122.0" y2="122.0" />
+              <text class="eixo" x="52" y="122.0" dy="0.32em" text-anchor="end">100,00 µs</text>
+              <line class="grade" x1="60" x2="306" y1="100.0" y2="100.0" />
+              <text class="eixo" x="52" y="100.0" dy="0.32em" text-anchor="end">1,00 ms</text>
+              <line class="grade" x1="60" x2="306" y1="78.0" y2="78.0" />
+              <text class="eixo" x="52" y="78.0" dy="0.32em" text-anchor="end">10,00 ms</text>
+              <line class="grade" x1="60" x2="306" y1="56.0" y2="56.0" />
+              <text class="eixo" x="52" y="56.0" dy="0.32em" text-anchor="end">100,00 ms</text>
+              <line class="grade" x1="60" x2="306" y1="34.0" y2="34.0" />
+              <text class="eixo" x="52" y="34.0" dy="0.32em" text-anchor="end">1,000 s</text>
+              <line class="linha-base" x1="60" x2="306" y1="188" y2="188" />
+              <text class="eixo" x="72.0" y="205" text-anchor="middle">10</text>
+              <text class="eixo" x="116.4" y="205" text-anchor="middle">15</text>
+              <text class="eixo" x="160.8" y="205" text-anchor="middle">20</text>
+              <text class="eixo" x="205.2" y="205" text-anchor="middle">25</text>
+              <text class="eixo" x="249.6" y="205" text-anchor="middle">30</text>
+              <text class="eixo" x="294.0" y="205" text-anchor="middle">35</text>
+              <text class="eixo" x="183" y="222" text-anchor="middle">n</text>
+              <path
+                class="serie s1"
+                d="M72.0,165.5 L116.4,142.5 L160.8,119.3 L205.2,96.4 L249.6,73.5 L294.0,50.2"
+              />
+              <path
+                class="serie s2"
+                d="M72.0,172.7 L116.4,170.2 L160.8,165.0 L205.2,163.6 L249.6,162.4 L294.0,158.7"
+              />
+              <circle class="ponto s1" cx="72.0" cy="165.5" r="3.5">
+                <title>Sem cache — n = 10: 1,06 µs</title>
+              </circle>
+              <circle class="ponto s1" cx="116.4" cy="142.5" r="3.5">
+                <title>Sem cache — n = 15: 11,73 µs</title>
+              </circle>
+              <circle class="ponto s1" cx="160.8" cy="119.3" r="3.5">
+                <title>Sem cache — n = 20: 132,96 µs</title>
+              </circle>
+              <circle class="ponto s1" cx="205.2" cy="96.4" r="3.5">
+                <title>Sem cache — n = 25: 1,46 ms</title>
+              </circle>
+              <circle class="ponto s1" cx="249.6" cy="73.5" r="3.5">
+                <title>Sem cache — n = 30: 15,97 ms</title>
+              </circle>
+              <circle class="ponto s1" cx="294.0" cy="50.2" r="3.5">
+                <title>Sem cache — n = 35: 183,11 ms</title>
+              </circle>
+              <circle class="ponto s2" cx="72.0" cy="172.7" r="3.5">
+                <title>Com cache — n = 10: 494 ns</title>
+              </circle>
+              <circle class="ponto s2" cx="116.4" cy="170.2" r="3.5">
+                <title>Com cache — n = 15: 647 ns</title>
+              </circle>
+              <circle class="ponto s2" cx="160.8" cy="165.0" r="3.5">
+                <title>Com cache — n = 20: 1,11 µs</title>
+              </circle>
+              <circle class="ponto s2" cx="205.2" cy="163.6" r="3.5">
+                <title>Com cache — n = 25: 1,28 µs</title>
+              </circle>
+              <circle class="ponto s2" cx="249.6" cy="162.4" r="3.5">
+                <title>Com cache — n = 30: 1,46 µs</title>
+              </circle>
+              <circle class="ponto s2" cx="294.0" cy="158.7" r="3.5">
+                <title>Com cache — n = 35: 2,15 µs</title>
+              </circle>
+            </svg>
+          </div>
+          <div class="caixa-painel">
+            <svg
+              class="painel"
+              viewBox="0 0 320 230"
+              role="img"
+              aria-label="Tempo por n: Tribonacci"
+            >
+              <text class="titulo-painel" x="0" y="14">Tribonacci</text>
+              <line class="grade" x1="60" x2="306" y1="188.0" y2="188.0" />
+              <text class="eixo" x="52" y="188.0" dy="0.32em" text-anchor="end">100 ns</text>
+              <line class="grade" x1="60" x2="306" y1="166.0" y2="166.0" />
+              <text class="eixo" x="52" y="166.0" dy="0.32em" text-anchor="end">1,00 µs</text>
+              <line class="grade" x1="60" x2="306" y1="144.0" y2="144.0" />
+              <text class="eixo" x="52" y="144.0" dy="0.32em" text-anchor="end">10,00 µs</text>
+              <line class="grade" x1="60" x2="306" y1="122.0" y2="122.0" />
+              <text class="eixo" x="52" y="122.0" dy="0.32em" text-anchor="end">100,00 µs</text>
+              <line class="grade" x1="60" x2="306" y1="100.0" y2="100.0" />
+              <text class="eixo" x="52" y="100.0" dy="0.32em" text-anchor="end">1,00 ms</text>
+              <line class="grade" x1="60" x2="306" y1="78.0" y2="78.0" />
+              <text class="eixo" x="52" y="78.0" dy="0.32em" text-anchor="end">10,00 ms</text>
+              <line class="grade" x1="60" x2="306" y1="56.0" y2="56.0" />
+              <text class="eixo" x="52" y="56.0" dy="0.32em" text-anchor="end">100,00 ms</text>
+              <line class="grade" x1="60" x2="306" y1="34.0" y2="34.0" />
+              <text class="eixo" x="52" y="34.0" dy="0.32em" text-anchor="end">1,000 s</text>
+              <line class="linha-base" x1="60" x2="306" y1="188" y2="188" />
+              <text class="eixo" x="72.0" y="205" text-anchor="middle">7</text>
+              <text class="eixo" x="149.2" y="205" text-anchor="middle">15</text>
+              <text class="eixo" x="197.5" y="205" text-anchor="middle">20</text>
+              <text class="eixo" x="245.7" y="205" text-anchor="middle">25</text>
+              <text class="eixo" x="294.0" y="205" text-anchor="middle">30</text>
+              <text class="eixo" x="183" y="222" text-anchor="middle">n</text>
+              <path
+                class="serie s1"
+                d="M72.0,178.6 L101.0,161.0 L149.2,132.3 L197.5,103.2 L245.7,73.7 L294.0,44.9"
+              />
+              <path
+                class="serie s2"
+                d="M72.0,177.7 L101.0,174.8 L149.2,168.5 L197.5,163.8 L245.7,162.1 L294.0,160.9"
+              />
+              <circle class="ponto s1" cx="72.0" cy="178.6" r="3.5">
+                <title>Sem cache — n = 7: 267 ns</title>
+              </circle>
+              <circle class="ponto s1" cx="101.0" cy="161.0" r="3.5">
+                <title>Sem cache — n = 10: 1,69 µs</title>
+              </circle>
+              <circle class="ponto s1" cx="149.2" cy="132.3" r="3.5">
+                <title>Sem cache — n = 15: 34,07 µs</title>
+              </circle>
+              <circle class="ponto s1" cx="197.5" cy="103.2" r="3.5">
+                <title>Sem cache — n = 20: 713,88 µs</title>
+              </circle>
+              <circle class="ponto s1" cx="245.7" cy="73.7" r="3.5">
+                <title>Sem cache — n = 25: 15,74 ms</title>
+              </circle>
+              <circle class="ponto s1" cx="294.0" cy="44.9" r="3.5">
+                <title>Sem cache — n = 30: 319,49 ms</title>
+              </circle>
+              <circle class="ponto s2" cx="72.0" cy="177.7" r="3.5">
+                <title>Com cache — n = 7: 295 ns</title>
+              </circle>
+              <circle class="ponto s2" cx="101.0" cy="174.8" r="3.5">
+                <title>Com cache — n = 10: 398 ns</title>
+              </circle>
+              <circle class="ponto s2" cx="149.2" cy="168.5" r="3.5">
+                <title>Com cache — n = 15: 768 ns</title>
+              </circle>
+              <circle class="ponto s2" cx="197.5" cy="163.8" r="3.5">
+                <title>Com cache — n = 20: 1,26 µs</title>
+              </circle>
+              <circle class="ponto s2" cx="245.7" cy="162.1" r="3.5">
+                <title>Com cache — n = 25: 1,51 µs</title>
+              </circle>
+              <circle class="ponto s2" cx="294.0" cy="160.9" r="3.5">
+                <title>Com cache — n = 30: 1,71 µs</title>
+              </circle>
+            </svg>
+          </div>
+        </div>
+
+        <h3>4.3 Memória retida pelo cache</h3>
+        <p>
+          Diferença de heap medida com o cache ainda referenciado, depois de acionar o coletor de
+          lixo. Eixo vertical linear. A <strong>pilha</strong> não entra aqui: a profundidade máxima
+          é a mesma nos dois modos e aparece na última coluna das tabelas.
+        </p>
+
+        <ul class="legenda">
+          <li><span class="chave s1"></span>Recursiva sem cache</li>
+          <li><span class="chave s2"></span>Recursiva com cache</li>
+        </ul>
+        <div class="grade-paineis">
+          <div class="caixa-painel">
+            <svg
+              class="painel"
+              viewBox="0 0 320 230"
+              role="img"
+              aria-label="Memória do cache por n: Fatorial"
+            >
+              <text class="titulo-painel" x="0" y="14">Fatorial</text>
+              <line class="grade" x1="60" x2="306" y1="188.0" y2="188.0" />
+              <text class="eixo" x="52" y="188.0" dy="0.32em" text-anchor="end">0 B</text>
+              <line class="grade" x1="60" x2="306" y1="149.5" y2="149.5" />
+              <text class="eixo" x="52" y="149.5" dy="0.32em" text-anchor="end">4,77 MiB</text>
+              <line class="grade" x1="60" x2="306" y1="111.0" y2="111.0" />
+              <text class="eixo" x="52" y="111.0" dy="0.32em" text-anchor="end">9,54 MiB</text>
+              <line class="grade" x1="60" x2="306" y1="72.5" y2="72.5" />
+              <text class="eixo" x="52" y="72.5" dy="0.32em" text-anchor="end">14,31 MiB</text>
+              <line class="grade" x1="60" x2="306" y1="34.0" y2="34.0" />
+              <text class="eixo" x="52" y="34.0" dy="0.32em" text-anchor="end">19,07 MiB</text>
+              <line class="linha-base" x1="60" x2="306" y1="188" y2="188" />
+              <text class="eixo" x="72.0" y="205" text-anchor="middle">10</text>
+              <text class="eixo" x="116.0" y="205" text-anchor="middle">1.000</text>
+              <text class="eixo" x="182.8" y="205" text-anchor="middle">2.500</text>
+              <text class="eixo" x="294.0" y="205" text-anchor="middle">5.000</text>
+              <text class="eixo" x="183" y="222" text-anchor="middle">n</text>
+              <path
+                class="serie s1"
+                d="M72.0,188.0 L76.0,188.0 L93.8,188.0 L116.0,188.0 L182.8,188.0 L294.0,188.0"
+              />
+              <path
+                class="serie s2"
+                d="M72.0,188.0 L76.0,187.9 L93.8,187.0 L116.0,183.9 L182.8,159.3 L294.0,63.7"
+              />
+              <circle class="ponto s1" cx="72.0" cy="188.0" r="3.5">
+                <title>Sem cache — n = 10: 0 B</title>
+              </circle>
+              <circle class="ponto s1" cx="76.0" cy="188.0" r="3.5">
+                <title>Sem cache — n = 100: 616 B</title>
+              </circle>
+              <circle class="ponto s1" cx="93.8" cy="188.0" r="3.5">
+                <title>Sem cache — n = 500: 0 B</title>
+              </circle>
+              <circle class="ponto s1" cx="116.0" cy="188.0" r="3.5">
+                <title>Sem cache — n = 1.000: 616 B</title>
+              </circle>
+              <circle class="ponto s1" cx="182.8" cy="188.0" r="3.5">
+                <title>Sem cache — n = 2.500: 0 B</title>
+              </circle>
+              <circle class="ponto s1" cx="294.0" cy="188.0" r="3.5">
+                <title>Sem cache — n = 5.000: 616 B</title>
+              </circle>
+              <circle class="ponto s2" cx="72.0" cy="188.0" r="3.5">
+                <title>Com cache — n = 10: 960 B</title>
+              </circle>
+              <circle class="ponto s2" cx="76.0" cy="187.9" r="3.5">
+                <title>Com cache — n = 100: 8,1 KiB</title>
+              </circle>
+              <circle class="ponto s2" cx="93.8" cy="187.0" r="3.5">
+                <title>Com cache — n = 500: 128,1 KiB</title>
+              </circle>
+              <circle class="ponto s2" cx="116.0" cy="183.9" r="3.5">
+                <title>Com cache — n = 1.000: 523,7 KiB</title>
+              </circle>
+              <circle class="ponto s2" cx="182.8" cy="159.3" r="3.5">
+                <title>Com cache — n = 2.500: 3,56 MiB</title>
+              </circle>
+              <circle class="ponto s2" cx="294.0" cy="63.7" r="3.5">
+                <title>Com cache — n = 5.000: 15,40 MiB</title>
+              </circle>
+            </svg>
+          </div>
+          <div class="caixa-painel">
+            <svg
+              class="painel"
+              viewBox="0 0 320 230"
+              role="img"
+              aria-label="Memória do cache por n: Fibonacci"
+            >
+              <text class="titulo-painel" x="0" y="14">Fibonacci</text>
+              <line class="grade" x1="60" x2="306" y1="188.0" y2="188.0" />
+              <text class="eixo" x="52" y="188.0" dy="0.32em" text-anchor="end">0 B</text>
+              <line class="grade" x1="60" x2="306" y1="136.7" y2="136.7" />
+              <text class="eixo" x="52" y="136.7" dy="0.32em" text-anchor="end">1.000 B</text>
+              <line class="grade" x1="60" x2="306" y1="85.3" y2="85.3" />
+              <text class="eixo" x="52" y="85.3" dy="0.32em" text-anchor="end">2,0 KiB</text>
+              <line class="grade" x1="60" x2="306" y1="34.0" y2="34.0" />
+              <text class="eixo" x="52" y="34.0" dy="0.32em" text-anchor="end">2,9 KiB</text>
+              <line class="linha-base" x1="60" x2="306" y1="188" y2="188" />
+              <text class="eixo" x="72.0" y="205" text-anchor="middle">10</text>
+              <text class="eixo" x="116.4" y="205" text-anchor="middle">15</text>
+              <text class="eixo" x="160.8" y="205" text-anchor="middle">20</text>
+              <text class="eixo" x="205.2" y="205" text-anchor="middle">25</text>
+              <text class="eixo" x="249.6" y="205" text-anchor="middle">30</text>
+              <text class="eixo" x="294.0" y="205" text-anchor="middle">35</text>
+              <text class="eixo" x="183" y="222" text-anchor="middle">n</text>
+              <path
+                class="serie s1"
+                d="M72.0,188.0 L116.4,165.8 L160.8,188.0 L205.2,165.8 L249.6,188.0 L294.0,165.8"
+              />
+              <path
+                class="serie s2"
+                d="M72.0,138.7 L116.4,154.7 L160.8,125.6 L205.2,119.4 L249.6,113.3 L294.0,61.1"
+              />
+              <circle class="ponto s1" cx="72.0" cy="188.0" r="3.5">
+                <title>Sem cache — n = 10: 0 B</title>
+              </circle>
+              <circle class="ponto s1" cx="116.4" cy="165.8" r="3.5">
+                <title>Sem cache — n = 15: 432 B</title>
+              </circle>
+              <circle class="ponto s1" cx="160.8" cy="188.0" r="3.5">
+                <title>Sem cache — n = 20: 0 B</title>
+              </circle>
+              <circle class="ponto s1" cx="205.2" cy="165.8" r="3.5">
+                <title>Sem cache — n = 25: 432 B</title>
+              </circle>
+              <circle class="ponto s1" cx="249.6" cy="188.0" r="3.5">
+                <title>Sem cache — n = 30: 0 B</title>
+              </circle>
+              <circle class="ponto s1" cx="294.0" cy="165.8" r="3.5">
+                <title>Sem cache — n = 35: 432 B</title>
+              </circle>
+              <circle class="ponto s2" cx="72.0" cy="138.7" r="3.5">
+                <title>Com cache — n = 10: 960 B</title>
+              </circle>
+              <circle class="ponto s2" cx="116.4" cy="154.7" r="3.5">
+                <title>Com cache — n = 15: 648 B</title>
+              </circle>
+              <circle class="ponto s2" cx="160.8" cy="125.6" r="3.5">
+                <title>Com cache — n = 20: 1,2 KiB</title>
+              </circle>
+              <circle class="ponto s2" cx="205.2" cy="119.4" r="3.5">
+                <title>Com cache — n = 25: 1,3 KiB</title>
+              </circle>
+              <circle class="ponto s2" cx="249.6" cy="113.3" r="3.5">
+                <title>Com cache — n = 30: 1,4 KiB</title>
+              </circle>
+              <circle class="ponto s2" cx="294.0" cy="61.1" r="3.5">
+                <title>Com cache — n = 35: 2,4 KiB</title>
+              </circle>
+            </svg>
+          </div>
+          <div class="caixa-painel">
+            <svg
+              class="painel"
+              viewBox="0 0 320 230"
+              role="img"
+              aria-label="Memória do cache por n: Tribonacci"
+            >
+              <text class="titulo-painel" x="0" y="14">Tribonacci</text>
+              <line class="grade" x1="60" x2="306" y1="188.0" y2="188.0" />
+              <text class="eixo" x="52" y="188.0" dy="0.32em" text-anchor="end">0 B</text>
+              <line class="grade" x1="60" x2="306" y1="136.7" y2="136.7" />
+              <text class="eixo" x="52" y="136.7" dy="0.32em" text-anchor="end">500 B</text>
+              <line class="grade" x1="60" x2="306" y1="85.3" y2="85.3" />
+              <text class="eixo" x="52" y="85.3" dy="0.32em" text-anchor="end">1.000 B</text>
+              <line class="grade" x1="60" x2="306" y1="34.0" y2="34.0" />
+              <text class="eixo" x="52" y="34.0" dy="0.32em" text-anchor="end">1,5 KiB</text>
+              <line class="linha-base" x1="60" x2="306" y1="188" y2="188" />
+              <text class="eixo" x="72.0" y="205" text-anchor="middle">7</text>
+              <text class="eixo" x="149.2" y="205" text-anchor="middle">15</text>
+              <text class="eixo" x="197.5" y="205" text-anchor="middle">20</text>
+              <text class="eixo" x="245.7" y="205" text-anchor="middle">25</text>
+              <text class="eixo" x="294.0" y="205" text-anchor="middle">30</text>
+              <text class="eixo" x="183" y="222" text-anchor="middle">n</text>
+              <path
+                class="serie s1"
+                d="M72.0,188.0 L101.0,143.6 L149.2,188.0 L197.5,143.6 L245.7,188.0 L294.0,143.6"
+              />
+              <path
+                class="serie s2"
+                d="M72.0,122.3 L101.0,159.3 L149.2,123.9 L197.5,65.6 L245.7,53.3 L294.0,41.0"
+              />
+              <circle class="ponto s1" cx="72.0" cy="188.0" r="3.5">
+                <title>Sem cache — n = 7: 0 B</title>
+              </circle>
+              <circle class="ponto s1" cx="101.0" cy="143.6" r="3.5">
+                <title>Sem cache — n = 10: 432 B</title>
+              </circle>
+              <circle class="ponto s1" cx="149.2" cy="188.0" r="3.5">
+                <title>Sem cache — n = 15: 0 B</title>
+              </circle>
+              <circle class="ponto s1" cx="197.5" cy="143.6" r="3.5">
+                <title>Sem cache — n = 20: 432 B</title>
+              </circle>
+              <circle class="ponto s1" cx="245.7" cy="188.0" r="3.5">
+                <title>Sem cache — n = 25: 0 B</title>
+              </circle>
+              <circle class="ponto s1" cx="294.0" cy="143.6" r="3.5">
+                <title>Sem cache — n = 30: 432 B</title>
+              </circle>
+              <circle class="ponto s2" cx="72.0" cy="122.3" r="3.5">
+                <title>Com cache — n = 7: 640 B</title>
+              </circle>
+              <circle class="ponto s2" cx="101.0" cy="159.3" r="3.5">
+                <title>Com cache — n = 10: 280 B</title>
+              </circle>
+              <circle class="ponto s2" cx="149.2" cy="123.9" r="3.5">
+                <title>Com cache — n = 15: 624 B</title>
+              </circle>
+              <circle class="ponto s2" cx="197.5" cy="65.6" r="3.5">
+                <title>Com cache — n = 20: 1,2 KiB</title>
+              </circle>
+              <circle class="ponto s2" cx="245.7" cy="53.3" r="3.5">
+                <title>Com cache — n = 25: 1,3 KiB</title>
+              </circle>
+              <circle class="ponto s2" cx="294.0" cy="41.0" r="3.5">
+                <title>Com cache — n = 30: 1,4 KiB</title>
+              </circle>
+            </svg>
+          </div>
+        </div>
+
+        <h3>4.4 Tabelas</h3>
+
+        <h3>Fatorial <span class="formula">f(n) = n · f(n-1), com f(0) = f(1) = 1</span></h3>
+        <div class="rolagem">
+          <table>
+            <thead>
+              <tr>
+                <th>n</th>
+                <th>f(n)</th>
+                <th>Invocações sem cache</th>
+                <th>Invocações com cache</th>
+                <th>Chamadas evitadas</th>
+                <th>Tempo sem cache</th>
+                <th>Tempo com cache</th>
+                <th>Aceleração</th>
+                <th>Memória do cache</th>
+                <th>Profundidade (sem / com)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>10</td>
+                <td>3628800</td>
+                <td>10</td>
+                <td>10</td>
+                <td>0</td>
+                <td>274 ns</td>
+                <td>645 ns</td>
+                <td>0,42×</td>
+                <td>960 B</td>
+                <td>10 / 10</td>
+              </tr>
+              <tr>
+                <td>100</td>
+                <td>93326215... (158 dígitos)</td>
+                <td>100</td>
+                <td>100</td>
+                <td>0</td>
+                <td>7,58 µs</td>
+                <td>10,34 µs</td>
+                <td>0,73×</td>
+                <td>8,1 KiB</td>
+                <td>100 / 100</td>
+              </tr>
+              <tr>
+                <td>500</td>
+                <td>12201368... (1.135 dígitos)</td>
+                <td>500</td>
+                <td>500</td>
+                <td>0</td>
+                <td>61,35 µs</td>
+                <td>78,07 µs</td>
+                <td>0,79×</td>
+                <td>128,1 KiB</td>
+                <td>500 / 500</td>
+              </tr>
+              <tr>
+                <td>1.000</td>
+                <td>40238726... (2.568 dígitos)</td>
+                <td>1.000</td>
+                <td>1.000</td>
+                <td>0</td>
+                <td>189,81 µs</td>
+                <td>228,68 µs</td>
+                <td>0,83×</td>
+                <td>523,7 KiB</td>
+                <td>1.000 / 1.000</td>
+              </tr>
+              <tr>
+                <td>2.500</td>
+                <td>16288884... (7.412 dígitos)</td>
+                <td>2.500</td>
+                <td>2.500</td>
+                <td>0</td>
+                <td>1,02 ms</td>
+                <td>1,23 ms</td>
+                <td>0,83×</td>
+                <td>3,56 MiB</td>
+                <td>2.500 / 2.500</td>
+              </tr>
+              <tr>
+                <td>5.000</td>
+                <td>42285779... (16.326 dígitos)</td>
+                <td>5.000</td>
+                <td>5.000</td>
+                <td>0</td>
+                <td>4,06 ms</td>
+                <td>4,79 ms</td>
+                <td>0,85×</td>
+                <td>15,40 MiB</td>
+                <td>5.000 / 5.000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Fibonacci <span class="formula">f(n) = f(n-1) + f(n-2), com f(0) = f(1) = 1</span></h3>
+        <div class="rolagem">
+          <table>
+            <thead>
+              <tr>
+                <th>n</th>
+                <th>f(n)</th>
+                <th>Invocações sem cache</th>
+                <th>Invocações com cache</th>
+                <th>Chamadas evitadas</th>
+                <th>Tempo sem cache</th>
+                <th>Tempo com cache</th>
+                <th>Aceleração</th>
+                <th>Memória do cache</th>
+                <th>Profundidade (sem / com)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>10</td>
+                <td>89</td>
+                <td>177</td>
+                <td>19</td>
+                <td>158</td>
+                <td>1,06 µs</td>
+                <td>494 ns</td>
+                <td>2,14×</td>
+                <td>960 B</td>
+                <td>10 / 10</td>
+              </tr>
+              <tr>
+                <td>15</td>
+                <td>987</td>
+                <td>1.973</td>
+                <td>29</td>
+                <td>1.944</td>
+                <td>11,73 µs</td>
+                <td>647 ns</td>
+                <td>18,1×</td>
+                <td>648 B</td>
+                <td>15 / 15</td>
+              </tr>
+              <tr>
+                <td>20</td>
+                <td>10946</td>
+                <td>21.891</td>
+                <td>39</td>
+                <td>21.852</td>
+                <td>132,96 µs</td>
+                <td>1,11 µs</td>
+                <td>119×</td>
+                <td>1,2 KiB</td>
+                <td>20 / 20</td>
+              </tr>
+              <tr>
+                <td>25</td>
+                <td>121393</td>
+                <td>242.785</td>
+                <td>49</td>
+                <td>242.736</td>
+                <td>1,46 ms</td>
+                <td>1,28 µs</td>
+                <td>1.136×</td>
+                <td>1,3 KiB</td>
+                <td>25 / 25</td>
+              </tr>
+              <tr>
+                <td>30</td>
+                <td>1346269</td>
+                <td>2.692.537</td>
+                <td>59</td>
+                <td>2.692.478</td>
+                <td>15,97 ms</td>
+                <td>1,46 µs</td>
+                <td>10.921×</td>
+                <td>1,4 KiB</td>
+                <td>30 / 30</td>
+              </tr>
+              <tr>
+                <td>35</td>
+                <td>14930352</td>
+                <td>29.860.703</td>
+                <td>69</td>
+                <td>29.860.634</td>
+                <td>183,11 ms</td>
+                <td>2,15 µs</td>
+                <td>85.324×</td>
+                <td>2,4 KiB</td>
+                <td>35 / 35</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>
+          Tribonacci
+          <span class="formula">f(n) = f(n-1) + f(n-2) + f(n-3), com f(0) = f(1) = f(2) = 1</span>
+        </h3>
+        <div class="rolagem">
+          <table>
+            <thead>
+              <tr>
+                <th>n</th>
+                <th>f(n)</th>
+                <th>Invocações sem cache</th>
+                <th>Invocações com cache</th>
+                <th>Chamadas evitadas</th>
+                <th>Tempo sem cache</th>
+                <th>Tempo com cache</th>
+                <th>Aceleração</th>
+                <th>Memória do cache</th>
+                <th>Profundidade (sem / com)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>7</td>
+                <td>31</td>
+                <td>46</td>
+                <td>16</td>
+                <td>30</td>
+                <td>267 ns</td>
+                <td>295 ns</td>
+                <td>0,91×</td>
+                <td>640 B</td>
+                <td>6 / 6</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>193</td>
+                <td>289</td>
+                <td>25</td>
+                <td>264</td>
+                <td>1,69 µs</td>
+                <td>398 ns</td>
+                <td>4,24×</td>
+                <td>280 B</td>
+                <td>9 / 9</td>
+              </tr>
+              <tr>
+                <td>15</td>
+                <td>4063</td>
+                <td>6.094</td>
+                <td>40</td>
+                <td>6.054</td>
+                <td>34,07 µs</td>
+                <td>768 ns</td>
+                <td>44,4×</td>
+                <td>624 B</td>
+                <td>14 / 14</td>
+              </tr>
+              <tr>
+                <td>20</td>
+                <td>85525</td>
+                <td>128.287</td>
+                <td>55</td>
+                <td>128.232</td>
+                <td>713,88 µs</td>
+                <td>1,26 µs</td>
+                <td>567×</td>
+                <td>1,2 KiB</td>
+                <td>19 / 19</td>
+              </tr>
+              <tr>
+                <td>25</td>
+                <td>1800281</td>
+                <td>2.700.421</td>
+                <td>70</td>
+                <td>2.700.351</td>
+                <td>15,74 ms</td>
+                <td>1,51 µs</td>
+                <td>10.412×</td>
+                <td>1,3 KiB</td>
+                <td>24 / 24</td>
+              </tr>
+              <tr>
+                <td>30</td>
+                <td>37895489</td>
+                <td>56.843.233</td>
+                <td>85</td>
+                <td>56.843.148</td>
+                <td>319,49 ms</td>
+                <td>1,71 µs</td>
+                <td>186.434×</td>
+                <td>1,4 KiB</td>
+                <td>29 / 29</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>5. Como o cache evita chamadas repetidas em Tribonacci f(7)</h2>
+
+        <div class="destaques">
+          <div><span class="rotulo">Invocações sem cache</span><span class="valor">46</span></div>
+          <div><span class="rotulo">Invocações com cache</span><span class="valor">16</span></div>
+          <div>
+            <span class="rotulo">Chamadas evitadas</span
+            ><span class="valor destaque-forte">30</span>
+          </div>
+        </div>
+
+        <p>
+          Sem cache, a função não tem memória: ela resolve f(5) uma vez dentro de f(7) e de novo, do
+          zero, dentro de f(6). São os <strong>subproblemas sobrepostos</strong>. Na árvore da seção
+          3, f(3) é calculado 7 vezes e f(4), 4 vezes, sempre com o mesmo resultado.
+        </p>
+
+        <p>Com cache, a função passa por três situações, nesta ordem:</p>
+        <ol>
+          <li><strong>Caso base</strong> (n ≤ 2): devolve 1 direto e não toca no cache.</li>
+          <li>
+            <strong>Argumento já guardado</strong>: devolve o valor e
+            <strong>não visita nenhum filho</strong>. É o acerto de cache, e é ele que corta a
+            subárvore inteira.
+          </li>
+          <li>
+            <strong>Primeira vez</strong>: faz as três chamadas, soma, guarda o resultado e devolve.
+          </li>
+        </ol>
+
+        <p>
+          A descida mais à esquerda é idêntica nos dois modos, e é nela que cada argumento de 3 a 7
+          é calculado uma única vez: são 5 cálculos. Na volta, os irmãos à direita já encontram tudo
+          pronto: são 5 acertos. Cada acerto poda a subárvore que estaria abaixo dele:
+        </p>
+
+        <div class="rolagem">
+          <table>
+            <thead>
+              <tr>
+                <th>Acerto em</th>
+                <th>Onde ocorre</th>
+                <th>Chamadas evitadas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>f(5)</td>
+                <td>dentro de f(7)</td>
+                <td>12</td>
+              </tr>
+              <tr>
+                <td>f(4)</td>
+                <td>dentro de f(6)</td>
+                <td>6</td>
+              </tr>
+              <tr>
+                <td>f(4)</td>
+                <td>dentro de f(7)</td>
+                <td>6</td>
+              </tr>
+              <tr>
+                <td>f(3)</td>
+                <td>dentro de f(5)</td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <td>f(3)</td>
+                <td>dentro de f(6)</td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <td><strong>Total</strong></td>
+                <td></td>
+                <td><strong>30</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          A conta fecha de duas maneiras independentes: pela diferença de totais, 46 − 16 = 30; e
+          pela soma das subárvores podadas, 12 + 6 + 6 + 3 + 3 = 30.
+        </p>
+
+        <p class="resposta">
+          <strong>Resposta:</strong> com cache, Tribonacci f(7) faz 16 invocações em vez de 46; são
+          <strong>30 chamadas recursivas evitadas</strong>, ou 65% do total. Como a chamada inicial
+          existe nos dois modos, a diferença é a mesma contando só as chamadas recursivas: 45 − 15.
+        </p>
+
+        <details>
+          <summary>A árvore que o cache realmente executa: 16 invocações</summary>
+          <pre>
+f(7) = 31 [calculado]
+  f(6) = 17 [calculado]
+    f(5) = 9 [calculado]
+      f(4) = 5 [calculado]
+        f(3) = 3 [calculado]
+          f(2) = 1 [base]
+          f(1) = 1 [base]
+          f(0) = 1 [base]
+        f(2) = 1 [base]
+        f(1) = 1 [base]
+      f(3) = 3 [acerto de cache]
+      f(2) = 1 [base]
+    f(4) = 5 [acerto de cache]
+    f(3) = 3 [acerto de cache]
+  f(5) = 9 [acerto de cache]
+  f(4) = 5 [acerto de cache]</pre>
+        </details>
+      </section>
+
+      <section>
+        <h2>6. Conclusão</h2>
+        <p>
+          O que decide o valor do cache não é o tamanho de n: é a
+          <strong>forma da árvore de chamadas</strong>.
+        </p>
+        <ul>
+          <li>
+            <strong>Recursão múltipla</strong> (Fibonacci e Tribonacci): os subproblemas se
+            sobrepõem, e o número de chamadas cai de exponencial para linear. Em Tribonacci n = 30,
+            o cache troca 56.843.233 invocações por 85, uma aceleração de 186.434×, ao custo de 1,4
+            KiB de cache.
+          </li>
+          <li>
+            <strong>Recursão linear</strong> (Fatorial): nenhum argumento se repete, então não há
+            nada a reaproveitar. No Fatorial n = 5.000, as invocações são iguais nos dois modos
+            (5.000), a aceleração é de 0,85× e o cache ainda retém 15,40 MiB. O cache só custa.
+          </li>
+          <li>
+            <strong>A pilha não muda.</strong> A profundidade máxima é a mesma com e sem cache,
+            porque a primeira descida é idêntica. O cache economiza chamadas, não altura de pilha.
+          </li>
+        </ul>
+        <p>
+          Memoização é uma troca de espaço por tempo, e ela só compensa onde existe trabalho
+          repetido para evitar. Mostrar o Fatorial, em que a própria otimização do trabalho não
+          serve para nada, é o que dá sentido ao critério.
+        </p>
+      </section>
+
+      <section>
+        <h2>7. Como estes números foram obtidos</h2>
+        <ul>
+          <li>
+            O cronômetro roda só sobre as <strong>funções puras</strong>; as versões instrumentadas
+            contam invocações e ficam fora da medição de tempo.
+          </li>
+          <li>
+            O valor oficial é a <strong>mediana</strong> das repetições, com aquecimento antes e os
+            dois modos medidos em ordem alternada.
+          </li>
+          <li>
+            O <strong>cache nasce vazio</strong> em cada execução: nenhuma medição aproveita a
+            anterior.
+          </li>
+          <li>Tempo e memória saem de execuções separadas, porque amostrar memória custa tempo.</li>
+          <li>
+            Cada comparação roda num <code>worker_thread</code> próprio, um de cada vez, com prazo.
+          </li>
+        </ul>
+        <div class="rolagem">
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Processador</td>
+                <td>Intel(R) Core(TM) i5-1035G1 CPU @ 1.00GHz (8 núcleos lógicos)</td>
+              </tr>
+              <tr>
+                <td>Sistema</td>
+                <td>linux (x64)</td>
+              </tr>
+              <tr>
+                <td>Node</td>
+                <td>22.22.1</td>
+              </tr>
+              <tr>
+                <td>V8</td>
+                <td>12.4.254.21-node.35</td>
+              </tr>
+              <tr>
+                <td>Repetições por comparação</td>
+                <td>5</td>
+              </tr>
+              <tr>
+                <td>Repetições da medição de memória</td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <td>Duração total da coleta</td>
+                <td>76,887 s</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="nota">
+          As contagens de invocações são exatas e valem em qualquer máquina. Os tempos e a memória
+          valem para esta máquina e esta data; rodar de novo muda os tempos, não as contagens.
+        </p>
+      </section>
+
+      <footer>
+        Gerado por <code>pnpm relatorio</code>. Para conferir qualquer número com outro n, use a
+        interface em <code>/calcular</code> e <code>/comparar</code>, ou a linha de comando.
+      </footer>
+    </main>
+  </body>
+</html>
