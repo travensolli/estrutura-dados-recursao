@@ -36,6 +36,19 @@ function cartaoMetrica(regiao: HTMLElement, rotulo: string | RegExp): HTMLElemen
   return cartao;
 }
 
+/** Linha do placar de um modo: rótulo e valor dividem a mesma linha. */
+function linhaMetrica(regiao: HTMLElement, rotulo: string): HTMLElement {
+  const linha = within(regiao).getByText(rotulo, { selector: 'dt' }).closest('div');
+  if (linha === null) throw new Error(`linha ${rotulo} não encontrada`);
+  return linha;
+}
+
+function valorNaLinha(modo: 'sem cache' | 'com cache', rotulo: string): string {
+  return (
+    within(linhaMetrica(regiaoMetricas(modo), rotulo)).getByRole('definition').textContent ?? ''
+  );
+}
+
 function linhaDaTabela(nome: RegExp | string): HTMLElement {
   const celula = screen.getByRole('rowheader', { name: nome });
   const linha = celula.closest('tr');
@@ -50,7 +63,7 @@ function linhaDoArgumento(argumento: number): HTMLElement {
 describe('Página calcular', () => {
   it('começa vazia, com tribonacci, n 7 e sem cache', async () => {
     await abrir();
-    expect(screen.getByRole('radio', { name: 'Tribonacci' })).toBeChecked();
+    expect(screen.getByLabelText('Sequência')).toHaveValue('tribonacci');
     expect(screen.getByRole('radio', { name: 'Sem cache' })).toBeChecked();
     expect(screen.getByLabelText('n')).toHaveValue('7');
     expect(screen.getByText('Nenhum cálculo ainda')).toBeInTheDocument();
@@ -64,7 +77,6 @@ describe('Página calcular', () => {
     expect(within(heroi).getByText('31')).toBeInTheDocument();
     expect(within(heroi).getByText('2 dígitos')).toBeInTheDocument();
 
-    const metricas = regiaoMetricas('sem cache');
     const esperado = [
       ['Invocações', '46'],
       ['Chamadas recursivas', '45'],
@@ -75,12 +87,19 @@ describe('Página calcular', () => {
       ['Profundidade máxima', '6'],
     ] as const;
     for (const [rotulo, valor] of esperado) {
-      expect(within(cartaoMetrica(metricas, rotulo)).getByText(valor)).toBeInTheDocument();
+      expect(valorNaLinha('sem cache', rotulo)).toBe(valor);
     }
+  });
 
+  it('explica sob demanda o que cada número conta', async () => {
+    const usuario = await abrir();
+    await usuario.click(botaoCalcular());
+    await valorHeroi('Tribonacci f(7) vale');
+    await usuario.click(screen.getByText('O que cada número conta'));
     expect(
-      within(metricas).getByText('Conta a chamada raiz, os casos base e os acertos de cache.'),
-    ).toBeInTheDocument();
+      screen.getByText('Conta a chamada raiz, os casos base e os acertos de cache.'),
+    ).toBeVisible();
+    expect(screen.getByText('Sem cache nada é reaproveitado.')).toBeVisible();
   });
 
   it('mostra as invocações por argumento com barra proporcional', async () => {
@@ -137,13 +156,10 @@ describe('Página calcular', () => {
     await valorHeroi('Tribonacci f(7) vale');
     await usuario.click(screen.getByText('Invocações por argumento'));
 
-    const invocacoes = linhaDaTabela(/^Invocações/);
-    expect(within(invocacoes).getByText('46')).toBeInTheDocument();
-    expect(within(invocacoes).getByText('16')).toBeInTheDocument();
-
-    const acertos = linhaDaTabela(/^Acertos de cache/);
-    expect(within(acertos).getByText('0')).toBeInTheDocument();
-    expect(within(acertos).getByText('5')).toBeInTheDocument();
+    expect(valorNaLinha('sem cache', 'Invocações')).toBe('46');
+    expect(valorNaLinha('com cache', 'Invocações')).toBe('16');
+    expect(valorNaLinha('sem cache', 'Acertos de cache')).toBe('0');
+    expect(valorNaLinha('com cache', 'Acertos de cache')).toBe('5');
 
     const linha = linhaDoArgumento(3);
     expect(within(linha).getByText('7')).toBeInTheDocument();
@@ -168,8 +184,8 @@ describe('Página calcular', () => {
     await usuario.click(botaoCalcular());
     await valorHeroi('Fatorial f(10) vale');
 
-    const invocacoes = linhaDaTabela(/^Invocações/);
-    expect(within(invocacoes).getAllByText('10')).toHaveLength(2);
+    expect(valorNaLinha('sem cache', 'Invocações')).toBe('10');
+    expect(valorNaLinha('com cache', 'Invocações')).toBe('10');
     const cartao = cartaoMetrica(document.body, 'Chamadas evitadas pelo cache');
     expect(within(cartao).getByText('0')).toBeInTheDocument();
     expect(within(cartao).getByText(/Nenhum argumento se repetiu/)).toBeInTheDocument();
@@ -218,11 +234,11 @@ describe('Página calcular', () => {
 
   it('guarda sequência, n e modo no endereço', async () => {
     const usuario = await abrir();
-    await usuario.click(screen.getByRole('radio', { name: 'Fibonacci' }));
+    await usuario.selectOptions(screen.getByLabelText('Sequência'), 'fibonacci');
     await usuario.click(screen.getByRole('radio', { name: 'Com cache' }));
     await usuario.clear(screen.getByLabelText('n'));
     await usuario.type(screen.getByLabelText('n'), '12');
-    expect(screen.getByRole('radio', { name: 'Fibonacci' })).toBeChecked();
+    expect(screen.getByLabelText('Sequência')).toHaveValue('fibonacci');
     expect(await screen.findByText(/Previsão para f\(12\) com cache/)).toBeInTheDocument();
   });
 });
