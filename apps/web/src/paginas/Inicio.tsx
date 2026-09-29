@@ -99,6 +99,39 @@ export function PaginaInicio() {
         </p>
       </section>
 
+      <section aria-labelledby="titulo-enunciado" className="flex flex-wrap items-center gap-2">
+        <h2 id="titulo-enunciado" className="mr-1 text-sm font-medium text-texto-suave">
+          O que o enunciado pede — e onde está:
+        </h2>
+        <BotaoLink
+          to={enderecoComEstado('/calcular', { sequencia: 'tribonacci', n: 7 })}
+          variante="neutra"
+          tamanho="pequeno"
+          icone="verificado"
+        >
+          1 · Calcular com e sem cache
+        </BotaoLink>
+        <BotaoLink
+          to={enderecoComEstado('/comparar', { sequencia: 'tribonacci' })}
+          variante="neutra"
+          tamanho="pequeno"
+          icone="verificado"
+        >
+          2 · Comparar tempo e memória
+        </BotaoLink>
+        <BotaoLink
+          to={enderecoComEstado('/arvore', { sequencia: 'tribonacci', n: 7, modo: 'sem_cache' })}
+          variante="neutra"
+          tamanho="pequeno"
+          icone="verificado"
+        >
+          3 · Árvore de chamadas
+        </BotaoLink>
+        <BotaoLink to="/apresentacao" variante="secundaria" tamanho="pequeno" icone="apresentacao">
+          4 · Apresentação: f(7) de 46 → 16
+        </BotaoLink>
+      </section>
+
       <section aria-labelledby="titulo-sequencias">
         <h2 id="titulo-sequencias" className="text-xl font-semibold">
           As três sequências
@@ -129,18 +162,6 @@ export function PaginaInicio() {
           </ul>
         ) : null}
       </section>
-
-      <Cartao
-        as="section"
-        titulo="Modo apresentação"
-        descricao="Tela cheia, números grandes e as duas execuções lado a lado, para projetar em sala."
-        destaque
-        acoes={
-          <BotaoLink to="/apresentacao" icone="apresentacao">
-            Abrir modo apresentação
-          </BotaoLink>
-        }
-      />
     </div>
   );
 }

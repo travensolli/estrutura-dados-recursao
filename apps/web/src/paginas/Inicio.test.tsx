@@ -59,9 +59,21 @@ describe('Página inicial', () => {
     ).toBeInTheDocument();
   });
 
-  it('destaca o atalho para o modo apresentação', async () => {
+  it('mapeia os quatro itens do enunciado nas telas', async () => {
     await renderizar();
-    expect(screen.getByRole('link', { name: 'Abrir modo apresentação' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: '1 · Calcular com e sem cache' })).toHaveAttribute(
+      'href',
+      '/calcular?sequencia=tribonacci&n=7',
+    );
+    expect(screen.getByRole('link', { name: '2 · Comparar tempo e memória' })).toHaveAttribute(
+      'href',
+      '/comparar?sequencia=tribonacci',
+    );
+    expect(screen.getByRole('link', { name: '3 · Árvore de chamadas' })).toHaveAttribute(
+      'href',
+      '/arvore?sequencia=tribonacci&n=7&modo=sem_cache',
+    );
+    expect(screen.getByRole('link', { name: '4 · Apresentação: f(7) de 46 → 16' })).toHaveAttribute(
       'href',
       '/apresentacao',
     );
