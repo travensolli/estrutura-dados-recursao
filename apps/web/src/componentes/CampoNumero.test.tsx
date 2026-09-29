@@ -7,9 +7,11 @@ import { CampoNumero } from './CampoNumero';
 function CampoControlado({
   inicial = '7',
   aoConfirmar,
+  reservarErro,
 }: {
   inicial?: string;
   aoConfirmar?: (valor: number) => void;
+  reservarErro?: boolean;
 }) {
   const [texto, setTexto] = useState(inicial);
   return (
@@ -20,6 +22,7 @@ function CampoControlado({
       maximo={30}
       aoMudar={(novo) => setTexto(novo)}
       aoConfirmar={aoConfirmar}
+      reservarErro={reservarErro}
     />
   );
 }
@@ -31,6 +34,14 @@ describe('CampoNumero', () => {
     expect(campo).toHaveAttribute('inputmode', 'numeric');
     expect(screen.getByText(/Aceita de 0 a 30/)).toBeInTheDocument();
     expect(campo).toHaveAccessibleDescription(/Aceita de 0 a 30/);
+  });
+
+  it('sem reserva de erro não ocupa altura, mas ainda anuncia o erro', async () => {
+    const usuario = userEvent.setup();
+    render(<CampoControlado inicial="" reservarErro={false} />);
+    await usuario.type(screen.getByLabelText('n'), '31');
+    const mensagem = screen.getByText(/30/, { selector: '[aria-live="polite"]' });
+    expect(mensagem).not.toHaveClass('min-h-5');
   });
 
   it('valida em tempo real acima do máximo', async () => {

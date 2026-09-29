@@ -24,6 +24,8 @@ export interface CampoNumeroProps {
   desabilitado?: boolean;
   autoFoco?: boolean;
   comBotoes?: boolean;
+  /** Guarda a altura da mensagem de erro mesmo sem erro, para o formulário não pular. */
+  reservarErro?: boolean;
   className?: string;
 }
 
@@ -42,6 +44,7 @@ export function CampoNumero({
   desabilitado = false,
   autoFoco = false,
   comBotoes = true,
+  reservarErro = true,
   className,
 }: CampoNumeroProps) {
   const gerado = useId();
@@ -133,7 +136,11 @@ export function CampoNumero({
           />
         ) : null}
       </div>
-      <p id={idErro} aria-live="polite" className="min-h-5 text-sm font-medium text-erro">
+      <p
+        id={idErro}
+        aria-live="polite"
+        className={juntarClasses(reservarErro && 'min-h-5', 'text-sm font-medium text-erro')}
+      >
         {mensagem}
       </p>
     </div>

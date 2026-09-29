@@ -23,6 +23,8 @@ export interface SeletorSegmentadoProps<T extends string> {
   desabilitado?: boolean;
   /** Empilha as opções em telas estreitas. */
   empilharNoCelular?: boolean;
+  /** Empilha as opções em qualquer tela, para colunas de configuração. */
+  vertical?: boolean;
   className?: string;
 }
 
@@ -40,6 +42,7 @@ export function SeletorSegmentado<T extends string>({
   opcoes,
   desabilitado = false,
   empilharNoCelular = false,
+  vertical = false,
   className,
 }: SeletorSegmentadoProps<T>) {
   const idRotulo = useId();
@@ -82,7 +85,7 @@ export function SeletorSegmentado<T extends string>({
         aria-labelledby={rotuloVisivel ? idRotulo : undefined}
         className={juntarClasses(
           'flex gap-1 rounded-lg border border-borda bg-superficie-suave p-1',
-          empilharNoCelular ? 'flex-col sm:flex-row' : 'flex-row flex-wrap',
+          vertical ? 'flex-col' : empilharNoCelular ? 'flex-col sm:flex-row' : 'flex-row flex-wrap',
         )}
       >
         {opcoes.map((opcao, indice) => {
@@ -101,7 +104,8 @@ export function SeletorSegmentado<T extends string>({
               onClick={() => aoMudar(opcao.valor)}
               onKeyDown={(evento) => aoTeclar(evento, indice)}
               className={juntarClasses(
-                'flex min-h-toque flex-1 items-center justify-center gap-2 rounded-md px-3 text-center',
+                'flex min-h-toque flex-1 items-center gap-2 rounded-md px-3',
+                vertical ? 'justify-start text-left' : 'justify-center text-center',
                 'transition-colors duration-150 ease-suave disabled:cursor-not-allowed disabled:opacity-60',
                 selecionada
                   ? 'bg-superficie font-semibold text-texto shadow-cartao ring-1 ring-borda-forte'

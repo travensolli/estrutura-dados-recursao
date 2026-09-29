@@ -30,10 +30,11 @@ const TAMANHOS: Record<TamanhoBotao, string> = {
   grande: 'min-h-12 px-5 text-lg',
 };
 
+/* Sem shrink-0, ao lado de um campo de largura total o botão encolhe abaixo do alvo de toque. */
 const TAMANHOS_ICONE: Record<TamanhoBotao, string> = {
-  pequeno: 'size-toque',
-  medio: 'size-toque',
-  grande: 'size-12',
+  pequeno: 'size-toque shrink-0',
+  medio: 'size-toque shrink-0',
+  grande: 'size-12 shrink-0',
 };
 
 export function classesBotao({
