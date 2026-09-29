@@ -36,23 +36,23 @@ function textoLimites(info: InfoSequencia): string {
 function CartaoSequencia({ info }: { info: InfoSequencia }) {
   const ultimoTermo = info.primeiros_termos.length - 1;
   return (
-    <Cartao as="article" titulo={info.nome} className="flex h-full flex-col">
+    <Cartao as="article" titulo={info.nome} compacto className="flex h-full flex-col">
       <p className="font-mono text-lg break-words">{info.formula}</p>
       <p className="mt-1 font-mono text-sm text-texto-suave">{info.casos_base}</p>
 
-      <p className="mt-4 text-sm">
+      <p className="mt-2 text-sm">
         De f(0) a f({ultimoTermo}):{' '}
         <span className="font-mono tabular-nums">{info.primeiros_termos.join(', ')}</span>
       </p>
 
-      <ul className="mt-4 space-y-1 text-sm">
+      <ul className="mt-2 space-y-1 text-sm">
         <LinhaCrescimento modo="sem_cache" texto={info.crescimento_sem_cache} />
         <LinhaCrescimento modo="com_cache" texto={info.crescimento_com_cache} />
       </ul>
 
-      <p className="mt-3 text-sm text-texto-suave">{textoLimites(info)}</p>
+      <p className="mt-2 text-sm text-texto-suave">{textoLimites(info)}</p>
 
-      <GrupoBotoes className="mt-auto pt-5">
+      <GrupoBotoes className="mt-auto pt-3">
         <BotaoLink
           to={enderecoComEstado('/calcular', { sequencia: info.id })}
           variante="secundaria"
@@ -87,15 +87,14 @@ export function PaginaInicio() {
   const { data, isPending, isError, error, refetch } = useSequencias();
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-5">
       <section aria-labelledby="titulo-pagina">
-        <h1 id="titulo-pagina" className="text-3xl font-semibold sm:text-4xl">
+        <h1 id="titulo-pagina" className="text-2xl font-semibold sm:text-3xl">
           Recursão com e sem cache
         </h1>
-        <p className="mt-3 max-w-prose text-lg text-texto-suave">
-          Escolha uma sequência e veja f(n) ser calculado por recursão. Cada invocação é contada, os
-          dois modos são medidos lado a lado em tempo e memória, e a árvore de chamadas mostra onde
-          o cache evita trabalho repetido.
+        <p className="mt-2 max-w-prose text-base text-texto-suave">
+          Cada invocação é contada; tempo, memória e a árvore de chamadas mostram onde o cache evita
+          trabalho repetido.
         </p>
       </section>
 
@@ -133,27 +132,27 @@ export function PaginaInicio() {
       </section>
 
       <section aria-labelledby="titulo-sequencias">
-        <h2 id="titulo-sequencias" className="text-xl font-semibold">
+        <h2 id="titulo-sequencias" className="text-lg font-semibold">
           As três sequências
         </h2>
         {isError ? (
           <EstadoErro erro={error} aoTentarDeNovo={() => void refetch()} className="mt-4" />
         ) : null}
         {isPending ? (
-          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[0, 1, 2].map((indice) => (
               <Esqueleto
                 key={indice}
                 linhas={5}
                 altura="h-6"
                 rotulo="Carregando as sequências"
-                className="rounded-xl border border-borda bg-superficie p-4 sm:p-6"
+                className="rounded-xl border border-borda bg-superficie p-4"
               />
             ))}
           </div>
         ) : null}
         {data ? (
-          <ul className="mt-4 grid list-none gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <ul className="mt-3 grid list-none gap-4 md:grid-cols-2 lg:grid-cols-3">
             {data.sequencias.map((info) => (
               <li key={info.id} className="min-w-0">
                 <CartaoSequencia info={info} />
