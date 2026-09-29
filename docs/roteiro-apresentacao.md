@@ -126,6 +126,11 @@ Este é o item (a)–(c) do enunciado acontecendo ao vivo, e não uma captura de
 - Logo abaixo, os dois placares **lado a lado**, sem cache à esquerda e com cache à direita. Leia
   linha por linha: 46 contra 16 invocações, 15 contra 5 calculados, 0 contra 5 acertos e a mesma
   profundidade 6. A explicação do porquê fica para daqui a pouco; agora é só o fato medido.
+- No pé de cada placar está o **tempo desta execução**. Em f(7) os dois modos quase empatam, perto
+  de 0,3 ms: é uma medida única, num worker recém-criado, e esse custo fixo pesa mais que 46
+  chamadas. Se perguntarem, diga que a diferença aparece com n maior — em Tribonacci n = 20 foram
+  cerca de 3,7 ms contra 0,4 ms, e em n = 25, 46 ms contra 0,4 ms — e que a comparação de tempo de
+  verdade, com aquecimento e repetições, é a da tela Comparar.
 - Se perguntarem o que cada número significa, abra **O que cada número conta**.
 - Role um pouco, abra o bloco **Invocações por argumento** e aponte a linha de f(3): **7
   invocações sem cache, 3 com cache**. É o trabalho repetido aparecendo em número.

@@ -157,6 +157,18 @@ describe('Página calcular', () => {
     );
   });
 
+  it('destaca o tempo da execução no pé de cada placar', async () => {
+    const usuario = await abrir('/calcular?sequencia=tribonacci&n=7&modo=comparar');
+    await usuario.click(botaoCalcular());
+    await valorHeroi('Tribonacci f(7) vale');
+    for (const modo of ['sem cache', 'com cache'] as const) {
+      const tempo = within(linhaMetrica(regiaoMetricas(modo), 'Tempo desta execução')).getByRole(
+        'definition',
+      ).textContent;
+      expect(tempo).toMatch(/\d s$|\d ms$|\d µs$|\d ns$|resolução do relógio$/);
+    }
+  });
+
   it('avisa que a duração é indicativa e não é benchmark', async () => {
     const usuario = await abrir();
     await usuario.click(botaoCalcular());
