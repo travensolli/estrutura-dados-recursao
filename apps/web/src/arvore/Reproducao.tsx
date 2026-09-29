@@ -23,14 +23,18 @@ export interface ReproducaoProps {
   podasPorAcerto?: ReadonlyMap<number, number>;
   /** Escuta espaço, setas, Home e End na janela. */
   atalhos?: boolean;
-  /** Leva o foco para o botão de tocar assim que o painel aparece. */
+  /** Leva o foco para o botão de reproduzir assim que o painel aparece. */
   focarAoMontar?: boolean;
   /** Desenho ou lista da árvore, ao lado dos painéis em telas largas. */
   children?: ReactNode;
 }
 
-const BOTAO =
-  'inline-flex min-h-toque min-w-toque items-center justify-center gap-2 rounded-md border border-borda bg-superficie px-3 text-sm text-texto hover:bg-superficie-suave disabled:opacity-40';
+/* Base sem cor: fundo e borda vêm da variante, para as duas nunca disputarem a mesma
+   propriedade na mesma lista de classes. */
+const BOTAO_BASE =
+  'inline-flex min-h-toque min-w-toque items-center justify-center gap-2 rounded-md border px-3 text-sm disabled:opacity-40';
+const BOTAO = `${BOTAO_BASE} border-borda bg-superficie text-texto hover:bg-superficie-suave`;
+const BOTAO_PRINCIPAL = `${BOTAO_BASE} border-primaria bg-primaria text-primaria-contraste hover:bg-primaria-forte`;
 const CAIXA = 'rounded-lg border border-borda bg-superficie p-3';
 /** Em árvore truncada existem instantes sem nó desenhado. */
 const PASSO_CORTADO = 'Este passo acontece dentro de uma subárvore que o limite de nós cortou.';
@@ -98,8 +102,8 @@ export function Reproducao({
   }, [atalhos, relogio]);
 
   return (
-    <section aria-label="Reprodução passo a passo" className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2">
+    <section aria-label="Reprodução passo a passo" className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <div className="flex items-center gap-1" role="group" aria-label="Controles da reprodução">
           <button
             type="button"
@@ -122,11 +126,12 @@ export function Reproducao({
           <button
             ref={botaoToqueRef}
             type="button"
-            className={`${BOTAO} bg-primaria font-medium text-primaria-contraste hover:bg-primaria-forte`}
+            aria-label={tocando ? 'Pausar' : 'Tocar'}
+            title={tocando ? 'Pausar' : 'Tocar'}
+            className={BOTAO_PRINCIPAL}
             onClick={relogio.alternarToque}
           >
             <Icone nome={tocando ? 'pausar' : 'tocar'} />
-            {tocando ? 'Pausar' : 'Tocar'}
           </button>
           <button
             type="button"
@@ -148,7 +153,24 @@ export function Reproducao({
           </button>
         </div>
 
-        <label className="ml-auto flex items-center gap-2 text-sm text-texto-suave">
+        <div className="flex min-w-48 flex-1 items-center gap-3">
+          <input
+            type="range"
+            min={0}
+            max={ultimoPasso}
+            step={1}
+            value={passo}
+            aria-label="Passo da reprodução"
+            aria-valuetext={contagem}
+            className="min-h-toque w-full accent-primaria"
+            onChange={(evento) => relogio.irPara(Number(evento.target.value))}
+          />
+          <p className="shrink-0 font-mono text-sm tabular-nums text-texto-suave">
+            {formatarInteiro(passo)} / {formatarInteiro(ultimoPasso)}
+          </p>
+        </div>
+
+        <label className="flex items-center gap-2 text-sm text-texto-suave">
           Velocidade
           <select
             className="min-h-toque rounded-md border border-borda bg-superficie px-2 text-sm text-texto"
@@ -166,24 +188,9 @@ export function Reproducao({
         </label>
       </div>
 
-      <div className="flex items-center gap-3">
-        <input
-          type="range"
-          min={0}
-          max={ultimoPasso}
-          step={1}
-          value={passo}
-          aria-label="Passo da reprodução"
-          aria-valuetext={contagem}
-          className="min-h-toque w-full accent-primaria"
-          onChange={(evento) => relogio.irPara(Number(evento.target.value))}
-        />
-        <p className="shrink-0 font-mono text-sm tabular-nums text-texto-suave">
-          {formatarInteiro(passo)} / {formatarInteiro(ultimoPasso)}
-        </p>
-      </div>
-
-      <p className="min-h-12 text-lg text-balance">{narracao}</p>
+      {/* Reserva uma linha: a frase mais longa tem uns 85 caracteres e cabe numa só nas
+          larguras de notebook. */}
+      <p className="min-h-7 text-lg leading-snug text-balance">{narracao}</p>
       <p className="sr-only" aria-live="polite">
         {`${contagem}. ${narracao}`}
       </p>

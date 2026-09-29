@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { rotuloModo } from '../utilitarios/formatar';
 import { ArvoreLista } from './ArvoreLista';
 import { ArvoreSvg } from './ArvoreSvg';
+import { ALTURA_DESENHO, ALTURA_DESENHO_REPRODUCAO } from './layout';
 import { Reproducao } from './Reproducao';
 import { achatarNos, totalPassos } from './modelo';
 import { TELA_ESTREITA, useMidia } from './usarMidia';
@@ -56,12 +57,13 @@ export function VisaoArvore({ resposta, podasPorAcerto }: VisaoArvoreProps) {
         passo={passo}
         animacaoReduzida={relogio.animacaoReduzida}
         compacto={reproduzindo}
+        classeAltura={reproduzindo ? ALTURA_DESENHO_REPRODUCAO : ALTURA_DESENHO}
       />
     );
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <div
           role="group"
           aria-label="Como ver a árvore"
@@ -91,7 +93,7 @@ export function VisaoArvore({ resposta, podasPorAcerto }: VisaoArvoreProps) {
 
         {reproduzindo && (
           <p className="text-sm text-texto-suave">
-            Espaço toca e pausa, as setas andam um passo, Home e End vão às pontas.
+            Espaço inicia e pausa, as setas andam um passo, Home e End vão às pontas.
           </p>
         )}
       </div>

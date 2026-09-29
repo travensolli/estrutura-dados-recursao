@@ -11,6 +11,7 @@ import {
   rotuloAbrirRecolhidos,
 } from './modelo';
 import { MarcaTipo } from './ui/MarcaTipo';
+import { ALTURA_DESENHO_TETO } from './layout';
 
 const RECUO = 18;
 
@@ -135,7 +136,7 @@ export function ArvoreLista({
       <ul
         role="tree"
         aria-label={rotulo}
-        className="max-h-[70vh] overflow-auto rounded-lg border border-borda bg-superficie p-2"
+        className={`overflow-auto rounded-lg border border-borda bg-superficie p-2 ${ALTURA_DESENHO_TETO}`}
       >
         {itens.map((item) => {
           const { no } = item;

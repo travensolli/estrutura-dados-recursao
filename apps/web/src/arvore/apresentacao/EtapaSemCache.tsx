@@ -46,6 +46,7 @@ export function EtapaSemCache({ dados }: { dados: DadosApresentacao }) {
           truncada={semCache.truncada}
           nosExibidos={semCache.nos_exibidos}
           compacto
+          palco
           argumentoRealcado={argumento}
           aoRealcarArgumento={setRealce}
           enquadreMinimo={ENQUADRE_APRESENTACAO}

@@ -64,6 +64,7 @@ export function EtapaCache({ dados }: { dados: DadosApresentacao }) {
           passo={relogio.passo}
           animacaoReduzida={relogio.animacaoReduzida}
           compacto
+          palco
           argumentoRealcado={realce}
           aoRealcarArgumento={setRealce}
           enquadreMinimo={ENQUADRE_APRESENTACAO}
