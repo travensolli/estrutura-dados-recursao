@@ -49,6 +49,26 @@ test.describe('dobra do notebook', () => {
     );
   });
 
+  test('árvore: os 46 nós de f(7) ficam dentro do desenho, também num projetor de 1024', async ({
+    page,
+  }) => {
+    for (const largura of [1366, 1024]) {
+      await page.setViewportSize({ width: largura, height: 641 });
+      await abrir(page, '/arvore?sequencia=tribonacci&n=7&modo=sem_cache');
+      await expect(page.getByTestId('no-arvore')).toHaveCount(46);
+      const fora = await page.evaluate(() => {
+        const desenho = document.querySelector('svg[aria-label^="Árvore de chamadas"]');
+        if (!desenho) return -1;
+        const caixa = desenho.getBoundingClientRect();
+        return [...document.querySelectorAll('[data-testid="no-arvore"]')].filter((no) => {
+          const r = no.getBoundingClientRect();
+          return r.left < caixa.left - 1 || r.right > caixa.right + 1;
+        }).length;
+      });
+      expect(fora, `nós fora do desenho em ${largura}px`).toBe(0);
+    }
+  });
+
   test('calcular no modo comparar mostra os dois placares lado a lado', async ({ page }) => {
     await abrir(page, '/calcular?sequencia=tribonacci&n=7&modo=comparar');
     await page.getByRole('button', { name: /^Calcular$/ }).click();
