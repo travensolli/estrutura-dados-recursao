@@ -208,3 +208,36 @@ as fontes do runner Linux do CI, que já tinham estourado a dobra uma vez.
 de crescimento, sem regerar as medições que o roteiro cita; como a fonte do
 texto é o contrato, a próxima regeneração sai igual. O roteiro foi ajustado à
 nova disposição das telas.
+
+## 2026-09-29: Fórmulas gerais no Início e a altura do desenho da árvore
+
+Ajustes pedidos pelo usuário depois da revisão da configuração à esquerda.
+
+- **Fórmulas gerais:** o Início ganhou um painel com as contagens escritas em
+  função de k (a ordem) e b (a quantidade de casos base): invocações sem cache,
+  com cache, 1 + k · (n − b + 1), chamadas evitadas, valores no cache,
+  n − b + 1, profundidade, n − b + 2, e o tempo em Θ. A tabela aplica cada
+  fórmula às três sequências para um n do exemplo (7 por padrão, de 2 a 40),
+  mostrando a conta e o resultado. O painel nasce fechado porque a dobra do
+  Início tinha cerca de 75px de folga com fontes largas. Um teste confere as
+  fórmulas contra a execução instrumentada para n de 2 a 15.
+- **Tipo de cada sequência:** o selo do cartão passou de "ordem N" para
+  "recursão linear · ordem 1", "dupla · ordem 2" e "tripla · ordem 3".
+- **Limites de n:** a frase "Aqui n vai até …" saiu dos cartões. Os limites
+  continuam junto do campo de n em cada tela.
+- **Legenda da árvore:** a frase sobre a cor por argumento saiu. A coluna da
+  esquerda já diz que a cor é o argumento.
+- **Altura do desenho:** o desenho da árvore passou a ocupar a altura que
+  sobra na janela, `clamp(200px, 100dvh − 386px, 820px)` a partir de 1280px de
+  largura e `100dvh − 474px` abaixo disso, onde as barras acima dele quebram
+  linha. Antes a altura seguia a proporção da árvore, limitada a 46vh.
+
+**Medição:** em 1366x641 o desenho tem 255px e nenhuma variação rola: sem
+cache, com cache e fatorial, nas fontes do sistema e na simulação das fontes
+do Linux. Com cache rolava de 40 a 68px depois dos botões de 44px. Em
+1440x900 o desenho chega a cerca de 515px. Em 1024x641 sobram 33px de
+rolagem por causa do piso de 200px; numa janela de 1024x768 não rola.
+
+**Consequência:** a árvore sem cache é larga, e o enquadramento continua
+limitado pela largura. A altura extra vira espaço para aproximar e arrastar,
+não nós maiores. `e2e/dobra.spec.ts` ganhou o caso com cache sem rolagem.
