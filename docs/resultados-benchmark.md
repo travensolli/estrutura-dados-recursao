@@ -39,8 +39,8 @@ Todos os números vêm da execução registrada abaixo, nesta máquina.
 ## Fatorial
 
 Fórmula: f(n) = n · f(n-1). Casos base: f(0) = f(1) = 1.
-Crescimento sem cache: linear (n invocações).
-Crescimento com cache: linear (sem ganho).
+Crescimento sem cache: linear, n invocações (n ≥ 1).
+Crescimento com cache: linear, sem ganho.
 
 ### Invocações e tempo
 
@@ -88,8 +88,8 @@ O cache não evita nenhuma chamada: em todos os n medidos as invocações são i
 ## Fibonacci
 
 Fórmula: f(n) = f(n-1) + f(n-2). Casos base: f(0) = f(1) = 1.
-Crescimento sem cache: exponencial, O(1,618ⁿ).
-Crescimento com cache: linear (2n - 1 invocações).
+Crescimento sem cache: exponencial, Θ(φⁿ), φ ≈ 1,618.
+Crescimento com cache: linear, 2n − 1 invocações (n ≥ 1).
 
 ### Invocações e tempo
 
@@ -137,8 +137,8 @@ Em n = 35 o cache evita 29.860.634 chamadas: 29.860.703 invocações sem cache c
 ## Tribonacci
 
 Fórmula: f(n) = f(n-1) + f(n-2) + f(n-3). Casos base: f(0) = f(1) = f(2) = 1.
-Crescimento sem cache: exponencial, O(1,839ⁿ).
-Crescimento com cache: linear (3n - 5 invocações).
+Crescimento sem cache: exponencial, Θ(τⁿ), τ ≈ 1,839.
+Crescimento com cache: linear, 3n − 5 invocações (n ≥ 2).
 
 ### Invocações e tempo
 

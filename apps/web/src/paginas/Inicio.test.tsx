@@ -25,7 +25,7 @@ describe('Página inicial', () => {
     expect(within(tribonacci).getByText('f(n) = f(n-1) + f(n-2) + f(n-3)')).toBeInTheDocument();
     expect(within(tribonacci).getByText('com f(0) = f(1) = f(2) = 1')).toBeInTheDocument();
     expect(within(tribonacci).getByText('1, 1, 1, 3, 5, 9, 17, 31')).toBeInTheDocument();
-    expect(within(tribonacci).getByText(/linear \(3n - 5 invocações\)/)).toBeInTheDocument();
+    expect(within(tribonacci).getByText('linear, 3n − 5 invocações (n ≥ 2)')).toBeInTheDocument();
   });
 
   it('mostra a ordem de cada recorrência', async () => {
@@ -43,7 +43,7 @@ describe('Página inicial', () => {
   it('diz que o fatorial não ganha nada com o cache', async () => {
     await renderizar();
     const fatorial = screen.getByRole('article', { name: 'Fatorial' });
-    expect(within(fatorial).getByText(/linear \(sem ganho\)/)).toBeInTheDocument();
+    expect(within(fatorial).getByText('linear, sem ganho')).toBeInTheDocument();
   });
 
   it('leva a cada tela com a sequência no endereço', async () => {
