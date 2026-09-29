@@ -55,6 +55,11 @@ describe('Página comparar', () => {
       expect(within(metodo).getByText(termo)).toBeInTheDocument();
     }
     expect(within(metodo).getByText(/mede só as funções puras, sem contadores/)).toBeVisible();
+    expect(within(metodo).getByText(/clique em Comparar/)).toBeInTheDocument();
+    expect(within(metodo).getByText(/mediana das repetições escolhidas à esquerda/)).toBeVisible();
+    expect(
+      within(metodo).getByText(/sempre 3, qualquer que seja o número escolhido para o tempo/),
+    ).toBeVisible();
 
     await medir(usuario);
     expect(screen.queryByRole('region', { name: 'Como a comparação é feita' })).toBeNull();
@@ -72,6 +77,7 @@ describe('Página comparar', () => {
       screen.getByText(/Os dois modos fizeram a mesma 1 invocação e o cache evitou zero chamadas/),
     ).toBeInTheDocument();
     expect(screen.getByText(/A mediana de 1 repetição foi/)).toBeInTheDocument();
+    expect(screen.getByText(/1 repetição por modo, com/)).toBeInTheDocument();
   });
 
   it('diz uma entrada guardada quando o cache guarda um valor só', async () => {

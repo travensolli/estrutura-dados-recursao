@@ -240,9 +240,13 @@ function TabelaTempo({ resposta }: { resposta: CompararResposta }) {
       destacar={(linha) => linha.chave === 'mediana'}
       rodape={
         <>
-          {formatarInteiro(amostra.repeticoes)} repetições por modo, com{' '}
-          {formatarInteiro(amostra.aquecimentos)} aquecimentos descartados antes de medir. A ordem
-          desta rodada foi: {ordem}.
+          {formatarQuantidade(amostra.repeticoes, 'repetição', 'repetições')} por modo, com{' '}
+          {formatarQuantidade(
+            amostra.aquecimentos,
+            'aquecimento descartado',
+            'aquecimentos descartados',
+          )}{' '}
+          antes de medir. A ordem desta rodada foi: {ordem}.
           {amostra.execucoes_por_repeticao > 1
             ? ` Cada repetição executou ${formatarInteiro(amostra.execucoes_por_repeticao)} vezes e dividiu o tempo, porque uma execução isolada é curta demais para o relógio.`
             : null}
@@ -839,7 +843,7 @@ export function PaginaComparar() {
 
         {cancelada ? (
           <Alerta tipo="alerta" titulo="Comparação cancelada">
-            <p>Nada foi medido. Ajuste os valores e toque em Comparar de novo.</p>
+            <p>Nada foi medido. Ajuste os valores e clique em Comparar de novo.</p>
           </Alerta>
         ) : null}
 
@@ -879,7 +883,7 @@ export function PaginaComparar() {
             <div className="space-y-2">
               {desatualizada ? (
                 <p className="text-sm text-texto-suave">
-                  O formulário mudou depois desta medição. Toque em Comparar para atualizar.
+                  O formulário mudou depois desta medição. Clique em Comparar para atualizar.
                 </p>
               ) : null}
 

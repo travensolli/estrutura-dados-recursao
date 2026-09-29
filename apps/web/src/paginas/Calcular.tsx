@@ -561,7 +561,7 @@ export function PaginaCalcular() {
             <EstadoVazio
               icone="calcular"
               titulo="Nenhum cálculo ainda"
-              descricao="Escolha os parâmetros à esquerda e toque em Calcular: aparecem o valor exato e as contagens de cada modo."
+              descricao="Escolha os parâmetros à esquerda e clique em Calcular: aparecem o valor exato e as contagens de cada modo."
             />
           ) : null}
 
@@ -569,7 +569,7 @@ export function PaginaCalcular() {
             <div className="space-y-3">
               {desatualizado ? (
                 <p className="text-sm text-texto-suave">
-                  O formulário mudou depois deste resultado. Toque em Calcular para atualizar.
+                  O formulário mudou depois deste resultado. Clique em Calcular para atualizar.
                 </p>
               ) : null}
 

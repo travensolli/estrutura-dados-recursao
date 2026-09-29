@@ -21,6 +21,7 @@ import {
   indexarPassos,
   rotuloTipo,
   type EstadoNo,
+  rotuloAbrirRecolhidos,
 } from './modelo';
 import { Contadores } from './ui/Contadores';
 import { Legenda } from './ui/Legenda';
@@ -371,7 +372,7 @@ export function ArvoreSvg({
         </div>
         {recolhidos.size > 0 && (
           <button type="button" className={BOTAO} onClick={() => setRecolhidos(new Set<number>())}>
-            Abrir os {formatarInteiro(recolhidos.size)} nós recolhidos
+            {rotuloAbrirRecolhidos(recolhidos.size)}
           </button>
         )}
         {!compacto && (
