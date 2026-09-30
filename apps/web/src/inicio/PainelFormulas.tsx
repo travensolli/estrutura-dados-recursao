@@ -327,15 +327,6 @@ export function PainelFormulas() {
         ajustada
         className="mt-3"
       />
-
-      <p className="mt-3 text-sm text-texto-suave">
-        De onde vem (k·f(n) − 1) / (k − 1): sem cache, com k ≥ 2, a árvore de chamadas termina em
-        casos base que valem 1, e f(n) é a soma deles. Então f(n) é o número de folhas, e uma árvore
-        em que cada chamada que não é caso base abre k outras e que tem f(n) folhas tem (k·f(n) − 1)
-        / (k − 1) chamadas no total. Com cache, cada argumento de b até n é calculado uma vez e abre
-        k chamadas; as outras já são casos base ou acertos, quando o valor estava guardado. As telas
-        Calcular e Árvore mostram os mesmos números, medidos na execução.
-      </p>
     </Detalhes>
   );
 }
