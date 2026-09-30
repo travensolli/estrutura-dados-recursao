@@ -1,6 +1,6 @@
 {
   "name": "sequencias-recursivas",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "private": true,
   "description": "PRJ.ED.1: cálculo recursivo de Fatorial, Fibonacci e Tribonacci com e sem cache, comparação de desempenho e árvore de chamadas",
   "type": "module",
