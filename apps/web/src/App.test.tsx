@@ -85,6 +85,21 @@ describe('troca de página', () => {
     expect(comparar).toHaveBeenCalledTimes(1);
   });
 
+  it('sair no meio da medição não a descarta: a volta encontra o resultado', async () => {
+    const comparar = vi.spyOn(api, 'comparar');
+    const usuario = userEvent.setup();
+    renderizarEm('/comparar');
+    await screen.findByText(/^De 0 a \d/);
+
+    await usuario.click(screen.getByRole('button', { name: 'Comparar' }));
+    expect(await screen.findByRole('button', { name: /Medindo/ })).toBeInTheDocument();
+    await irPeloMenu(usuario, 'Início', 'Recursão com e sem cache');
+    await irPeloMenu(usuario, 'Comparar', 'Comparar');
+
+    await screen.findByText('Fator de aceleração', undefined, { timeout: 5000 });
+    expect(comparar).toHaveBeenCalledTimes(1);
+  });
+
   it('volta à Árvore com a mesma árvore e a mesma vista', async () => {
     const usuario = userEvent.setup();
     renderizarEm('/arvore');

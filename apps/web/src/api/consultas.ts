@@ -47,6 +47,11 @@ export function useEstimativa(entrada: EstimativaEntrada | null) {
  * Execuções já feitas ficam como estão: voltar à tela não refaz a conta nem a
  * medição, e o tempo mostrado continua o mesmo. O resultado também não expira do
  * cache, porque a tela lembra qual execução mostrava (ver hooks/memoria).
+ *
+ * As consultas de execução não repassam o signal: com ele, sair da tela no meio
+ * abortaria o pedido, e a volta mediria tudo de novo. A API termina a conta de
+ * qualquer jeito, então o pedido segue e o resultado espera a volta. O Cancelar
+ * continua valendo: o cancelQueries larga a espera na hora.
  */
 export const OPCOES_EXECUCAO = {
   retry: false,
@@ -58,7 +63,7 @@ export const OPCOES_EXECUCAO = {
 export function useCalcular(entrada: CalcularEntrada | null) {
   return useQuery({
     queryKey: entrada ? chaves.calcular(entrada) : ['calcular', 'vazio'],
-    queryFn: ({ signal }) => api.calcular(entrada as CalcularEntrada, signal),
+    queryFn: () => api.calcular(entrada as CalcularEntrada),
     enabled: entrada !== null,
     ...OPCOES_EXECUCAO,
   });
@@ -67,7 +72,7 @@ export function useCalcular(entrada: CalcularEntrada | null) {
 export function useComparar(entrada: CompararEntrada | null) {
   return useQuery({
     queryKey: entrada ? chaves.comparar(entrada) : ['comparar', 'vazio'],
-    queryFn: ({ signal }) => api.comparar(entrada as CompararEntrada, signal),
+    queryFn: () => api.comparar(entrada as CompararEntrada),
     enabled: entrada !== null,
     ...OPCOES_EXECUCAO,
   });
@@ -76,7 +81,7 @@ export function useComparar(entrada: CompararEntrada | null) {
 export function useSerie(entrada: SerieEntrada | null) {
   return useQuery({
     queryKey: entrada ? chaves.serie(entrada) : ['serie', 'vazia'],
-    queryFn: ({ signal }) => api.serie(entrada as SerieEntrada, signal),
+    queryFn: () => api.serie(entrada as SerieEntrada),
     enabled: entrada !== null,
     ...OPCOES_EXECUCAO,
   });
@@ -85,7 +90,7 @@ export function useSerie(entrada: SerieEntrada | null) {
 export function useArvore(entrada: ArvoreEntrada | null) {
   return useQuery({
     queryKey: entrada ? chaves.arvore(entrada) : ['arvore', 'vazia'],
-    queryFn: ({ signal }) => api.arvore(entrada as ArvoreEntrada, signal),
+    queryFn: () => api.arvore(entrada as ArvoreEntrada),
     enabled: entrada !== null,
     ...OPCOES_EXECUCAO,
   });
