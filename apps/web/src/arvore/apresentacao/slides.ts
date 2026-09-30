@@ -9,7 +9,8 @@ export interface Slide {
   /** Rótulo curto na trilha de progresso. */
   nome: string;
   titulo: string;
-  resumo: string;
+  /** Linha abaixo do título; o slide que se explica sozinho fica sem ela. */
+  resumo?: string;
   /** O slide usa as setas na própria reprodução: a trilha anda com PageUp e PageDown. */
   setasOcupadas?: boolean;
 }
@@ -45,7 +46,6 @@ export const SLIDES: readonly Slide[] = [
     id: 'conta',
     nome: 'A conta',
     titulo: 'A conta das chamadas evitadas',
-    resumo: 'Duas provas independentes para o mesmo número.',
   },
   {
     id: 'conclusao',

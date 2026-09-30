@@ -81,6 +81,7 @@ describe('modo apresentação', () => {
 
     expect(screen.getByTestId('evitadas')).toHaveTextContent('− 30 chamadas evitadas');
     expect(screen.getByText('de 46 sem cache para 16 com cache')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1 }).nextElementSibling).toBeNull();
     expect(screen.getByTestId('prova-podas')).toHaveTextContent('12 + 6 + 6 + 3 + 3 = 30');
     expect(screen.getByTestId('prova-recursivas')).toHaveTextContent('45 − 15 = 30');
     await waitFor(() => expect(screen.getByTestId('contador')).toHaveTextContent('16'), {
