@@ -345,3 +345,26 @@ janela útil de um 1440x900 e a garantia de que as seis etapas não rolam por
 dentro, em 768 e 641. Os projetos desktop e tablet do Playwright usam o
 Chrome de mesa, com ponteiro fino e hover, e por isso ficam densos; só o
 celular, com toque, vê os 44px.
+
+## 2026-09-29: Os mesmos controles nas três telas de trabalho
+
+Calcular, Comparar e Árvore montavam os mesmos controles de jeitos
+diferentes: a sequência numa lista suspensa, os campos da árvore com as
+setas do navegador e o rótulo "Valor de n", e colunas de 300 e 260px.
+
+- **Um molde.** `PaginaComPainel` fixa a coluna em 288px nas três telas, o
+  título com uma linha de descrição e a ordem dos controles: sequência,
+  modo, números e a ação. O modo vem antes de n porque define o limite.
+- **A sequência à vista.** Três opções cabem num seletor segmentado, no
+  mesmo estilo do modo: um clique, e a escolhida fica marcada. No
+  Calcular o modo fica em duas colunas, com "Comparar" na linha de baixo,
+  sob os dois modos que ele junta.
+- **Um campo numérico.** Rótulo em cima, o valor entre menos e mais, e a
+  faixa aceita embaixo ("De 0 a 30"); o erro toma o lugar da faixa, sem
+  mudar a altura, e a faixa continua descrevendo o campo para o leitor de
+  tela. O limite de nós anda de 100 em 100.
+- **Fonte larga.** As telas foram conferidas também com Verdana forçada,
+  de métricas parecidas com as do DejaVu Sans do runner Linux. Com colunas
+  iguais, "Tribonacci" era cortado na opção escolhida; as colunas dos
+  segmentos passaram a seguir o conteúdo, e a descrição da Árvore ficou
+  numa linha para a coluna caber na dobra.
