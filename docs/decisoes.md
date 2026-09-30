@@ -489,6 +489,10 @@ melhor projetada.
   (`slides.ts`, `Slide*.tsx`). O resumo abaixo do título ocupa a linha
   toda e só quebra quando a tela não comporta. O rodapé ganha o botão de
   tema claro e escuro, que antes só existia no layout.
+- **O hover do Próximo.** O botão somava o hover claro da base ao azul da
+  variante, e a ordem do CSS fazia o claro vencer: texto branco em fundo
+  branco. Agora cada variante declara o próprio hover, e um e2e confere o
+  contraste com o ponteiro em cima nos dois temas.
 - **Slide 1, a definição e a conta.** A fórmula vai em MathML, desenhada
   com a fonte matemática do sistema (Cambria Math no Windows), como
   definição por partes. Ao lado, a conta de f(0) a f(7), termo a termo,
