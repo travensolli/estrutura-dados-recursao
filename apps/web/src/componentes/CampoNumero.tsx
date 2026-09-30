@@ -17,21 +17,27 @@ export interface CampoNumeroProps {
   aoConfirmar?: (valor: number) => void;
   minimo?: number;
   maximo?: number;
+  /** Quanto os botões e as setas do teclado somam ou tiram. */
   passo?: number;
+  /** Complemento da faixa aceita, na mesma linha sob o campo. */
   ajuda?: ReactNode;
   /** Mensagem vinda de fora (por exemplo da API); tem prioridade sobre a local. */
   erro?: string | null;
   desabilitado?: boolean;
   autoFoco?: boolean;
   comBotoes?: boolean;
-  /** Guarda a altura da mensagem de erro mesmo sem erro, para o formulário não pular. */
-  reservarErro?: boolean;
-  /** Ajuda sob o rótulo, e não ao lado: para campos estreitos lado a lado ficarem alinhados. */
-  empilhado?: boolean;
   className?: string;
 }
 
-/** Campo de inteiro com limites visíveis, validação em tempo real e teclado numérico. */
+function maiuscula(texto: string): string {
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+/**
+ * Campo de inteiro no padrão das colunas de configuração: rótulo em cima, o valor
+ * entre os botões de menos e mais, e a faixa aceita embaixo. O erro ocupa o lugar
+ * da faixa, então o formulário não muda de altura quando ele aparece.
+ */
 export function CampoNumero({
   id,
   rotulo,
@@ -46,8 +52,6 @@ export function CampoNumero({
   desabilitado = false,
   autoFoco = false,
   comBotoes = true,
-  reservarErro = true,
-  empilhado = false,
   className,
 }: CampoNumeroProps) {
   const gerado = useId();
@@ -55,14 +59,15 @@ export function CampoNumero({
   const idAjuda = `${idCampo}-ajuda`;
   const idErro = `${idCampo}-erro`;
   const [tocado, setTocado] = useState(false);
+  const opcoes = { minimo, maximo, rotulo: rotulo.toLowerCase() };
 
-  const resultado = validarInteiro(valor, { minimo, maximo });
+  const resultado = validarInteiro(valor, opcoes);
   const mostrarLocal = !resultado.valido && (valor.trim() !== '' || tocado);
   const mensagem = erro ?? (mostrarLocal ? resultado.mensagem : '');
   const invalido = mensagem !== '';
 
   function alterar(texto: string) {
-    aoMudar(texto, validarInteiro(texto, { minimo, maximo }));
+    aoMudar(texto, validarInteiro(texto, opcoes));
   }
 
   function deslocar(delta: number) {
@@ -92,22 +97,11 @@ export function CampoNumero({
   const noMaximo = resultado.valido && maximo !== undefined && resultado.valor >= maximo;
 
   return (
-    <div className={juntarClasses('flex flex-col gap-1', className)}>
-      {/* O intervalo aceito fica na linha do rótulo: numa coluna estreita, uma linha a menos. */}
-      <div
-        className={
-          empilhado ? 'flex flex-col' : 'flex flex-wrap items-baseline justify-between gap-x-2'
-        }
-      >
-        <label htmlFor={idCampo} className="font-medium">
-          {rotulo}
-        </label>
-        <p id={idAjuda} className="text-sm text-texto-suave">
-          Aceita {descreverIntervalo(minimo, maximo)}
-          {ajuda ? <>. {ajuda}</> : null}
-        </p>
-      </div>
-      <div className="flex items-center gap-2">
+    <div className={juntarClasses('flex min-w-0 flex-col gap-1', className)}>
+      <label htmlFor={idCampo} className="text-sm font-medium">
+        {rotulo}
+      </label>
+      <div className="flex items-center gap-1">
         {comBotoes ? (
           <BotaoIcone
             icone="menos"
@@ -132,7 +126,7 @@ export function CampoNumero({
           onBlur={() => setTocado(true)}
           onKeyDown={aoTeclar}
           className={juntarClasses(
-            'sem-setas min-h-toque w-full min-w-0 rounded-md border bg-superficie px-3 text-base tabular-nums',
+            'sem-setas min-h-toque w-full min-w-0 rounded-md border bg-superficie px-2 text-center text-base tabular-nums',
             'disabled:cursor-not-allowed disabled:opacity-60',
             invalido ? 'border-erro' : 'border-borda-forte',
           )}
@@ -146,10 +140,19 @@ export function CampoNumero({
           />
         ) : null}
       </div>
+      {/* A faixa continua descrevendo o campo para o leitor de tela mesmo quando o erro
+          toma o lugar dela na tela. */}
+      <p
+        id={idAjuda}
+        className={juntarClasses('text-sm leading-dados text-texto-suave', invalido && 'sr-only')}
+      >
+        {maiuscula(descreverIntervalo(minimo, maximo))}
+        {ajuda ? <>. {ajuda}</> : null}
+      </p>
       <p
         id={idErro}
         aria-live="polite"
-        className={juntarClasses(reservarErro && 'min-h-5', 'text-sm font-medium text-erro')}
+        className="text-sm leading-dados font-medium text-erro empty:sr-only"
       >
         {mensagem}
       </p>

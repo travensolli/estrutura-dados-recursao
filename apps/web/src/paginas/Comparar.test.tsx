@@ -12,7 +12,7 @@ async function abrir(rota = '/comparar') {
   const usuario = userEvent.setup();
   renderizarComProvedores(<PaginaComparar />, { rota });
   // Os limites de n vêm da API: com eles na tela, o formulário está pronto.
-  await screen.findByText(/^Aceita de 0 a \d/);
+  await screen.findByText(/^De 0 a \d/);
   return usuario;
 }
 
@@ -42,7 +42,7 @@ function linhaDaTabela(nome: RegExp): HTMLElement {
 describe('Página comparar', () => {
   it('começa vazia, com tribonacci, n 20 e 5 repetições', async () => {
     await abrir();
-    expect(screen.getByLabelText('Sequência')).toHaveValue('tribonacci');
+    expect(screen.getByRole('radio', { name: 'Tribonacci' })).toBeChecked();
     expect(screen.getByLabelText('n')).toHaveValue('20');
     expect(screen.getByLabelText('Repetições')).toHaveValue('5');
     expect(screen.getByText('Nenhuma comparação ainda')).toBeInTheDocument();

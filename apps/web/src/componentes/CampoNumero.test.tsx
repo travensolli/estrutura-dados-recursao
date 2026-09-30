@@ -7,22 +7,21 @@ import { CampoNumero } from './CampoNumero';
 function CampoControlado({
   inicial = '7',
   aoConfirmar,
-  reservarErro,
+  rotulo = 'n',
 }: {
   inicial?: string;
   aoConfirmar?: (valor: number) => void;
-  reservarErro?: boolean;
+  rotulo?: string;
 }) {
   const [texto, setTexto] = useState(inicial);
   return (
     <CampoNumero
-      rotulo="n"
+      rotulo={rotulo}
       valor={texto}
       minimo={0}
       maximo={30}
       aoMudar={(novo) => setTexto(novo)}
       aoConfirmar={aoConfirmar}
-      reservarErro={reservarErro}
     />
   );
 }
@@ -32,21 +31,28 @@ describe('CampoNumero', () => {
     render(<CampoControlado />);
     const campo = screen.getByLabelText('n');
     expect(campo).toHaveAttribute('inputmode', 'numeric');
-    expect(screen.getByText(/Aceita de 0 a 30/)).toBeInTheDocument();
-    expect(campo).toHaveAccessibleDescription(/Aceita de 0 a 30/);
+    expect(screen.getByText('De 0 a 30')).toBeInTheDocument();
+    expect(campo).toHaveAccessibleDescription(/De 0 a 30/);
   });
 
-  it('por padrão reserva a altura da mensagem de erro', () => {
-    const { container } = render(<CampoControlado />);
-    expect(container.querySelector('p[aria-live="polite"]')).toHaveClass('min-h-5');
-  });
-
-  it('sem reserva de erro não ocupa altura, mas ainda anuncia o erro', async () => {
+  it('põe o erro no lugar da faixa aceita, sem tirar a faixa do leitor de tela', async () => {
     const usuario = userEvent.setup();
-    render(<CampoControlado inicial="" reservarErro={false} />);
+    render(<CampoControlado inicial="" />);
+    const faixa = screen.getByText('De 0 a 30');
+    expect(faixa).not.toHaveClass('sr-only');
     await usuario.type(screen.getByLabelText('n'), '31');
-    const mensagem = screen.getByText(/30/, { selector: '[aria-live="polite"]' });
-    expect(mensagem).not.toHaveClass('min-h-5');
+    const mensagem = screen.getByText('O maior valor aceito é 30.');
+    expect(mensagem).toHaveAttribute('aria-live', 'polite');
+    expect(faixa).toHaveClass('sr-only');
+    expect(screen.getByLabelText('n')).toHaveAccessibleDescription(/De 0 a 30/);
+  });
+
+  it('nomeia o campo na mensagem de valor vazio', async () => {
+    const usuario = userEvent.setup();
+    render(<CampoControlado rotulo="Repetições" />);
+    await usuario.clear(screen.getByLabelText('Repetições'));
+    await usuario.tab();
+    expect(screen.getByText('Informe um valor para repetições.')).toBeInTheDocument();
   });
 
   it('valida em tempo real acima do máximo', async () => {

@@ -20,7 +20,7 @@ import { Aviso } from '../arvore/ui/Aviso';
 import { Contadores } from '../arvore/ui/Contadores';
 import { ControlesArvore } from '../arvore/ui/ControlesArvore';
 import { useArvoreComPlanoB } from '../arvore/usarArvore';
-import { Botao } from '../componentes';
+import { Botao, PaginaComPainel } from '../componentes';
 import { formatarInteiro, primeirosNos, rotuloModo } from '../utilitarios/formatar';
 
 export function PaginaArvore() {
@@ -44,97 +44,90 @@ export function PaginaArvore() {
   const dados = arvore.data;
 
   return (
-    <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start lg:gap-x-5">
-      <section
-        aria-labelledby="titulo-pagina"
-        className="space-y-2 lg:border-r lg:border-borda lg:pr-5"
-      >
-        <h1 id="titulo-pagina" className="text-xl font-semibold">
-          Árvore de chamadas
-        </h1>
-        <p className="text-sm text-texto-suave">
-          Cada caixa é uma invocação: a cor é o argumento e a forma, o que a chamada fez.
-        </p>
-        <ControlesArvore
-          key={parametros.toString()}
-          inicial={consulta}
-          limitesPorSequencia={limitesPorSequencia}
-          limiteNosMaximo={limiteNosMaximo}
-          aoAplicar={(nova) => setParametros(escreverConsulta(nova))}
-        />
+    <PaginaComPainel
+      titulo="Árvore de chamadas"
+      descricao="Cada caixa é uma invocação."
+      painel={
+        <>
+          <ControlesArvore
+            key={parametros.toString()}
+            inicial={consulta}
+            limitesPorSequencia={limitesPorSequencia}
+            limiteNosMaximo={limiteNosMaximo}
+            aoAplicar={(nova) => setParametros(escreverConsulta(nova))}
+          />
 
-        {/* Os números do que está desenhado ficam aqui, visíveis no desenho e na lista,
+          {/* Os números do que está desenhado ficam aqui, visíveis no desenho e na lista,
             e o desenho fica com a coluna da direita inteira. */}
-        {dados && (
-          <section aria-labelledby="titulo-execucao" className="border-t border-borda pt-3">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <h2 id="titulo-execucao" className="font-semibold">
-                {DESCRICAO_SEQUENCIAS[dados.resposta.sequencia].nome} f({dados.resposta.n}){' '}
-                {rotuloModo(dados.resposta.modo)}
-              </h2>
-              {dados.origem === 'plano_b' && (
-                <span className="inline-flex items-center rounded-full border border-alerta bg-alerta-suave px-2 py-0.5 text-sm">
-                  modo offline: calculado no navegador
-                </span>
-              )}
-            </div>
-            <Contadores
-              metricas={dados.resposta.metricas}
-              nosExibidos={dados.resposta.nos_exibidos}
-              className="mt-1"
-            />
-          </section>
-        )}
-      </section>
+          {dados && (
+            <section aria-labelledby="titulo-execucao" className="border-t border-borda pt-3">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <h2 id="titulo-execucao" className="font-semibold">
+                  {DESCRICAO_SEQUENCIAS[dados.resposta.sequencia].nome} f({dados.resposta.n}){' '}
+                  {rotuloModo(dados.resposta.modo)}
+                </h2>
+                {dados.origem === 'plano_b' && (
+                  <span className="inline-flex items-center rounded-full border border-alerta bg-alerta-suave px-2 py-0.5 text-sm">
+                    modo offline: calculado no navegador
+                  </span>
+                )}
+              </div>
+              <Contadores
+                metricas={dados.resposta.metricas}
+                nosExibidos={dados.resposta.nos_exibidos}
+                className="mt-1"
+              />
+            </section>
+          )}
+        </>
+      }
+    >
+      {!valida && (
+        <Aviso tom="alerta" titulo="Ajuste os parâmetros para desenhar a árvore">
+          {erros.n ?? erros.limite_nos}
+        </Aviso>
+      )}
 
-      <div className="flex min-w-0 flex-col gap-3">
-        {!valida && (
-          <Aviso tom="alerta" titulo="Ajuste os parâmetros para desenhar a árvore">
-            {erros.n ?? erros.limite_nos}
-          </Aviso>
-        )}
+      {valida && arvore.isPending && (
+        <div
+          role="status"
+          className={`flex items-center justify-center rounded-lg border border-borda bg-superficie text-texto-suave ${ALTURA_DESENHO_CAIXA}`}
+        >
+          <span className="animate-pulse">
+            Calculando {DESCRICAO_SEQUENCIAS[consulta.sequencia].nome} f({consulta.n}){' '}
+            {rotuloModo(consulta.modo)}…
+          </span>
+        </div>
+      )}
 
-        {valida && arvore.isPending && (
-          <div
-            role="status"
-            className={`flex items-center justify-center rounded-lg border border-borda bg-superficie text-texto-suave ${ALTURA_DESENHO_CAIXA}`}
-          >
-            <span className="animate-pulse">
-              Calculando {DESCRICAO_SEQUENCIAS[consulta.sequencia].nome} f({consulta.n}){' '}
-              {rotuloModo(consulta.modo)}…
-            </span>
-          </div>
-        )}
+      {valida && arvore.isError && (
+        <Aviso
+          tom="erro"
+          titulo="Não deu para montar a árvore"
+          acao={
+            <Botao variante="neutra" tamanho="pequeno" onClick={() => void arvore.refetch()}>
+              Tentar de novo
+            </Botao>
+          }
+        >
+          {arvore.error.message}
+        </Aviso>
+      )}
 
-        {valida && arvore.isError && (
-          <Aviso
-            tom="erro"
-            titulo="Não deu para montar a árvore"
-            acao={
-              <Botao variante="neutra" tamanho="pequeno" onClick={() => void arvore.refetch()}>
-                Tentar de novo
-              </Botao>
-            }
-          >
-            {arvore.error.message}
-          </Aviso>
-        )}
+      {dados && (
+        <>
+          {dados.resposta.truncada && (
+            <Aviso tom="alerta" titulo="A árvore foi cortada no limite de nós">
+              {`O desenho traz ${primeirosNos(dados.resposta.nos_exibidos)} de ${formatarInteiro(dados.resposta.metricas.invocacoes)} invocações. Os nós com o selo "ocultos" escondem o resto da subárvore; os contadores continuam sendo os da execução inteira.`}
+            </Aviso>
+          )}
 
-        {dados && (
-          <>
-            {dados.resposta.truncada && (
-              <Aviso tom="alerta" titulo="A árvore foi cortada no limite de nós">
-                {`O desenho traz ${primeirosNos(dados.resposta.nos_exibidos)} de ${formatarInteiro(dados.resposta.metricas.invocacoes)} invocações. Os nós com o selo "ocultos" escondem o resto da subárvore; os contadores continuam sendo os da execução inteira.`}
-              </Aviso>
-            )}
-
-            <VisaoArvore
-              key={`${dados.resposta.sequencia}-${dados.resposta.n}-${dados.resposta.modo}-${dados.resposta.limite_nos}`}
-              resposta={dados.resposta}
-            />
-          </>
-        )}
-      </div>
-    </div>
+          <VisaoArvore
+            key={`${dados.resposta.sequencia}-${dados.resposta.n}-${dados.resposta.modo}-${dados.resposta.limite_nos}`}
+            resposta={dados.resposta}
+          />
+        </>
+      )}
+    </PaginaComPainel>
   );
 }

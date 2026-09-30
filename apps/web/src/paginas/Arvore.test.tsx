@@ -41,8 +41,10 @@ describe('página Árvore', () => {
       'Tribonacci f(7) sem cache',
     );
     expect(nos()).toHaveLength(46);
-    expect(screen.getByLabelText('Valor de n')).toHaveValue(7);
-    expect(screen.getByLabelText('Limite de nós')).toHaveValue(300);
+    expect(screen.getByLabelText('n')).toHaveValue('7');
+    expect(screen.getByLabelText('Limite de nós')).toHaveValue('300');
+    expect(screen.getByRole('radio', { name: 'Tribonacci' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Sem cache' })).toBeChecked();
   });
 
   it('lê sequência, n, modo e limite de nós da URL', async () => {
@@ -59,7 +61,7 @@ describe('página Árvore', () => {
     abrir();
     await screen.findByRole('heading', { level: 2 });
 
-    const campoN = screen.getByLabelText('Valor de n');
+    const campoN = screen.getByLabelText('n');
     await usuario.clear(campoN);
     await usuario.type(campoN, '5');
     await usuario.click(screen.getByRole('button', { name: 'Ver árvore' }));

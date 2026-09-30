@@ -31,6 +31,7 @@ import {
   Icone,
   Metrica,
   NumeroGrande,
+  PaginaComPainel,
   RotuloModo,
   SeletorSegmentado,
   SeletorSequencia,
@@ -477,67 +478,61 @@ export function PaginaCalcular() {
       : '';
 
   return (
-    <div className="space-y-4 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start lg:gap-x-6 lg:space-y-0">
-      <section
-        aria-labelledby="titulo-pagina"
-        className="space-y-2 lg:border-r lg:border-borda lg:pr-6"
-      >
-        <h1 id="titulo-pagina" className="text-xl font-semibold">
-          Calcular
-        </h1>
-
-        <form
-          aria-label="O que calcular"
-          onSubmit={(evento) => void enviar(evento)}
-          className="space-y-2"
-        >
-          <SeletorSequencia
-            valor={sequencia}
-            aoMudar={(escolhida) => definir({ sequencia: escolhida })}
-          />
-          <SeletorSegmentado
-            rotulo="Modo"
-            valor={modo}
-            aoMudar={(valor) => definir({ modo: valor })}
-            opcoes={OPCOES_MODO}
-            vertical
-          />
-          <CampoNumero
-            rotulo="n"
-            valor={rascunho}
-            aoMudar={aoMudarN}
-            minimo={0}
-            maximo={limite}
-            reservarErro={false}
-          />
-          <div className="flex flex-wrap gap-2">
-            <Botao
-              type="submit"
-              tamanho="grande"
-              className="flex-1"
-              icone="calcular"
-              carregando={carregando || verificando}
-              rotuloCarregando={carregando ? 'Calculando' : 'Conferindo o tamanho'}
-              disabled={!podeCalcular}
-            >
-              Calcular
-            </Botao>
-            {carregando ? (
+    <>
+      <PaginaComPainel
+        titulo="Calcular"
+        descricao="O valor e as chamadas de f(n)."
+        painel={
+          <form
+            aria-label="O que calcular"
+            onSubmit={(evento) => void enviar(evento)}
+            className="flex flex-col gap-3"
+          >
+            <SeletorSequencia
+              valor={sequencia}
+              aoMudar={(escolhida) => definir({ sequencia: escolhida })}
+            />
+            <SeletorSegmentado
+              rotulo="Modo"
+              valor={modo}
+              aoMudar={(valor) => definir({ modo: valor })}
+              opcoes={OPCOES_MODO}
+              colunas={2}
+            />
+            <CampoNumero
+              rotulo="n"
+              valor={rascunho}
+              aoMudar={aoMudarN}
+              minimo={0}
+              maximo={limite}
+            />
+            <div className="flex gap-2">
               <Botao
-                variante="neutra"
+                type="submit"
                 tamanho="grande"
                 className="flex-1"
-                icone="cancelar"
-                onClick={() => void cancelar()}
+                icone="calcular"
+                carregando={carregando || verificando}
+                rotuloCarregando={carregando ? 'Calculando' : 'Conferindo o tamanho'}
+                disabled={!podeCalcular}
               >
-                Cancelar
+                Calcular
               </Botao>
-            ) : null}
-          </div>
-        </form>
-      </section>
-
-      <div className="min-w-0 space-y-3">
+              {carregando ? (
+                <Botao
+                  variante="neutra"
+                  tamanho="grande"
+                  className="flex-1"
+                  icone="cancelar"
+                  onClick={() => void cancelar()}
+                >
+                  Cancelar
+                </Botao>
+              ) : null}
+            </div>
+          </form>
+        }
+      >
         <p role="status" aria-live="polite" className="sr-only">
           {resumoAcessivel}
         </p>
@@ -709,7 +704,7 @@ export function PaginaCalcular() {
                 )}
                 <p className="mt-3 border-t border-borda pt-2 text-sm text-texto-suave">
                   O tempo é uma medida única, com os contadores ligados: dá ordem de grandeza, não é
-                  benchmark. Para isso existe a tela Comparar.
+                  benchmark.
                 </p>
               </Cartao>
 
@@ -720,7 +715,7 @@ export function PaginaCalcular() {
             </div>
           ) : null}
         </section>
-      </div>
+      </PaginaComPainel>
 
       <DialogoConfirmacao
         aberto={confirmando}
@@ -740,6 +735,6 @@ export function PaginaCalcular() {
           mesmo valor bem mais rápido.
         </p>
       </DialogoConfirmacao>
-    </div>
+    </>
   );
 }
