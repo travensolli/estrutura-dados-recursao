@@ -4,7 +4,13 @@ O [`README.md`](../README.md) da raiz é o **artigo** do trabalho: enunciado, fu
 resultados, discussão, a explicação de Tribonacci f(7) e as instruções de execução. Ele é a fonte a
 partir da qual a apresentação é montada.
 
-Aqui ficam o material da aula, a rodada de medições registrada e as decisões de projeto.
+Aqui ficam **apenas** o material da apresentação, a rodada de medições registrada e as decisões de
+projeto — nada é sobra de outro trabalho: o `relatorio.html` e as figuras são gerados ou exportados
+por este repositório (a coluna **Origem** diz por quem). A documentação de cada app e pacote fica
+junto do código, no README de cada um:
+[`packages/contrato`](../packages/contrato/README.md),
+[`packages/nucleo`](../packages/nucleo/README.md), [`apps/api`](../apps/api/README.md),
+[`apps/web`](../apps/web/README.md) e [`apps/cli`](../apps/cli/README.md).
 
 ## Índice
 
