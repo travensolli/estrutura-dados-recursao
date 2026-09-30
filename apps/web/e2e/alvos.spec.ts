@@ -11,7 +11,7 @@ const ROTAS: ReadonlyArray<string> = [
   '/calcular',
   '/comparar',
   '/arvore',
-  '/apresentacao?etapa=3',
+  '/apresentacao?slide=3',
 ];
 
 const SELETOR = [

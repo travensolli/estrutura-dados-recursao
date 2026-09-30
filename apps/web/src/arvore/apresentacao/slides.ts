@@ -4,17 +4,17 @@ export const N_APRESENTACAO = 7;
 /** Orçamento folgado: a árvore inteira precisa caber na resposta. */
 export const LIMITE_NOS_APRESENTACAO = 2000;
 
-export interface Etapa {
+export interface Slide {
   id: string;
   /** Rótulo curto na trilha de progresso. */
   nome: string;
   titulo: string;
   resumo: string;
-  /** A etapa usa as setas na própria reprodução: a trilha anda com PageUp e PageDown. */
+  /** O slide usa as setas na própria reprodução: a trilha anda com PageUp e PageDown. */
   setasOcupadas?: boolean;
 }
 
-export const ETAPAS: readonly Etapa[] = [
+export const SLIDES: readonly Slide[] = [
   {
     id: 'funcao',
     nome: 'A função',
@@ -48,35 +48,35 @@ export const ETAPAS: readonly Etapa[] = [
     resumo: 'Duas provas independentes para o mesmo número.',
   },
   {
-    id: 'geral',
-    nome: 'Generalizando',
-    titulo: 'Exponencial contra linear',
+    id: 'conclusao',
+    nome: 'Conclusão',
+    titulo: 'Conclusão',
     resumo: 'O cache troca tempo por memória, e nem toda sequência ganha com isso.',
   },
 ];
 
-export const TOTAL_ETAPAS = ETAPAS.length;
-export const PARAMETRO_ETAPA = 'etapa';
+export const TOTAL_SLIDES = SLIDES.length;
+export const PARAMETRO_SLIDE = 'slide';
 
 function limitar(indice: number): number {
   if (!Number.isFinite(indice)) return 0;
-  return Math.min(TOTAL_ETAPAS - 1, Math.max(0, Math.trunc(indice)));
+  return Math.min(TOTAL_SLIDES - 1, Math.max(0, Math.trunc(indice)));
 }
 
-/** A etapa vai na URL em base 1, como o público lê no rodapé. */
-export function lerEtapa(parametros: URLSearchParams): number {
-  const bruto = parametros.get(PARAMETRO_ETAPA);
+/** O slide vai na URL em base 1, como o público lê no rodapé. */
+export function lerSlide(parametros: URLSearchParams): number {
+  const bruto = parametros.get(PARAMETRO_SLIDE);
   if (bruto === null) return 0;
   const porNumero = Number(bruto);
   if (Number.isInteger(porNumero)) return limitar(porNumero - 1);
-  const porId = ETAPAS.findIndex((etapa) => etapa.id === bruto);
+  const porId = SLIDES.findIndex((slide) => slide.id === bruto);
   return porId >= 0 ? porId : 0;
 }
 
-export function escreverEtapa(indice: number): Record<string, string> {
-  return { [PARAMETRO_ETAPA]: String(limitar(indice) + 1) };
+export function escreverSlide(indice: number): Record<string, string> {
+  return { [PARAMETRO_SLIDE]: String(limitar(indice) + 1) };
 }
 
-export function etapaPorIndice(indice: number): Etapa {
-  return ETAPAS[limitar(indice)] as Etapa;
+export function slidePorIndice(indice: number): Slide {
+  return SLIDES[limitar(indice)] as Slide;
 }
