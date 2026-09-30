@@ -29,17 +29,34 @@ describe('Página inicial', () => {
     expect(within(tribonacci).getByText('linear, 3n − 5 invocações (n ≥ 2)')).toBeInTheDocument();
   });
 
-  it('explica por que o cache importa, sem esquecer os casos base', async () => {
+  it('define recursão e mostra o pseudocódigo sem e com cache', async () => {
     await renderizar();
-    const [semCache, comCache] = screen.getAllByRole('listitem').slice(0, 2);
-    expect(semCache).toHaveTextContent(
-      /Sem cache, cada chamada que não é caso base abre uma chamada por termo anterior/,
+    expect(
+      screen.getByText(/são aqueles em que uma determinada instância do problema contém/),
+    ).toHaveTextContent(
+      'Problemas recursivos são aqueles em que uma determinada instância do problema contém uma instância “menor” do mesmo problema.',
     );
-    expect(semCache).toHaveTextContent(/o custo é exponencial/);
-    expect(comCache).toHaveTextContent(
-      /Com cache \(memoização\), cada f\(k\) acima dos casos base/,
+
+    const semCache = screen.getByRole('region', { name: 'Sem cache' });
+    expect(semCache).toHaveTextContent(/A instância pequena, o caso base, sai direto/);
+    expect(semCache).toHaveTextContent(/chamam a função para os k termos anteriores e combinam/);
+    expect(semCache).toHaveTextContent(/o custo se torna exponencial/);
+    expect(within(semCache).getByText('Função')).toBeInTheDocument();
+    expect(semCache.querySelectorAll('mark')).toHaveLength(0);
+
+    const comCache = screen.getByRole('region', { name: 'Com cache (memoização)' });
+    expect(comCache).toHaveTextContent(/se f\(n\) já foi calculado, devolve o valor guardado/);
+    expect(comCache).toHaveTextContent(/o custo passa a ser linear/);
+    expect(comCache).toHaveTextContent(/No Fatorial, como nada se repete \(k ≤ 1\), não há ganho/);
+    const marcadas = [...comCache.querySelectorAll('mark')].map((linha) =>
+      linha.textContent?.trim(),
     );
-    expect(comCache).toHaveTextContent(/o custo vira linear/);
+    expect(marcadas).toEqual([
+      'Senão se cache[n] ≠ vazio Então',
+      'retorne cache[n]',
+      'cache[n] ← combinação',
+      'retorne cache[n]',
+    ]);
   });
 
   it('mostra o tipo de recursão e a ordem de cada recorrência', async () => {
@@ -139,7 +156,11 @@ describe('Página inicial', () => {
     await usuario.click(resumo);
     const tabela = screen.getByRole('table', { name: /com n = 7$/ });
     const linha = (grandeza: string) =>
-      within(within(tabela).getByRole('rowheader', { name: grandeza }).closest('tr')!);
+      within(
+        within(tabela)
+          .getByRole('rowheader', { name: new RegExp(`^${grandeza}`) })
+          .closest('tr')!,
+      );
 
     expect(linha('Tipo de recursão').getByText(/^tripla \(k = 3\)/)).toBeInTheDocument();
     expect(linha('Invocações sem cache').getByText(/^\(3 · 31 − 1\) \/ 2 =/)).toBeInTheDocument();
@@ -148,6 +169,37 @@ describe('Página inicial', () => {
     ).toBeInTheDocument();
     expect(linha('Chamadas evitadas').getByText(/^46 − 16 =/)).toBeInTheDocument();
     expect(linha('Chamadas evitadas').getByText(/^7 − 7 =/)).toBeInTheDocument();
+  });
+
+  it('explica os termos das fórmulas e o que cada linha mede, para quem não conhece a notação', async () => {
+    const usuario = userEvent.setup();
+    await renderizar();
+    await usuario.click(screen.getByText('Fórmulas gerais: invocações, pilha e complexidade'));
+
+    const termos = Object.fromEntries(
+      screen
+        .getAllByRole('term')
+        .map((termo) => [termo.textContent, termo.nextElementSibling?.textContent]),
+    );
+    expect(Object.keys(termos)).toEqual([
+      'n',
+      'f(n)',
+      'k',
+      'b',
+      'invocação',
+      'Isem, Icom',
+      'pilha',
+      'Θ(…)',
+    ]);
+    expect(termos.k).toMatch(/^a ordem: quantas chamadas recursivas/);
+    expect(termos['Θ(…)']).toMatch(/φ ≈ 1,618 .* τ ≈ 1,839/);
+
+    const tabela = screen.getByRole('table', { name: /com n = 7$/ });
+    expect(
+      within(tabela).getByRole('rowheader', {
+        name: 'Profundidade da pilha o máximo de chamadas abertas ao mesmo tempo',
+      }),
+    ).toBeInTheDocument();
   });
 
   it('refaz as contas quando o n do exemplo muda', async () => {
@@ -160,29 +212,11 @@ describe('Página inicial', () => {
 
     const tabela = screen.getByRole('table', { name: /com n = 10$/ });
     const evitadas = within(
-      within(tabela).getByRole('rowheader', { name: 'Chamadas evitadas' }).closest('tr')!,
+      within(tabela)
+        .getByRole('rowheader', { name: /^Chamadas evitadas/ })
+        .closest('tr')!,
     );
     expect(evitadas.getByText(/^289 − 25 =/)).toBeInTheDocument();
-  });
-
-  it('mapeia os quatro itens do enunciado nas telas', async () => {
-    await renderizar();
-    expect(screen.getByRole('link', { name: '1 · Calcular com e sem cache' })).toHaveAttribute(
-      'href',
-      '/calcular?sequencia=tribonacci&n=7&modo=comparar',
-    );
-    expect(screen.getByRole('link', { name: '2 · Comparar tempo e memória' })).toHaveAttribute(
-      'href',
-      '/comparar?sequencia=tribonacci',
-    );
-    expect(screen.getByRole('link', { name: '3 · Árvore de chamadas' })).toHaveAttribute(
-      'href',
-      '/arvore?sequencia=tribonacci&n=7&modo=sem_cache',
-    );
-    expect(screen.getByRole('link', { name: '4 · Apresentação do f(7)' })).toHaveAttribute(
-      'href',
-      '/apresentacao',
-    );
   });
 
   it('mostra erro com ação de tentar de novo quando a API falha', async () => {

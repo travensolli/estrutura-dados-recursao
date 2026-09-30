@@ -235,6 +235,18 @@ describe('Página calcular', () => {
     expect(screen.getByText('Nenhum cálculo ainda')).toBeInTheDocument();
   });
 
+  it('cancela o cálculo em andamento e ignora a resposta que chegar depois', async () => {
+    const usuario = await abrir();
+    await usuario.click(botaoCalcular());
+    await usuario.click(await screen.findByRole('button', { name: 'Cancelar' }));
+
+    expect(await screen.findByText('Cálculo cancelado')).toBeInTheDocument();
+    // O mock responde em 150 ms: passado esse tempo, a resposta não pode aparecer.
+    await new Promise((resolver) => setTimeout(resolver, 300));
+    expect(screen.queryByText('Tribonacci f(7) vale')).not.toBeInTheDocument();
+    expect(screen.getByText('Nenhum cálculo ainda')).toBeInTheDocument();
+  });
+
   it('bloqueia n acima do limite e oferece o maior n aceito', async () => {
     const usuario = await abrir('/calcular?sequencia=tribonacci&n=40&modo=sem_cache');
 

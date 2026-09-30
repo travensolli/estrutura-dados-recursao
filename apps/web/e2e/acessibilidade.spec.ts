@@ -7,7 +7,7 @@ const ROTAS = [
   ['calcular', '/calcular?sequencia=tribonacci&n=7&modo=sem_cache'],
   ['comparar', '/comparar?sequencia=tribonacci&n=12&repeticoes=2'],
   ['árvore', '/arvore?sequencia=tribonacci&n=7&modo=sem_cache'],
-  ['apresentação', '/apresentacao?etapa=5'],
+  ['apresentação', '/apresentacao?slide=5'],
 ] as const;
 
 test.describe('acessibilidade', () => {

@@ -9,7 +9,7 @@ import { useSequencias } from '../../api/consultas';
 import type { ConsultaArvore } from '../consulta';
 import { useArvoreComPlanoB } from '../usarArvore';
 import { montarArvoreComEvitadas, parcelasEvitadas, type ArvoreComEvitadas } from './evitadas';
-import { LIMITE_NOS_APRESENTACAO, N_APRESENTACAO, SEQUENCIA_APRESENTACAO } from './etapas';
+import { LIMITE_NOS_APRESENTACAO, N_APRESENTACAO, SEQUENCIA_APRESENTACAO } from './slides';
 
 export const CONSULTA_SEM_CACHE: ConsultaArvore = {
   sequencia: SEQUENCIA_APRESENTACAO,

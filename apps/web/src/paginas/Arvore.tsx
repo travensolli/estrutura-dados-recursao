@@ -4,11 +4,11 @@ import {
   type LimitesN,
   type Sequencia,
 } from '@sequencias/contrato';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useSequencias } from '../api/consultas';
 import { ALTURA_DESENHO_CAIXA } from '../arvore/layout';
-import { VisaoArvore } from '../arvore/VisaoArvore';
+import { VisaoArvore, type Visao } from '../arvore/VisaoArvore';
 import {
   LIMITE_NOS_TELA_MAXIMO,
   consultaValida,
@@ -21,12 +21,24 @@ import { Contadores } from '../arvore/ui/Contadores';
 import { ControlesArvore } from '../arvore/ui/ControlesArvore';
 import { useArvoreComPlanoB } from '../arvore/usarArvore';
 import { Botao, PaginaComPainel } from '../componentes';
+import { useEstadoLembrado } from '../hooks/memoria';
 import { formatarInteiro, primeirosNos, rotuloModo } from '../utilitarios/formatar';
+
+/** Desenho ou lista, valendo só para a árvore em que foi escolhido. */
+interface VisaoLembrada {
+  arvore: string;
+  visao: Visao;
+}
 
 export function PaginaArvore() {
   const [parametros, setParametros] = useSearchParams();
   const catalogo = useSequencias();
   const consulta = lerConsulta(parametros);
+  const chaveConsulta = parametros.toString();
+  /* O endereço em que os controles foram mexidos sem pedir a árvore: pedir outra
+     árvore, ou chegar por outro link, muda o endereço e apaga o aviso. */
+  const [alteradosEm, setAlteradosEm] = useState<string | null>(null);
+  const controlesMudaram = alteradosEm === chaveConsulta;
 
   const limitesPorSequencia = useMemo(() => {
     const mapa: Record<Sequencia, LimitesN> = { ...LIMITES_N.node };
@@ -42,6 +54,13 @@ export function PaginaArvore() {
   const valida = consultaValida(erros);
   const arvore = useArvoreComPlanoB(valida ? consulta : null);
   const dados = arvore.data;
+  const chaveArvore = dados
+    ? `${dados.resposta.sequencia}-${dados.resposta.n}-${dados.resposta.modo}-${dados.resposta.limite_nos}`
+    : '';
+  const [visaoLembrada, lembrarVisao] = useEstadoLembrado<VisaoLembrada | null>(
+    'arvore.visao',
+    null,
+  );
 
   return (
     <PaginaComPainel
@@ -50,11 +69,12 @@ export function PaginaArvore() {
       painel={
         <>
           <ControlesArvore
-            key={parametros.toString()}
+            key={chaveConsulta}
             inicial={consulta}
             limitesPorSequencia={limitesPorSequencia}
             limiteNosMaximo={limiteNosMaximo}
             aoAplicar={(nova) => setParametros(escreverConsulta(nova))}
+            aoAlterar={(alterados) => setAlteradosEm(alterados ? chaveConsulta : null)}
           />
 
           {/* Os números do que está desenhado ficam aqui, visíveis no desenho e na lista,
@@ -123,8 +143,17 @@ export function PaginaArvore() {
           )}
 
           <VisaoArvore
-            key={`${dados.resposta.sequencia}-${dados.resposta.n}-${dados.resposta.modo}-${dados.resposta.limite_nos}`}
+            key={chaveArvore}
             resposta={dados.resposta}
+            visaoInicial={visaoLembrada?.arvore === chaveArvore ? visaoLembrada.visao : null}
+            aoEscolherVisao={(visao) => lembrarVisao({ arvore: chaveArvore, visao })}
+            aviso={
+              controlesMudaram ? (
+                <p className="text-sm text-texto-suave">
+                  O formulário mudou depois desta árvore. Clique em Ver árvore para atualizar.
+                </p>
+              ) : null
+            }
           />
         </>
       )}

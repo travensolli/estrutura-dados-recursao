@@ -4,7 +4,7 @@ import { executarMock } from '../../mocks/referencia-mock';
 import { contarNos } from '../modelo';
 import { compararPorArgumento, resumirComparacao } from './dados';
 import { montarArvoreComEvitadas } from './evitadas';
-import { LIMITE_NOS_APRESENTACAO, N_APRESENTACAO, SEQUENCIA_APRESENTACAO } from './etapas';
+import { LIMITE_NOS_APRESENTACAO, N_APRESENTACAO, SEQUENCIA_APRESENTACAO } from './slides';
 
 function resposta(modo: Modo): ArvoreResposta {
   const { metricas, raiz } = executarMock(SEQUENCIA_APRESENTACAO, N_APRESENTACAO, modo);

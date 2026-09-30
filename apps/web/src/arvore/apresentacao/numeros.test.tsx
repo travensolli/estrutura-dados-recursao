@@ -4,10 +4,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { executarMock } from '../../mocks/referencia-mock';
 import { contarNos } from '../modelo';
 import { resumirComparacao, type DadosApresentacao } from './dados';
-import { EtapaConta } from './EtapaConta';
-import { EtapaGeral } from './EtapaGeral';
-import { EtapaSemCache } from './EtapaSemCache';
-import { LIMITE_NOS_APRESENTACAO, N_APRESENTACAO, SEQUENCIA_APRESENTACAO } from './etapas';
+import { SlideConta } from './SlideConta';
+import { SlideConclusao } from './SlideConclusao';
+import { SlideSemCache } from './SlideSemCache';
+import { LIMITE_NOS_APRESENTACAO, N_APRESENTACAO, SEQUENCIA_APRESENTACAO } from './slides';
 import { montarArvoreComEvitadas } from './evitadas';
 
 /** Os três números de referência de f(7): 46 invocações, 16 e 30 evitadas. */
@@ -58,7 +58,7 @@ afterEach(() => {
 describe('números da apresentação', () => {
   it('chega nos valores de referência com a resposta de f(7)', () => {
     semMovimento();
-    const { container } = render(<EtapaConta dados={dadosDe(N_APRESENTACAO)} />);
+    const { container } = render(<SlideConta dados={dadosDe(N_APRESENTACAO)} />);
 
     expect(screen.getByText('de 46 sem cache para 16 com cache')).toBeInTheDocument();
     expect(screen.getByTestId('evitadas')).toHaveTextContent('− 30 chamadas evitadas');
@@ -66,23 +66,36 @@ describe('números da apresentação', () => {
     expect(screen.getByTestId('prova-podas')).toHaveTextContent('12 + 6 + 6 + 3 + 3 = 30');
     expect(screen.getByTestId('prova-recursivas')).toHaveTextContent('45 − 15 = 30');
     expect(container.textContent).toMatch(REFERENCIA);
+
+    // Um quadrado por chamada: todos são as sem cache, os tracejados as evitadas.
+    const quadros = screen.getAllByTestId('quadro-chamada');
+    expect(quadros).toHaveLength(46);
+    expect(quadros.filter((quadro) => quadro.dataset.evitada === 'sim')).toHaveLength(30);
+    const linhaDe2 = screen
+      .getAllByTestId('linha-chamadas')
+      .find((linha) => linha.dataset.argumento === '2') as HTMLElement;
+    expect(within(linhaDe2).getAllByTestId('quadro-chamada')).toHaveLength(13);
+    expect(linhaDe2).toHaveTextContent('f(2)133−10');
+    expect(screen.getByTestId('total-chamadas')).toHaveTextContent('total4616−30');
   });
 
   it('acompanha outra execução, sem repetir nenhum número de f(7)', () => {
     semMovimento();
-    const { container } = render(<EtapaConta dados={dadosDe(N_APRESENTACAO - 1)} />);
+    const { container } = render(<SlideConta dados={dadosDe(N_APRESENTACAO - 1)} />);
 
     expect(screen.getByText('de 25 sem cache para 13 com cache')).toBeInTheDocument();
     expect(screen.getByTestId('evitadas')).toHaveTextContent('− 12 chamadas evitadas');
     expect(screen.getByTestId('contador')).toHaveTextContent('13');
     expect(screen.getByTestId('prova-podas')).toHaveTextContent('6 + 3 + 3 = 12');
     expect(screen.getByTestId('prova-recursivas')).toHaveTextContent('24 − 12 = 12');
+    expect(screen.getAllByTestId('quadro-chamada')).toHaveLength(25);
+    expect(screen.getByTestId('total-chamadas')).toHaveTextContent('total2513−12');
     expect(container.textContent).not.toMatch(REFERENCIA);
   });
 
   it('tira o placar sem cache das métricas da resposta', () => {
     semMovimento();
-    render(<EtapaSemCache dados={dadosDe(N_APRESENTACAO - 1)} />);
+    render(<SlideSemCache dados={dadosDe(N_APRESENTACAO - 1)} />);
 
     const placar = screen.getByLabelText('Números da execução sem cache');
     expect(within(placar).getByText('invocações').nextElementSibling).toHaveTextContent('25');
@@ -93,11 +106,14 @@ describe('números da apresentação', () => {
 
   it('generaliza com os totais da própria resposta', () => {
     semMovimento();
-    const { container } = render(<EtapaGeral dados={dadosDe(N_APRESENTACAO - 1)} />);
+    const { container } = render(<SlideConclusao dados={dadosDe(N_APRESENTACAO - 1)} />);
 
     expect(screen.getByLabelText('Sem cache')).toHaveTextContent('25');
     expect(screen.getByLabelText('Com cache')).toHaveTextContent('13');
     expect(screen.getAllByText('invocações para n = 6')).toHaveLength(2);
+    expect(screen.getByTestId('pergunta-cache')).toHaveTextContent(
+      'a função é chamada mais de uma vez com o mesmo argumento? No Tribonacci, sim: f(2) é chamado 7 vezes, e o cache evita 12 das 25 chamadas.',
+    );
     expect(container.textContent).not.toMatch(REFERENCIA);
   });
 });

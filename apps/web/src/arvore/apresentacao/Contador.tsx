@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { formatarInteiro } from '../../utilitarios/formatar';
 import { MOVIMENTO_REDUZIDO, useMidia } from '../usarMidia';
+import { DURACAO_CONTAGEM_MS, suavizar } from './contagem';
 
 // Peça local da árvore: o Orquestrador harmoniza depois com o design system.
-
-export const DURACAO_CONTAGEM_MS = 1400;
 
 export interface ContadorProps {
   de: number;
@@ -13,10 +12,6 @@ export interface ContadorProps {
   rodada?: number;
   duracaoMs?: number;
   classe?: string;
-}
-
-function suavizar(t: number): number {
-  return 1 - (1 - t) ** 3;
 }
 
 /** Conta de um total ao outro; com movimento reduzido mostra o destino direto. */

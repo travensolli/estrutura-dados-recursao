@@ -133,6 +133,9 @@
     Arial, sans-serif;
   --font-mono:
     ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+  /* Fórmulas: Cambria Math no Windows, STIX no macOS, Latin Modern onde houver TeX. */
+  --font-matematica:
+    math, 'Cambria Math', 'STIX Two Math', 'Latin Modern Math', Cambria, 'Times New Roman', serif;
 
   --color-fundo: var(--fundo);
   --color-superficie: var(--superficie);

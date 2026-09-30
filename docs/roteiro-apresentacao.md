@@ -4,8 +4,8 @@ Trabalho PRJ.ED.1, Estrutura de Dados. As seções vão do fato medido à explic
 sem cache, ver a árvore sem cache, explicar o cache em f(7) e, por fim, medir tempo e memória. A
 tabela abaixo liga cada pedido do enunciado à seção que o responde. O palco é a
 **própria aplicação**, projetada do notebook (`pnpm dev` ou Docker Compose). As telas foram
-calibradas para caber numa janela de 1366×768 sem rolagem, também depois de executar e em todas as
-etapas da apresentação: em Calcular, Comparar e Árvore a configuração fica numa coluna à esquerda e
+calibradas para caber numa janela de 1366×768 sem rolagem, também depois de executar e em todos os
+slides da apresentação: em Calcular, Comparar e Árvore a configuração fica numa coluna à esquerda e
 o resultado inteiro à direita, e as tabelas de prova abrem sob demanda.
 
 O `docs/relatorio.html` continua no projeto como material de apoio e primeiro degrau do plano B: é
@@ -17,7 +17,7 @@ um arquivo só, estático, com todos os números. A base conceitual e as contas 
 Uma frase para guiar tudo: **a recursão ingênua refaz o mesmo trabalho muitas vezes; o cache troca
 um pouco de memória por uma redução enorme de chamadas, e dá para ver isso na árvore.**
 
-Se sobrar tempo para uma tela só, é a etapa 5 da apresentação: 46 chamadas viram 16.
+Se sobrar tempo para uma tela só, é o slide 5 da apresentação: 46 chamadas viram 16.
 
 ## O que o enunciado pede, e onde cada pedido é respondido
 
@@ -27,10 +27,6 @@ Se sobrar tempo para uma tela só, é a etapa 5 da apresentação: 46 chamadas v
 | Exibir a árvore de chamadas dos casos **sem cache** | 4                | `/arvore`       | seção 3            |
 | Explicar o cache no Tribonacci e **quantas** evita  | 5                | `/apresentacao` | seção 5            |
 | Comparar desempenho em **tempo e memória**          | 6                | `/comparar`     | seção 4            |
-
-A tela inicial mostra os quatro pedidos como uma faixa de atalhos ("O enunciado:", numerados de 1 a
-4 na ordem em que o enunciado os faz): aponte-a no começo, porque ela prova de cara que nada ficou de
-fora, e use-a para navegar.
 
 Nenhum dos quatro pode ser cortado: cada um vale nota. O que é cortável está marcado na tabela de
 tempos.
@@ -57,7 +53,7 @@ diferença com naturalidade.
 
 | Seção | Assunto                                       | Tela            | Tempo | Acumulado | Cortável? |
 | ----- | --------------------------------------------- | --------------- | ----- | --------- | --------- |
-| 1     | O enunciado, item a item                      | `/`             | 0:45  | 0:45      | não       |
+| 1     | O enunciado e a definição de recursão         | `/`             | 0:45  | 0:45      | não       |
 | 2     | As três sequências                            | `/`             | 1:00  | 1:45      | não       |
 | 3     | Calcular f(7): mesmo valor, contagens opostas | `/calcular`     | 1:30  | 3:15      | não       |
 | 4     | A árvore de chamadas sem cache                | `/arvore`       | 1:45  | 5:00      | não       |
@@ -70,18 +66,23 @@ ao vivo, nunca a seção 5.
 
 ## Seção a seção
 
-### 1. O enunciado, item a item (0:45) — tela `/`
+### 1. O enunciado e a definição de recursão (0:45) — tela `/`
 
-Na tela: o Início. Logo abaixo do título estão as duas linhas que motivam o trabalho, lado a lado,
-sem cache à esquerda e com cache à direita, e a faixa "O enunciado:".
+Na tela: o Início. Logo abaixo do título está a definição do material de apoio e, lado a lado,
+os dois blocos, sem cache à esquerda e com cache à direita, cada um com o texto curto e o
+pseudocódigo no molde do material.
 
 - Leia o enunciado em uma frase: calcular três sequências recursivas de dois jeitos, com e sem
-  cache, comparar tempo e memória e mostrar a árvore de chamadas.
-- Leia as duas linhas do topo, que são a tese da apresentação: **sem cache**, cada chamada que não
-  é caso base abre uma chamada por termo anterior, e com ordem 2 ou mais os subproblemas se repetem
-  em custo exponencial; **com cache**, cada f(k) acima dos casos base é calculado uma vez e, quando
-  se repete, só consulta o cache: o custo vira linear.
-- Aponte a faixa: **cada pedido do enunciado tem uma tela, e a apresentação passa por todas.**
+  cache, comparar tempo e memória e mostrar a árvore de chamadas. Cada pedido tem uma tela no menu
+  do topo, e a apresentação passa por todas.
+- Leia a definição: **problemas recursivos são aqueles em que uma instância do problema contém uma
+  instância "menor" do mesmo problema.** Calcular f(7) passa por calcular f(6).
+- Bloco **sem cache**: a instância pequena é o **caso base** e sai direto; as maiores chamam a
+  função para os k termos anteriores, a **ordem**, e combinam. Com ordem 2 ou mais, as chamadas se
+  repetem e o custo é exponencial.
+- Bloco **com cache**: o mesmo pseudocódigo, e as linhas marcadas são o que o cache acrescenta.
+  Antes de chamar de novo, a função olha o cache; se já calculou f(n), devolve o valor guardado. O
+  custo vira linear, mas só quando o argumento se repete: no Fatorial não se repete.
 - A pergunta que atravessa tudo: **quantas vezes o computador calcula a mesma coisa?**
 
 ### 2. As três sequências (1:00) — tela `/`
@@ -106,17 +107,18 @@ termos. Abaixo deles, fechado, o painel **Fórmulas gerais**.
   viram lineares, com 2n − 1 invocações a partir de n = 1 e 3n − 5 a partir de n = 2; abaixo disso
   a chamada já é caso base. O Fatorial é linear nos dois modos, sem ganho.
 - Fatorial é uma corrente. Fibonacci e Tribonacci são árvores. Só quem é árvore repete subproblema.
-- Se houver pergunta sobre de onde saem as contagens, abra **Fórmulas gerais**: com k = ordem e
-  b = casos base, as invocações com cache são 1 + k · (n − b + 1), e a tabela já traz a conta de
-  f(7) nas três colunas. No Tribonacci: (3 · 31 − 1) / 2 = 46 sem cache, 1 + 3 · (7 − 3 + 1) = 16
+- Se houver pergunta sobre de onde saem as contagens, abra **Fórmulas gerais**: o topo explica cada
+  símbolo (n, f(n), k, b, invocação, pilha, Θ) e cada linha diz em palavras o que mede. Com k =
+  ordem e b = casos base, as invocações com cache são 1 + k · (n − b + 1), e a tabela já traz a
+  conta de f(7) nas três colunas. No Tribonacci: (3 · 31 − 1) / 2 = 46 sem cache, 1 + 3 · (7 − 3 + 1) = 16
   com cache, 30 evitadas. Feche o painel antes de seguir.
-- Anuncie o exemplo que atravessa a apresentação: **Tribonacci f(7) = 31**. Clique no item
-  **1 · Calcular com e sem cache** da faixa.
+- Anuncie o exemplo que atravessa a apresentação: **Tribonacci f(7) = 31**. Clique em
+  **Calcular**, no pé do cartão do Tribonacci.
 
 ### 3. Calcular f(7): mesmo valor, contagens opostas (1:30) — tela `/calcular`
 
-Na tela: `/calcular?sequencia=tribonacci&n=7&modo=comparar`. Na coluna da esquerda, confira
-Tribonacci, o modo **Comparar** e n = 7, e clique em **Calcular**.
+Na tela: `/calcular?sequencia=tribonacci`, que abre com n = 7. Na coluna da esquerda, confira
+Tribonacci e n = 7, escolha o modo **Comparar** e clique em **Calcular**.
 
 Este é o item (a)–(c) do enunciado acontecendo ao vivo, e não uma captura de tela.
 
@@ -152,20 +154,23 @@ Este é um pedido explícito do enunciado; dê o tempo dele.
 - Detalhe bonito para citar: o número de folhas é igual ao valor da sequência. f(7) = 31 porque a
   soma final é 31 parcelas iguais a 1.
 - Os nós aparecem pequenos para a árvore caber inteira: são 31 folhas lado a lado. Use **+**, no
-  canto inferior direito do desenho, ou a roda do mouse para aproximar uma região, e **Ajustar à
-  tela** para voltar. Quem precisar ler cada chamada em texto tem a vista **Lista**.
+  canto inferior direito do desenho, ou a roda do mouse para aproximar uma região, e o botão dos
+  **quatro cantos**, ajustar à tela, para voltar. Quem precisar ler cada chamada em texto tem a
+  vista **Lista**.
 - Se a turma quiser interagir: clique num nó para recolher a subárvore, ou marque **com cache** na
   coluna da esquerda, clique em **Ver árvore** e mostre a árvore podada, com os acertos de cache em
   borda tracejada e marca de triângulo.
 
 ### 5. O palco do f(7): 46 → 16, e as 30 evitadas (2:30) — tela `/apresentacao`
 
-Na tela: `/apresentacao?etapa=3`, em **Tela cheia**. As etapas 1 e 2 repetem o que a turma acabou
-de ver; entre direto na 3 e avance com as setas.
+Na tela: `/apresentacao?slide=3`, em **Tela cheia**. Os slides 1 e 2 repetem o que a turma acabou
+de ver: a definição com a conta de f(0) a f(7), e a árvore sem cache com a curva de quanto as
+chamadas crescem com n. Entre direto no 3 e avance com as setas. O botão da lua, no rodapé, troca
+para o tema escuro se a sala estiver escura.
 
 Esta é a resposta que o enunciado pede por escrito. Não corra.
 
-- **Etapa 3, o cache em três regras.** As regras estão escritas no topo, e cada um dos oito
+- **Slide 3, o cache em três regras.** As regras estão escritas no topo, e cada um dos oito
   momentos logo abaixo leva a execução ao instante em que f(k) é guardado ou volta do dicionário.
   Diga as regras na ordem exata em que a função as executa:
   1. **É caso base?** Devolve 1 e não mexe no cache.
@@ -173,12 +178,16 @@ Esta é a resposta que o enunciado pede por escrito. Não corra.
   3. **Senão**, calcula, guarda e devolve.
      O nome da técnica é **memoização**: a mesma recursão de cima para baixo, com um caderninho ao
      lado. Se estiver atrasado, diga só a regra 2: é ela que explica a poda.
-- **Etapa 4, as duas árvores lado a lado.** As subárvores tracejadas são as que o acerto cortou.
-  Conte a história em duas partes: na **descida**, cada argumento aparece pela primeira vez e são
+- **Slide 4, a árvore com cache na tela toda.** As subárvores tracejadas são as que o acerto
+  cortou, e o selo de cada acerto diz quantas chamadas ela teria. A linha do topo faz a conta do
+  desenho: **16 feitas + 30 evitadas = 46**, as invocações sem cache. Conte a história em duas
+  partes: na **descida**, cada argumento aparece pela primeira vez e são
   **5 cálculos**, de f(3) a f(7); na **volta**, os irmãos à direita encontram tudo pronto e são
   **5 acertos**, cada um cortando a subárvore inteira que viria abaixo.
-- **Etapa 5, a conta.** O contador anima de 46 para 16 na frente da turma. Some as podas em voz
-  alta: **12 + 6 + 6 + 3 + 3 = 30**; o acerto de f(5) sozinho corta 12 chamadas. E a conta fecha
+- **Slide 5, a conta.** O contador anima de 46 para 16 na frente da turma, e ao lado os quadrados
+  tracejados se esvaziam no mesmo ritmo: cada quadrado é uma chamada daquele argumento, os cheios
+  continuam com cache. Aponte a linha de f(2): **13 chamadas sem cache, 3 com cache, 10 evitadas**.
+  Depois some as podas em voz alta: **12 + 6 + 6 + 3 + 3 = 30**; o acerto de f(5) sozinho corta 12 chamadas. E a conta fecha
   dos dois jeitos: 46 − 16 pela diferença dos totais, 45 − 15 contando só as recursivas.
 - Feche com a frase da resposta: "**com cache, f(7) faz 16 chamadas em vez de 46: são 30 chamadas
   recursivas evitadas, 65% do total**".
@@ -218,7 +227,9 @@ cartão **Como a comparação é feita**.
 
 ### 7. O Fatorial honesto e fechamento (0:45) — tela `/calcular`
 
-Na tela: `/calcular?sequencia=fatorial&n=10&modo=comparar`, e clique em **Calcular**.
+Na tela: `/calcular?sequencia=fatorial&n=10&modo=comparar`, e clique em **Calcular**. Pelo menu, o
+Calcular volta como ficou na seção 3, com o Tribonacci f(7) na tela e o modo **Comparar**: escolha
+**Fatorial**, ponha n = 10 e clique em **Calcular**.
 
 - Olhe para o professor e diga: no Fatorial o cache **não ajuda**, e a ferramenta mostra isso em
   vez de esconder: **10 invocações nos dois modos, zero evitadas**. No placar com cache, zero
@@ -227,11 +238,14 @@ Na tela: `/calcular?sequencia=fatorial&n=10&modo=comparar`, e clique em **Calcul
   então não há nada para reaproveitar.
 - **A pilha não muda.** A profundidade máxima é a mesma com e sem cache, porque a primeira descida
   é idêntica. O cache economiza chamadas, não altura de pilha.
-- Fechamento: memoização é uma troca de espaço por tempo, e ela só compensa onde existe trabalho
-  repetido. Medir é o que permite afirmar isso.
-- Se sobrar meio minuto, a etapa 6 da apresentação (`/apresentacao?etapa=6`) põe esse critério na
-  tela: exponencial contra linear, o preço em memória e a pergunta que decide o uso do cache, **o
-  mesmo argumento volta?**
+- Fechamento: a memoização gasta memória para evitar chamadas repetidas, e só compensa onde a
+  função é chamada mais de uma vez com o mesmo argumento; lá, menos chamadas viram menos tempo.
+  Medir é o que permite afirmar isso.
+- Se sobrar meio minuto, o slide 6 da apresentação, a Conclusão (`/apresentacao?slide=6`), põe
+  esse critério na tela: as chamadas sem e com cache, o preço em memória e a pergunta que decide o
+  uso do cache, **a função é chamada mais de uma vez com o mesmo argumento?**, respondida com o
+  Tribonacci. O outro lado não está no slide, porque a apresentação é toda sobre o f(7): diga em
+  voz alta que no fatorial cada argumento é chamado uma única vez, e o cache só ocupa memória.
 - Encerre abrindo para perguntas.
 
 ## Checklist dez minutos antes
@@ -240,9 +254,12 @@ Na tela: `/calcular?sequencia=fatorial&n=10&modo=comparar`, e clique em **Calcul
       (interface em `http://localhost:5173`).
 - [ ] Passar uma vez por todas as telas do roteiro, na ordem, para nenhum carregamento acontecer no
       palco — inclusive uma comparação com n = 25, para o aviso de medição pesada não surpreender.
+- [ ] Depois do ensaio, **recarregar a página** no Início. As telas guardam o que mostravam
+      enquanto a aba está aberta; sem recarregar, o Comparar abriria com a medição do ensaio em vez
+      do cartão **Como a comparação é feita**.
 - [ ] Janela maximizada e **zoom em 100%**: as telas foram calibradas para 1366×768, e zoom mexe na
       dobra. Se o projetor tiver resolução menor, use F11; o modo apresentação se adapta sozinho.
-- [ ] Conferir na etapa 5 da apresentação os três números: **46**, **16** e **30**.
+- [ ] Conferir no slide 5 da apresentação os três números: **46**, **16** e **30**.
 - [ ] Notificações desligadas, uma janela só, sem abas pessoais.
 - [ ] `docs/relatorio.html` aberto numa aba de reserva, com zoom entre 125% e 150%.
 

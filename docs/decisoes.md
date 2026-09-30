@@ -371,3 +371,169 @@ setas do navegador e o rótulo "Valor de n", e colunas de 300 e 260px.
   iguais, "Tribonacci" era cortado na opção escolhida; as colunas dos
   segmentos passaram a seguir o conteúdo, e a descrição da Árvore ficou
   numa linha para a coluna caber na dobra.
+
+## 2026-09-30: O conceito no Início e as fórmulas para quem não conhece a notação
+
+Ajustes pedidos pelo usuário para o público da apresentação, que não é todo
+da área.
+
+- **A definição primeiro.** O título ganhou a frase do material de apoio:
+  "Problemas recursivos são aqueles em que uma determinada instância do
+  problema contém uma instância 'menor' do mesmo problema."
+- **Dois blocos com pseudocódigo.** As duas linhas da tese viraram dois
+  blocos, sem cache e com cache, cada um com um texto curto e o pseudocódigo
+  no molde do material (Se, Então, Senão, Fim-se em negrito). O texto usa o
+  vocabulário do material, caso base e k termos anteriores, e fecha no
+  Fatorial, que com k ≤ 1 não ganha nada com o cache. Uma primeira versão
+  apontava o "com f(0) = …" e a ordem dos cartões; o usuário preferiu o texto
+  mais direto. A versão com cache segue a ordem de `puros.ts`, e não a do
+  material: o caso base responde antes de olhar o cache e não entra nele,
+  que é o que dá os n − b + 1 valores guardados da tabela. As linhas do cache
+  levam a mesma marca da janela de código, e um teste confere que a versão
+  com cache é a sem cache mais essas linhas.
+- **Sem a faixa do enunciado.** Os quatro atalhos numerados saíram; o menu
+  do topo e os atalhos de cada cartão continuam levando às telas. O roteiro
+  passou a entrar no Calcular pelo cartão do Tribonacci.
+- **Fórmulas legíveis.** O painel abre com uma frase de como ler a tabela e
+  um glossário dos símbolos: n, f(n), k, b, invocação, I_sem e I_com, pilha e
+  Θ, com φ e τ. Cada linha diz em palavras o que mede, na primeira coluna,
+  que passou de "Grandeza" para "O que se mede", e as fórmulas com notação
+  trazem a leitura logo abaixo. A nota abaixo da tabela, que deduzia o
+  (k·f(n) − 1) / (k − 1), foi reescrita sem jargão e depois saiu: o
+  usuário achou que ela confundia mais do que explicava. A dedução segue
+  no artigo, na seção 2.4.
+
+**Medição:** em 1366x641 o Início termina 13px acima da dobra, com as
+fontes do sistema e com Verdana e Courier New forçadas. O pseudocódigo com
+cache, de 10 linhas, é o que define a altura dos blocos; por isso ele usa a
+entrelinha de dados e o texto ao lado foi cortado até caber numa linha a
+menos na fonte larga. A tabela não rola para o lado em 1366 nem em 1024px
+com n = 40.
+
+## 2026-09-30: As telas lembram o que mostravam
+
+Pedido do usuário: depois de calcular, comparar ou desenhar uma árvore,
+trocar de página e voltar deve mostrar a mesma coisa. O formulário já
+vivia no endereço, mas o menu levava à rota sem a consulta, e a execução
+disparada era estado local da tela, perdido ao desmontar. A volta
+mostrava tudo zerado, e a Árvore redesenhava o f(7) padrão.
+
+- **Memória da sessão.** `hooks/memoria.ts` guarda um mapa num contexto
+  acima das rotas, para sobreviver também à apresentação, que fica fora
+  do layout. O menu leva cada tela ao último endereço visto nela, e
+  `useEstadoLembrado` substitui o `useState` da execução do Calcular, da
+  medição e da escala do Comparar e da vista Desenho ou Lista da Árvore,
+  que só volta para a mesma árvore. Vale enquanto a aba estiver aberta:
+  recarregar começa do zero, e o checklist do roteiro pede isso depois do
+  ensaio.
+- **Sem refazer.** As consultas de execução (calcular, comparar, série e
+  árvore) não refazem ao montar e não expiram do cache
+  (`refetchOnMount: false`, `gcTime` infinito). A volta mostra o mesmo
+  tempo medido, não uma medição nova. O custo é memória: cada execução
+  diferente da sessão fica no cache até recarregar a página.
+- **Sair no meio não descarta.** Essas consultas deixaram de repassar o
+  `signal` ao `fetch`. Com ele, desmontar a tela abortava o pedido e a
+  volta media tudo de novo, enquanto a API, cujo worker não para quando o
+  cliente desiste, terminava a conta de qualquer jeito. Agora o pedido
+  segue e o resultado espera a volta. O Cancelar continua valendo: o
+  `cancelQueries` larga a espera na hora e a resposta tardia é ignorada.
+- **Link com outros parâmetros.** Entrar por um atalho que muda a
+  consulta, como o cartão do Início, preenche o formulário e mantém o
+  resultado anterior com o aviso de que o formulário mudou, como já
+  acontecia ao mexer no formulário depois de calcular.
+- **O que não volta.** O zoom e os nós recolhidos do desenho, o passo a
+  passo, os blocos abertos e a aba dos números completos voltam ao
+  estado inicial: são posição de leitura, não resultado.
+
+**Medição:** o e2e `navegacao.spec.ts` calcula, compara e desenha, passa
+pelas três telas de novo pelo menu e confere, contra a API real, que a
+volta não fez nenhum pedido novo e que o tempo mostrado é o mesmo, em
+desktop, tablet e celular.
+
+## 2026-09-30: A árvore avisa o formulário mudado e a barra vira ícones
+
+Ajustes pedidos pelo usuário nas telas com árvore.
+
+- **O aviso do formulário.** Calcular e Comparar já diziam "O formulário
+  mudou depois deste resultado"; a Árvore não dizia nada, e quem mexia
+  nos controles via a árvore antiga sem saber. Agora diz "O formulário
+  mudou depois desta árvore. Clique em Ver árvore para atualizar."
+  enquanto os controles pedem uma árvore válida diferente da desenhada.
+  Controles inválidos já mostram o erro no campo, e voltar ao que está
+  desenhado tira o aviso. Como na Árvore o formulário é um rascunho, e
+  não o endereço, a página guarda o endereço em que ele foi mexido:
+  pedir outra árvore, ou chegar por outro link, apaga o aviso.
+- **Sem custar altura.** O aviso fica na linha dos botões Desenho, Lista
+  e Reproduzir, e em 1366x641 cabe nela sem rolagem. No passo a passo, a
+  dica do teclado ocupa a linha e o aviso desce: a página rola 16px e só
+  a legenda sai da janela. O aviso do Calcular no modo Comparar já custa
+  14px pelo mesmo motivo.
+- **Ícones na barra do desenho.** Aproximar, afastar e ajustar à tela
+  viram ícones (+, − e os quatro cantos de um quadrado), com o nome para
+  o leitor de tela e na dica do ponteiro. Vale também no palco da
+  apresentação, que usa o mesmo desenho.
+- **Um botão de baixar.** Os dois botões "Baixar SVG" e "Baixar PNG"
+  viraram um ícone de download que abre, para cima, a escolha do
+  formato, cada um com uma linha do que é: SVG, vetor para editores de
+  slides, e PNG, imagem em 2x para o projetor. A escolha fecha ao
+  baixar, com Esc ou com clique fora. Enquanto o PNG é gerado, o ícone
+  gira e a opção PNG fica desabilitada.
+
+## 2026-09-30: Os slides da apresentação ficam mais visuais
+
+Ajustes pedidos pelo usuário no modo apresentação, para cada tela ler
+melhor projetada.
+
+- **Slide, não etapa.** O rodapé diz "Slide 1 de 6", o botão de avançar
+  é Próximo e o endereço usa `?slide=`. O código acompanha o termo
+  (`slides.ts`, `Slide*.tsx`). O resumo abaixo do título ocupa a linha
+  toda e só quebra quando a tela não comporta. O rodapé ganha o botão de
+  tema claro e escuro, que antes só existia no layout.
+- **O hover do Próximo.** O botão somava o hover claro da base ao azul da
+  variante, e a ordem do CSS fazia o claro vencer: texto branco em fundo
+  branco. Agora cada variante declara o próprio hover, e um e2e confere o
+  contraste com o ponteiro em cima nos dois temas.
+- **Slide 1, a definição e a conta.** A fórmula vai em MathML, desenhada
+  com a fonte matemática do sistema (Cambria Math no Windows), como
+  definição por partes. Ao lado, a conta de f(0) a f(7), termo a termo,
+  com os valores tirados da árvore com cache da própria execução. O
+  resultado fica só como f(7) = 31, em destaque.
+- **Slide 2, o crescimento.** A nota "quadros na pilha" sai. Ao lado da
+  contagem por argumento entra a curva das invocações sem cache de n = 0
+  a n = 10, contadas pela versão instrumentada do núcleo no navegador,
+  a mesma da API e do plano B. Até 10 porque, com escala linear e n = 12,
+  a barra do próprio f(7) some no chão.
+- **Slide 4, uma árvore só.** As duas árvores lado a lado ficavam
+  pequenas demais. A com cache já traz no tracejado o que a sem cache
+  faria, então fica só ela, com os selos, e uma linha com a conta do
+  desenho: 16 feitas + 30 evitadas = 46. O `ArvoreSvg` ganhou o modo
+  `preencher`, em que o desenho ocupa a altura que o contêiner flex
+  sobrar; o desconto fixo em pixels rolava em 1920×1080 e no tablet.
+- **Slide 5, uma chamada por quadrado.** As barras de sem cache e com
+  cache na mesma escala deixavam as do modo com cache rentes ao zero.
+  Agora cada linha tem um quadrado por chamada: todos são as sem cache,
+  os cheios as com cache e os tracejados as evitadas, como na árvore.
+  Os tracejados se esvaziam no ritmo do contador, pela inversa da mesma
+  curva, e o lado do quadrado sai da largura da coluna para a fileira
+  mais longa não quebrar. O slide fica sem resumo abaixo do título, e a
+  palavra invocações vem ao lado do contador, no corpo da frase de
+  baixo, em vez de um rótulo pequeno acima dele.
+- **Slide 6, Conclusão.** Sai o nome Generalizando e o título
+  Exponencial contra linear. O fecho ocupa a largura toda do palco.
+  O texto passa a dizer uma coisa só, do resumo ao fecho: o cache gasta
+  memória para evitar chamadas repetidas. Antes o resumo falava em
+  trocar tempo por memória e a coluna do preço em memória por chamadas.
+  A memoização não acelera a recursão por si só, e a pergunta que
+  decide o uso fica explícita, "a função é chamada mais de uma vez com
+  o mesmo argumento?", respondida com os números do Tribonacci. A frase
+  "A árvore mostra; o contador prova" sai. O caso do fatorial também
+  sai do slide, porque a apresentação é toda sobre o f(7), e fica com
+  quem apresenta, em voz alta, como o roteiro indica.
+
+**Medição:** os slides 1, 2, 4, 5 e 6 cabem sem rolagem em 1024×640,
+1280×720, 1366×641, 1366×768, 1440×773 e 1920×1080, e o e2e confere os
+seis em 1366×641 e 1366×768. O slide 3, que não mudou, ainda rola por
+dentro em 1024×640 (a dica das setas quebra o rodapé em duas linhas),
+1440×773 e 1920×1080 (a altura da reprodução é um desconto fixo em
+pixels). A figura `tela-apresentacao-slide-conta.png` foi exportada de
+novo com o slide 5 novo.

@@ -1,6 +1,7 @@
 import { DESCRICAO_SEQUENCIAS, SEQUENCIAS, type Sequencia } from '@sequencias/contrato';
-import { type ReactNode, useMemo, useState } from 'react';
+import { Fragment, type ReactNode, useMemo, useState } from 'react';
 import { CampoNumero, Detalhes, Tabela, type ColunaTabela } from '../componentes';
+import { juntarClasses } from '../utilitarios/classes';
 import { formatarInteiro } from '../utilitarios/formatar';
 import {
   calcularFormulas,
@@ -17,6 +18,8 @@ type Calculos = Record<Sequencia, CalculoSequencia>;
 interface LinhaFormula {
   chave: string;
   grandeza: string;
+  /** O que a linha mede, em palavras, para quem não conhece a notação. */
+  significado: string;
   formula: ReactNode;
   valor: (sequencia: Sequencia, calculo: CalculoSequencia) => ReactNode;
 }
@@ -27,6 +30,11 @@ function ContaComResultado({ conta }: { conta: Conta }) {
       {conta.conta} = <strong className="font-semibold">{formatarInteiro(conta.resultado)}</strong>
     </span>
   );
+}
+
+/** A fórmula lida em voz alta, logo abaixo da notação. */
+function Leitura({ children }: { children: ReactNode }) {
+  return <span className="mt-0.5 block text-texto-suave">{children}</span>;
 }
 
 const I_SEM = (
@@ -40,29 +48,55 @@ const I_COM = (
   </>
 );
 
+/** f(0), f(1) e f(2): os casos base de uma sequência com b deles. */
+function listaCasosBase(b: number): string {
+  const casos = Array.from({ length: b }, (_, indice) => `f(${indice})`);
+  return `${casos.slice(0, -1).join(', ')} e ${casos.at(-1)}`;
+}
+
 function linhas(n: number): LinhaFormula[] {
   return [
     {
       chave: 'tipo',
       grandeza: 'Tipo de recursão',
-      formula: 'k chamadas por caso não base',
+      significado: 'quantas chamadas cada passo abre',
+      formula: 'k chamadas recursivas em cada caso que não é base',
       valor: (s) => `${TIPOS[s].recursao} (k = ${TIPOS[s].k}) · árvore ${TIPOS[s].arvore}`,
     },
     {
       chave: 'recorrencia',
       grandeza: 'Recorrência',
-      formula: 'combina os k termos anteriores',
+      significado: 'a regra que monta f(n)',
+      formula: (
+        <>
+          combina os k termos anteriores:{' '}
+          <span className="font-mono whitespace-nowrap">f(n−1) … f(n−k)</span>
+        </>
+      ),
       valor: (s) => TIPOS[s].combinacao,
     },
     {
       chave: 'casos-base',
       grandeza: 'Casos base',
-      formula: 'b casos: f(0) … f(b − 1) = 1; as contagens valem para n ≥ b − 1',
-      valor: (s) => `b = ${TIPOS[s].b} · contagens para n ≥ ${TIPOS[s].b - 1}`,
+      significado: 'os primeiros termos, que já têm valor',
+      formula: (
+        <>
+          b casos, de <span className="font-mono">f(0)</span> a{' '}
+          <span className="font-mono">f(b − 1)</span>, todos iguais a 1
+          <Leitura>as contagens abaixo valem a partir de n = b − 1</Leitura>
+        </>
+      ),
+      valor: (s) => (
+        <>
+          b = {TIPOS[s].b}: <span className="font-mono">{listaCasosBase(TIPOS[s].b)}</span>
+          <Leitura>contagens para n ≥ {TIPOS[s].b - 1}</Leitura>
+        </>
+      ),
     },
     {
       chave: 'valor',
       grandeza: 'Valor',
+      significado: 'o termo pedido',
       formula: <span className="font-mono">f(n)</span>,
       valor: (_, c) => (
         <span className="font-mono">
@@ -73,48 +107,84 @@ function linhas(n: number): LinhaFormula[] {
     {
       chave: 'invocacoes-sem',
       grandeza: 'Invocações sem cache',
+      significado: 'quantas vezes a função é chamada, contando as repetições',
       formula: (
-        <span className="font-mono">
-          {I_SEM}(n) = 1 + {I_SEM}(n−1) + … + {I_SEM}(n−k)
-          <br />
-          k = 1: n − b + 2
-          <br />k ≥ 2: (k·f(n) − 1) / (k − 1)
-        </span>
+        <>
+          <span className="font-mono">
+            {I_SEM}(n) = 1 + {I_SEM}(n−1) + … + {I_SEM}(n−k)
+          </span>
+          <Leitura>a própria chamada, mais as chamadas de cada termo anterior. Resolvendo:</Leitura>
+          <span className="mt-0.5 block font-mono">
+            k = 1: n − b + 2
+            <br />k ≥ 2: (k·f(n) − 1) / (k − 1)
+          </span>
+        </>
       ),
       valor: (_, c) => <ContaComResultado conta={c.invocacoesSemCache} />,
     },
     {
       chave: 'invocacoes-com',
       grandeza: 'Invocações com cache',
-      formula: <span className="font-mono">{I_COM}(n) = 1 + k · (n − b + 1)</span>,
+      significado: 'quantas vezes a função é chamada quando consulta o cache',
+      formula: (
+        <>
+          <span className="font-mono">{I_COM}(n) = 1 + k · (n − b + 1)</span>
+          <Leitura>a primeira chamada, mais k chamadas para cada valor calculado</Leitura>
+        </>
+      ),
       valor: (_, c) => <ContaComResultado conta={c.invocacoesComCache} />,
     },
     {
       chave: 'evitadas',
       grandeza: 'Chamadas evitadas',
+      significado: 'as chamadas que o cache poupa',
       formula: (
-        <span className="font-mono">
-          E(n) = {I_SEM}(n) − {I_COM}(n)
-        </span>
+        <>
+          <span className="font-mono">
+            E(n) = {I_SEM}(n) − {I_COM}(n)
+          </span>
+          <Leitura>a diferença entre os dois modos</Leitura>
+        </>
       ),
       valor: (_, c) => <ContaComResultado conta={c.evitadas} />,
     },
     {
       chave: 'entradas',
       grandeza: 'Valores no cache',
-      formula: <span className="font-mono">n − b + 1</span>,
+      significado: 'quantos resultados ficam guardados',
+      formula: (
+        <>
+          <span className="font-mono">n − b + 1</span>
+          <Leitura>um por argumento calculado, de b até n; os casos base não entram</Leitura>
+        </>
+      ),
       valor: (_, c) => <ContaComResultado conta={c.entradasCache} />,
     },
     {
       chave: 'profundidade',
       grandeza: 'Profundidade da pilha',
-      formula: <span className="font-mono">P(n) = n − b + 2, igual nos dois modos</span>,
+      significado: 'o máximo de chamadas abertas ao mesmo tempo',
+      formula: (
+        <>
+          <span className="font-mono">P(n) = n − b + 2</span>
+          <Leitura>
+            a descida mais longa, de f(n) até o caso base{' '}
+            <span className="whitespace-nowrap">f(b − 1)</span>, igual nos dois modos
+          </Leitura>
+        </>
+      ),
       valor: (_, c) => <ContaComResultado conta={c.profundidade} />,
     },
     {
       chave: 'tempo',
       grandeza: 'Tempo: sem → com cache',
-      formula: <span className="font-mono">Θ({I_SEM}(n)) → Θ(n)</span>,
+      significado: 'como o trabalho cresce quando n aumenta',
+      formula: (
+        <>
+          <span className="font-mono">Θ({I_SEM}(n)) → Θ(n)</span>
+          <Leitura>sem cache, acompanha as invocações; com cache, cresce junto com n</Leitura>
+        </>
+      ),
       valor: (s) => <span className="font-mono">{TIPOS[s].complexidadeSemCache} → Θ(n)</span>,
     },
   ];
@@ -124,10 +194,15 @@ function colunas(calculos: Calculos): ColunaTabela<LinhaFormula>[] {
   return [
     {
       chave: 'grandeza',
-      rotulo: 'Grandeza',
-      conteudo: (linha) => linha.grandeza,
+      rotulo: 'O que se mede',
+      conteudo: (linha) => (
+        <>
+          {linha.grandeza}{' '}
+          <span className="mt-0.5 block font-normal text-texto-suave">{linha.significado}</span>
+        </>
+      ),
       cabecalhoDeLinha: true,
-      className: 'w-[16%]',
+      className: 'w-[19%]',
     },
     {
       chave: 'formula',
@@ -139,10 +214,55 @@ function colunas(calculos: Calculos): ColunaTabela<LinhaFormula>[] {
       chave: sequencia,
       rotulo: DESCRICAO_SEQUENCIAS[sequencia].nome,
       conteudo: (linha) => linha.valor(sequencia, calculos[sequencia]),
-      className: 'w-[19%]',
+      className: 'w-[18%]',
     })),
   ];
 }
+
+interface Termo {
+  simbolo: ReactNode;
+  definicao: ReactNode;
+  /** Palavra, e não símbolo: fica na fonte do texto. */
+  palavra?: boolean;
+}
+
+/** Os símbolos das fórmulas, na ordem em que aparecem na tabela. */
+const TERMOS: readonly Termo[] = [
+  { simbolo: 'n', definicao: 'a posição do termo pedido: n = 7 calcula f(7)' },
+  { simbolo: 'f(n)', definicao: 'o valor da sequência nessa posição' },
+  {
+    simbolo: 'k',
+    definicao:
+      'a ordem: quantas chamadas recursivas cada caso que não é base faz (1 no Fatorial, 2 no Fibonacci, 3 no Tribonacci)',
+  },
+  {
+    simbolo: 'b',
+    definicao: 'quantos casos base a sequência tem: os primeiros termos, dados sem nova chamada',
+  },
+  {
+    simbolo: 'invocação',
+    definicao: 'cada vez que a função é chamada, a primeira incluída',
+    palavra: true,
+  },
+  {
+    simbolo: (
+      <>
+        {I_SEM}, {I_COM}
+      </>
+    ),
+    definicao: 'as invocações para calcular f(n) sem e com cache',
+  },
+  {
+    simbolo: 'pilha',
+    definicao: 'as chamadas abertas ao mesmo tempo, cada uma esperando as que ela fez',
+    palavra: true,
+  },
+  {
+    simbolo: 'Θ(…)',
+    definicao:
+      'cresce no ritmo de: Θ(n) cresce junto com n; Θ(φⁿ) se multiplica por φ ≈ 1,618 a cada n a mais, e Θ(τⁿ) por τ ≈ 1,839',
+  },
+];
 
 /** Fórmulas gerais de invocações, pilha e complexidade, aplicadas às três sequências. */
 export function PainelFormulas() {
@@ -165,15 +285,24 @@ export function PainelFormulas() {
         </span>
       }
     >
-      <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-2">
-        <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
-          <dt className="font-mono font-semibold">k</dt>
-          <dd>ordem: quantas chamadas recursivas cada caso não base abre</dd>
-          <dt className="font-mono font-semibold">b</dt>
-          <dd>casos base: f(0) até f(b − 1), todos valendo 1</dd>
-          <dt className="font-mono font-semibold">f(n)</dt>
-          <dd>valor da sequência; as fórmulas valem para n ≥ b − 1</dd>
-        </dl>
+      <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-3">
+        <div className="min-w-0 flex-1 basis-[36rem]">
+          <p className="text-sm">
+            Cada linha da tabela mede uma coisa. A <strong>fórmula geral</strong> vale para as três
+            sequências; as colunas ao lado trocam k, b e n pelos números de cada uma e fazem a
+            conta. Os símbolos:
+          </p>
+          <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm xl:grid-cols-[auto_1fr_auto_1fr]">
+            {TERMOS.map((termo, indice) => (
+              <Fragment key={indice}>
+                <dt className={juntarClasses('font-semibold', !termo.palavra && 'font-mono')}>
+                  {termo.simbolo}
+                </dt>
+                <dd>{termo.definicao}</dd>
+              </Fragment>
+            ))}
+          </dl>
+        </div>
         <CampoNumero
           rotulo="n do exemplo"
           valor={texto}
@@ -196,16 +325,8 @@ export function PainelFormulas() {
         grade
         zebrado
         ajustada
-        className="mt-2"
+        className="mt-3"
       />
-
-      <p className="mt-3 text-sm text-texto-suave">
-        Com k ≥ 2 e todos os casos base valendo 1, cada folha da árvore sem cache soma 1 ao
-        resultado: f(n) é o número de folhas, e uma árvore k-ária cheia com f(n) folhas tem (k·f(n)
-        − 1) / (k − 1) nós. Com cache, cada argumento de b a n é calculado uma vez e abre k
-        chamadas; as demais são casos base ou acertos. As telas Calcular e Árvore mostram os mesmos
-        números medidos na execução.
-      </p>
     </Detalhes>
   );
 }

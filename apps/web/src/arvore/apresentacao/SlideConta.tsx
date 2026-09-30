@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { formatarInteiro } from '../../utilitarios/formatar';
+import { ChamadasPorArgumento } from './ChamadasPorArgumento';
 import { Contador } from './Contador';
 import type { DadosApresentacao } from './dados';
-import { TabelaArgumentos } from './TabelaArgumentos';
 
 // Peça local da árvore: o Orquestrador harmoniza depois com o design system.
 
-export function EtapaConta({ dados }: { dados: DadosApresentacao }) {
+export function SlideConta({ dados }: { dados: DadosApresentacao }) {
   const [rodada, setRodada] = useState(0);
   const { comparacao } = dados;
   const soma = `${comparacao.parcelas.join(' + ')} = ${formatarInteiro(comparacao.somaParcelas)}`;
@@ -17,13 +17,16 @@ export function EtapaConta({ dados }: { dados: DadosApresentacao }) {
   return (
     <div className="grid min-w-0 items-start gap-[clamp(1rem,3vw,3rem)] lg:grid-cols-[1.05fr_1fr]">
       <div className="flex min-w-0 flex-col gap-[clamp(0.5rem,1.5vh,1.25rem)]">
-        <p className="text-[clamp(0.8rem,1vw,1.05rem)] text-texto-suave">invocações</p>
-        <Contador
-          de={comparacao.invocacoesSemCache}
-          para={comparacao.invocacoesComCache}
-          rodada={rodada}
-          classe="text-[length:clamp(3.5rem,min(13vw,19vh),10rem)] leading-none font-semibold"
-        />
+        {/* O número e a unidade numa linha só, a unidade no corpo da frase de baixo. */}
+        <div className="flex flex-wrap items-baseline gap-x-[0.5em] text-[clamp(1rem,1.5vw,1.5rem)]">
+          <Contador
+            de={comparacao.invocacoesSemCache}
+            para={comparacao.invocacoesComCache}
+            rodada={rodada}
+            classe="text-[length:clamp(3.5rem,min(13vw,19vh),10rem)] leading-none font-semibold"
+          />
+          <span aria-hidden="true">invocações</span>
+        </div>
         <p className="text-[clamp(1rem,1.5vw,1.5rem)]">
           {`de ${formatarInteiro(comparacao.invocacoesSemCache)} sem cache para ${formatarInteiro(
             comparacao.invocacoesComCache,
@@ -70,13 +73,9 @@ export function EtapaConta({ dados }: { dados: DadosApresentacao }) {
         </button>
       </div>
 
-      <div className="min-w-0">
-        <TabelaArgumentos
-          linhas={comparacao.linhas}
-          maximo={comparacao.maiorInvocacao}
-          colunas="ambos"
-          legenda="Invocações por argumento nos dois modos"
-        />
+      <div className="@container min-w-0">
+        {/* A mesma rodada do contador: repetir a contagem esvazia os quadrados de novo. */}
+        <ChamadasPorArgumento key={rodada} comparacao={comparacao} />
       </div>
     </div>
   );

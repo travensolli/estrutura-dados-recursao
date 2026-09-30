@@ -14,7 +14,7 @@ import { momentosDoCache } from './momentos';
 const CHIP =
   'min-h-toque rounded-full border border-borda px-3 text-[clamp(0.8rem,0.95vw,0.95rem)] leading-dados font-mono hover:bg-superficie aria-pressed:border-primaria aria-pressed:bg-primaria-suave';
 
-export function EtapaCache({ dados }: { dados: DadosApresentacao }) {
+export function SlideCache({ dados }: { dados: DadosApresentacao }) {
   const { comCache, evitada } = dados;
   const [realce, setRealce] = useState<number | null>(null);
   const nos = useMemo(() => achatarNos(comCache.raiz), [comCache.raiz]);

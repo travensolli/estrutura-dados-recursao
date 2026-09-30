@@ -1,9 +1,10 @@
 import type { InfoSequencia, Modo } from '@sequencias/contrato';
-import { useState, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { useSequencias } from '../api/consultas';
 import { Botao, BotaoLink, Cartao, Esqueleto, EstadoErro } from '../componentes';
 import { useTituloPagina } from '../hooks/titulo-pagina';
 import { enderecoComEstado } from '../hooks/useEstadoUrl';
+import { BlocoPseudocodigo } from '../inicio/BlocoPseudocodigo';
 import { JanelaCodigo } from '../inicio/JanelaCodigo';
 import { PainelFormulas } from '../inicio/PainelFormulas';
 import { TIPOS } from '../inicio/formulas';
@@ -36,14 +37,32 @@ function LinhaCrescimento({ modo, texto }: { modo: Modo; texto: string }) {
   );
 }
 
-function LinhaMotivacao({ modo, children }: { modo: Modo; children: ReactNode }) {
+/** Um dos dois jeitos de resolver: a definição curta ao lado do pseudocódigo. */
+function BlocoModo({
+  modo,
+  titulo,
+  children,
+}: {
+  modo: Modo;
+  titulo: ReactNode;
+  children: ReactNode;
+}) {
+  const idTitulo = useId();
   return (
-    <li className="flex items-baseline gap-2">
-      <span className="flex h-[1.65em] shrink-0 items-center">
-        <Marca modo={modo} />
-      </span>
-      <span>{children}</span>
-    </li>
+    <section
+      aria-labelledby={idTitulo}
+      className="grid content-start items-start gap-x-4 gap-y-2 xl:grid-cols-[minmax(0,1fr)_auto]"
+    >
+      <div>
+        <h2 id={idTitulo} className="flex items-center gap-2 text-lg font-semibold">
+          <Marca modo={modo} />
+          {titulo}
+        </h2>
+        <p className="mt-1 text-texto">{children}</p>
+      </div>
+      {/* Mesma largura nos dois blocos, para as linhas iguais ficarem na mesma coluna. */}
+      <BlocoPseudocodigo modo={modo} className="xl:min-w-72" />
+    </section>
   );
 }
 
@@ -83,9 +102,9 @@ function CartaoSequencia({ info }: { info: InfoSequencia }) {
         <LinhaCrescimento modo="com_cache" texto={info.crescimento_com_cache} />
       </ul>
 
-      {/* Atalhos que já trazem a sequência escolhida: discretos, porque a faixa do
-          enunciado e a navegação são as rotas principais. O recuo alinha o texto do
-          primeiro atalho ao conteúdo do cartão. */}
+      {/* Atalhos que já trazem a sequência escolhida: discretos, porque a navegação
+          é a rota principal. O recuo alinha o texto do primeiro atalho ao conteúdo
+          do cartão. */}
       <div className="mt-auto -ml-3 flex flex-wrap pt-1.5">
         <BotaoLink
           to={enderecoComEstado('/calcular', { sequencia: info.id })}
@@ -137,50 +156,25 @@ export function PaginaInicio() {
         <h1 id="titulo-pagina" className="text-2xl font-semibold">
           Recursão com e sem cache
         </h1>
-        {/* A tese da apresentação, em paralelo: é o que se lê primeiro, antes de qualquer botão. */}
-        <ul className="mt-2 grid gap-x-8 gap-y-2 leading-prosa text-texto md:grid-cols-2">
-          <LinhaMotivacao modo="sem_cache">
-            <strong className="font-semibold">Sem cache</strong>, cada chamada que não é caso base
-            abre uma chamada por termo anterior — a <em>ordem</em> da recorrência. Com ordem 2 ou
-            mais, os subproblemas se repetem e o custo é{' '}
-            <strong className="font-semibold">exponencial</strong>.
-          </LinhaMotivacao>
-          <LinhaMotivacao modo="com_cache">
-            <strong className="font-semibold">Com cache</strong> (memoização), cada f(k) acima dos
-            casos base é calculado uma vez e guardado; quando se repete, a chamada só consulta o
-            cache, e o custo vira <strong className="font-semibold">linear</strong>.
-          </LinhaMotivacao>
-        </ul>
-      </section>
-
-      <section aria-labelledby="titulo-enunciado" className="flex flex-wrap items-center gap-2">
-        <h2 id="titulo-enunciado" className="mr-1 text-sm font-medium text-texto-suave">
-          O enunciado:
-        </h2>
-        <BotaoLink
-          to={enderecoComEstado('/calcular', { sequencia: 'tribonacci', n: 7, modo: 'comparar' })}
-          variante="neutra"
-          tamanho="pequeno"
-        >
-          1 · Calcular com e sem cache
-        </BotaoLink>
-        <BotaoLink
-          to={enderecoComEstado('/comparar', { sequencia: 'tribonacci' })}
-          variante="neutra"
-          tamanho="pequeno"
-        >
-          2 · Comparar tempo e memória
-        </BotaoLink>
-        <BotaoLink
-          to={enderecoComEstado('/arvore', { sequencia: 'tribonacci', n: 7, modo: 'sem_cache' })}
-          variante="neutra"
-          tamanho="pequeno"
-        >
-          3 · Árvore de chamadas
-        </BotaoLink>
-        <BotaoLink to="/apresentacao" variante="secundaria" tamanho="pequeno">
-          4 · Apresentação do f(7)
-        </BotaoLink>
+        {/* A definição do material de apoio; os dois blocos a aplicam às sequências dos cartões. */}
+        <p className="mt-1 leading-prosa text-texto">
+          <strong className="font-semibold">Problemas recursivos</strong> são aqueles em que uma
+          determinada instância do problema contém uma instância “menor” do mesmo problema.
+        </p>
+        <div className="mt-2 grid gap-x-8 gap-y-4 md:grid-cols-2">
+          <BlocoModo modo="sem_cache" titulo="Sem cache">
+            A instância pequena, o <strong className="font-semibold">caso base</strong>, sai direto.
+            As maiores chamam a função para os k termos anteriores e combinam. Com{' '}
+            <span className="whitespace-nowrap">k ≥ 2</span> as chamadas se repetem e o custo se
+            torna <strong className="font-semibold">exponencial</strong>.
+          </BlocoModo>
+          <BlocoModo modo="com_cache" titulo="Com cache (memoização)">
+            Antes de chamar de novo, a função consulta o cache: se f(n) já foi calculado, devolve o
+            valor guardado. Cada f(n) é calculado uma vez e o custo passa a ser{' '}
+            <strong className="font-semibold">linear</strong>. No Fatorial, como nada se repete{' '}
+            <span className="whitespace-nowrap">(k ≤ 1)</span>, não há ganho.
+          </BlocoModo>
+        </div>
       </section>
 
       <section aria-label="As três sequências">

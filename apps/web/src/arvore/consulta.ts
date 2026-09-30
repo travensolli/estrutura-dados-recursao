@@ -48,6 +48,12 @@ export function lerConsulta(parametros: URLSearchParams): ConsultaArvore {
   };
 }
 
+export function mesmaConsulta(a: ConsultaArvore, b: ConsultaArvore): boolean {
+  return (
+    a.sequencia === b.sequencia && a.n === b.n && a.modo === b.modo && a.limite_nos === b.limite_nos
+  );
+}
+
 export function escreverConsulta(consulta: ConsultaArvore): Record<string, string> {
   return {
     sequencia: consulta.sequencia,

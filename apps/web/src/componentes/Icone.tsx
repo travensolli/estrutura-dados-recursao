@@ -29,7 +29,9 @@ export type NomeIcone =
   | 'mais'
   | 'menos'
   | 'relogio'
-  | 'memoria';
+  | 'memoria'
+  | 'ajustar'
+  | 'baixar';
 
 /* Traços em viewBox 24, desenhados com stroke para herdar a cor do texto. */
 const TRACOS: Record<NomeIcone, string[]> = {
@@ -84,6 +86,8 @@ const TRACOS: Record<NomeIcone, string[]> = {
   menos: ['M5 12h14'],
   relogio: ['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z', 'M12 7v5.5l3.5 2'],
   memoria: ['M6 6h12v12H6z', 'M9 3v3', 'M15 3v3', 'M9 18v3', 'M15 18v3', 'M3 9h3', 'M3 15h3'],
+  ajustar: ['M4 9V4h5', 'M15 4h5v5', 'M20 15v5h-5', 'M9 20H4v-5'],
+  baixar: ['M12 4v11', 'M7 10l5 5 5-5', 'M5 20h14'],
 };
 
 export interface IconeProps extends Omit<SVGProps<SVGSVGElement>, 'name'> {

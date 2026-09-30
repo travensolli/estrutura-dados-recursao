@@ -72,6 +72,40 @@ describe('página Árvore', () => {
     expect(nos()).toHaveLength(13);
   });
 
+  it('avisa que os controles mudaram até pedir a árvore de novo', async () => {
+    const usuario = userEvent.setup();
+    abrir();
+    await screen.findByRole('heading', { level: 2 });
+    const aviso = /O formulário mudou depois desta árvore/;
+    expect(screen.queryByText(aviso)).not.toBeInTheDocument();
+
+    await usuario.click(screen.getByRole('radio', { name: 'Com cache' }));
+    expect(screen.getByText(aviso)).toBeInTheDocument();
+
+    // Voltar ao que está desenhado tira o aviso.
+    await usuario.click(screen.getByRole('radio', { name: 'Sem cache' }));
+    expect(screen.queryByText(aviso)).not.toBeInTheDocument();
+
+    await usuario.click(screen.getByRole('radio', { name: 'Com cache' }));
+    await usuario.click(screen.getByRole('button', { name: 'Ver árvore' }));
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('com cache'),
+    );
+    expect(screen.queryByText(aviso)).not.toBeInTheDocument();
+  });
+
+  it('não pede para atualizar enquanto os controles não formam uma árvore válida', async () => {
+    const usuario = userEvent.setup();
+    abrir();
+    await screen.findByRole('heading', { level: 2 });
+
+    const campoN = screen.getByLabelText('n');
+    await usuario.clear(campoN);
+    expect(screen.queryByText(/O formulário mudou/)).not.toBeInTheDocument();
+    await usuario.type(campoN, '5');
+    expect(screen.getByText(/O formulário mudou/)).toBeInTheDocument();
+  });
+
   it('avisa quando n passa do limite da sequência', async () => {
     abrir('/arvore?sequencia=tribonacci&n=40&modo=sem_cache');
     expect(

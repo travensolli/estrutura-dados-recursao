@@ -3,40 +3,40 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 import type { DadosApresentacao } from '../arvore/apresentacao/dados';
 import { useApresentacao } from '../arvore/apresentacao/dados';
-import { EtapaCache } from '../arvore/apresentacao/EtapaCache';
-import { EtapaComCache } from '../arvore/apresentacao/EtapaComCache';
-import { EtapaConta } from '../arvore/apresentacao/EtapaConta';
-import { EtapaFuncao } from '../arvore/apresentacao/EtapaFuncao';
-import { EtapaGeral } from '../arvore/apresentacao/EtapaGeral';
-import { EtapaSemCache } from '../arvore/apresentacao/EtapaSemCache';
+import { SlideCache } from '../arvore/apresentacao/SlideCache';
+import { SlideComCache } from '../arvore/apresentacao/SlideComCache';
+import { SlideConta } from '../arvore/apresentacao/SlideConta';
+import { SlideFuncao } from '../arvore/apresentacao/SlideFuncao';
+import { SlideConclusao } from '../arvore/apresentacao/SlideConclusao';
+import { SlideSemCache } from '../arvore/apresentacao/SlideSemCache';
 import {
-  escreverEtapa,
-  etapaPorIndice,
-  lerEtapa,
+  escreverSlide,
+  slidePorIndice,
+  lerSlide,
   N_APRESENTACAO,
-  TOTAL_ETAPAS,
-} from '../arvore/apresentacao/etapas';
+  TOTAL_SLIDES,
+} from '../arvore/apresentacao/slides';
 import { Palco } from '../arvore/apresentacao/Palco';
 import { Aviso } from '../arvore/ui/Aviso';
 
 type Conteudo = (props: { dados: DadosApresentacao }) => ReactElement;
 
-const CONTEUDO_DA_ETAPA: Record<string, Conteudo> = {
-  funcao: EtapaFuncao,
-  'sem-cache': EtapaSemCache,
-  cache: EtapaCache,
-  'com-cache': EtapaComCache,
-  conta: EtapaConta,
-  geral: EtapaGeral,
+const CONTEUDO_DO_SLIDE: Record<string, Conteudo> = {
+  funcao: SlideFuncao,
+  'sem-cache': SlideSemCache,
+  cache: SlideCache,
+  'com-cache': SlideComCache,
+  conta: SlideConta,
+  conclusao: SlideConclusao,
 };
 
 export function PaginaApresentacao() {
   const [parametros, setParametros] = useSearchParams();
-  const indice = lerEtapa(parametros);
-  const etapa = etapaPorIndice(indice);
+  const indice = lerSlide(parametros);
+  const slide = slidePorIndice(indice);
   const { dados, carregando, erro, recarregar } = useApresentacao();
 
-  /* A etapa alvo é guardada numa referência e atualizada já no comando, antes
+  /* O slide alvo é guardado numa referência e atualizado já no comando, antes
      de a navegação ser pintada: assim dois toques seguidos não se anulam. */
   const alvo = useRef(indice);
   useEffect(() => {
@@ -45,19 +45,19 @@ export function PaginaApresentacao() {
 
   const aoIr = useCallback(
     (destino: number) => {
-      const limitado = Math.min(Math.max(destino, 0), TOTAL_ETAPAS - 1);
+      const limitado = Math.min(Math.max(destino, 0), TOTAL_SLIDES - 1);
       alvo.current = limitado;
-      setParametros(escreverEtapa(limitado), { replace: true });
+      setParametros(escreverSlide(limitado), { replace: true });
     },
     [setParametros],
   );
 
   const aoAndar = useCallback((passo: number) => aoIr(alvo.current + passo), [aoIr]);
 
-  const ConteudoDaEtapa = CONTEUDO_DA_ETAPA[etapa.id];
+  const ConteudoDoSlide = CONTEUDO_DO_SLIDE[slide.id];
 
   return (
-    <Palco etapa={etapa} indice={indice} aoIr={aoIr} aoAndar={aoAndar} offline={dados?.offline}>
+    <Palco slide={slide} indice={indice} aoIr={aoIr} aoAndar={aoAndar} offline={dados?.offline}>
       {!dados && carregando && (
         <div role="status" className="flex flex-1 items-center justify-center">
           <span className="animate-pulse text-[clamp(1rem,1.6vw,1.6rem)] text-texto-suave">
@@ -84,7 +84,7 @@ export function PaginaApresentacao() {
         </Aviso>
       )}
 
-      {dados && ConteudoDaEtapa && <ConteudoDaEtapa key={etapa.id} dados={dados} />}
+      {dados && ConteudoDoSlide && <ConteudoDoSlide key={slide.id} dados={dados} />}
     </Palco>
   );
 }
