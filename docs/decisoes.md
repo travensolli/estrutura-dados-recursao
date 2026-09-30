@@ -382,14 +382,15 @@ da área.
   problema contém uma instância 'menor' do mesmo problema."
 - **Dois blocos com pseudocódigo.** As duas linhas da tese viraram dois
   blocos, sem cache e com cache, cada um com um texto curto e o pseudocódigo
-  no molde do material (Se, Então, Senão, Fim-se em negrito). O texto liga o
-  conceito aos cartões de baixo: o caso base é o "com f(0) = …" de cada
-  cartão, e o k do pseudocódigo é a ordem do selo. A versão com cache segue a
-  ordem de `puros.ts`, e não a do material: o caso base responde antes de
-  olhar o cache e não entra nele, que é o que dá os n − b + 1 valores
-  guardados da tabela. As linhas do cache levam a mesma marca da janela de
-  código, e um teste confere que a versão com cache é a sem cache mais essas
-  linhas.
+  no molde do material (Se, Então, Senão, Fim-se em negrito). O texto usa o
+  vocabulário do material, caso base e k termos anteriores, e fecha no
+  Fatorial, que com k ≤ 1 não ganha nada com o cache. Uma primeira versão
+  apontava o "com f(0) = …" e a ordem dos cartões; o usuário preferiu o texto
+  mais direto. A versão com cache segue a ordem de `puros.ts`, e não a do
+  material: o caso base responde antes de olhar o cache e não entra nele,
+  que é o que dá os n − b + 1 valores guardados da tabela. As linhas do cache
+  levam a mesma marca da janela de código, e um teste confere que a versão
+  com cache é a sem cache mais essas linhas.
 - **Sem a faixa do enunciado.** Os quatro atalhos numerados saíram; o menu
   do topo e os atalhos de cada cartão continuam levando às telas. O roteiro
   passou a entrar no Calcular pelo cartão do Tribonacci.
