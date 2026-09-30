@@ -1,6 +1,6 @@
 {
   "name": "@sequencias/nucleo",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "private": true,
   "description": "Algoritmos recursivos (Fatorial, Fibonacci, Tribonacci) com e sem cache, versões puras e instrumentadas, em TypeScript puro",
   "type": "module",
