@@ -371,3 +371,38 @@ setas do navegador e o rótulo "Valor de n", e colunas de 300 e 260px.
   iguais, "Tribonacci" era cortado na opção escolhida; as colunas dos
   segmentos passaram a seguir o conteúdo, e a descrição da Árvore ficou
   numa linha para a coluna caber na dobra.
+
+## 2026-09-30: O conceito no Início e as fórmulas para quem não conhece a notação
+
+Ajustes pedidos pelo usuário para o público da apresentação, que não é todo
+da área.
+
+- **A definição primeiro.** O título ganhou a frase do material de apoio:
+  "Problemas recursivos são aqueles em que uma determinada instância do
+  problema contém uma instância 'menor' do mesmo problema."
+- **Dois blocos com pseudocódigo.** As duas linhas da tese viraram dois
+  blocos, sem cache e com cache, cada um com um texto curto e o pseudocódigo
+  no molde do material (Se, Então, Senão, Fim-se em negrito). O texto usa o
+  vocabulário do material, caso base e k termos anteriores, e fecha no
+  Fatorial, que com k ≤ 1 não ganha nada com o cache. Uma primeira versão
+  apontava o "com f(0) = …" e a ordem dos cartões; o usuário preferiu o texto
+  mais direto. A versão com cache segue a ordem de `puros.ts`, e não a do
+  material: o caso base responde antes de olhar o cache e não entra nele,
+  que é o que dá os n − b + 1 valores guardados da tabela. As linhas do cache
+  levam a mesma marca da janela de código, e um teste confere que a versão
+  com cache é a sem cache mais essas linhas.
+- **Sem a faixa do enunciado.** Os quatro atalhos numerados saíram; o menu
+  do topo e os atalhos de cada cartão continuam levando às telas. O roteiro
+  passou a entrar no Calcular pelo cartão do Tribonacci.
+- **Fórmulas legíveis.** O painel abre com uma frase de como ler a tabela e
+  um glossário dos símbolos: n, f(n), k, b, invocação, I_sem e I_com, pilha e
+  Θ, com φ e τ. Cada linha diz em palavras o que mede, na primeira coluna,
+  que passou de "Grandeza" para "O que se mede", e as fórmulas com notação
+  trazem a leitura logo abaixo. A nota do rodapé foi reescrita sem jargão.
+
+**Medição:** em 1366x641 o Início termina 13px acima da dobra, com as
+fontes do sistema e com Verdana e Courier New forçadas. O pseudocódigo com
+cache, de 10 linhas, é o que define a altura dos blocos; por isso ele usa a
+entrelinha de dados e o texto ao lado foi cortado até caber numa linha a
+menos na fonte larga. A tabela não rola para o lado em 1366 nem em 1024px
+com n = 40.
