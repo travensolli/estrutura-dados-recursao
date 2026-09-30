@@ -4,7 +4,7 @@ import {
   type LimitesN,
   type Sequencia,
 } from '@sequencias/contrato';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useSequencias } from '../api/consultas';
 import { ALTURA_DESENHO_CAIXA } from '../arvore/layout';
@@ -34,6 +34,11 @@ export function PaginaArvore() {
   const [parametros, setParametros] = useSearchParams();
   const catalogo = useSequencias();
   const consulta = lerConsulta(parametros);
+  const chaveConsulta = parametros.toString();
+  /* O endereço em que os controles foram mexidos sem pedir a árvore: pedir outra
+     árvore, ou chegar por outro link, muda o endereço e apaga o aviso. */
+  const [alteradosEm, setAlteradosEm] = useState<string | null>(null);
+  const controlesMudaram = alteradosEm === chaveConsulta;
 
   const limitesPorSequencia = useMemo(() => {
     const mapa: Record<Sequencia, LimitesN> = { ...LIMITES_N.node };
@@ -64,11 +69,12 @@ export function PaginaArvore() {
       painel={
         <>
           <ControlesArvore
-            key={parametros.toString()}
+            key={chaveConsulta}
             inicial={consulta}
             limitesPorSequencia={limitesPorSequencia}
             limiteNosMaximo={limiteNosMaximo}
             aoAplicar={(nova) => setParametros(escreverConsulta(nova))}
+            aoAlterar={(alterados) => setAlteradosEm(alterados ? chaveConsulta : null)}
           />
 
           {/* Os números do que está desenhado ficam aqui, visíveis no desenho e na lista,
@@ -141,6 +147,13 @@ export function PaginaArvore() {
             resposta={dados.resposta}
             visaoInicial={visaoLembrada?.arvore === chaveArvore ? visaoLembrada.visao : null}
             aoEscolherVisao={(visao) => lembrarVisao({ arvore: chaveArvore, visao })}
+            aviso={
+              controlesMudaram ? (
+                <p className="text-sm text-texto-suave">
+                  O formulário mudou depois desta árvore. Clique em Ver árvore para atualizar.
+                </p>
+              ) : null
+            }
           />
         </>
       )}
