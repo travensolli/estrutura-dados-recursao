@@ -56,7 +56,7 @@ test.describe('dobra do notebook', () => {
       (pagina) => pagina.getByTestId('valor-alvo'),
       (pagina) => pagina.getByTestId('linha-argumento').first(),
       (pagina) => pagina.getByTestId('momento-cache').first(),
-      (pagina) => pagina.getByTestId('poda').first(),
+      (pagina) => pagina.getByTestId('soma-arvore'),
       (pagina) => pagina.getByTestId('evitadas'),
       (pagina) => pagina.getByRole('region', { name: 'O preço' }),
     ];

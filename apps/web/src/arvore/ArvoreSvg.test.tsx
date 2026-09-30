@@ -87,6 +87,21 @@ describe('ArvoreSvg', () => {
     expect(screen.getByRole('button', { name: 'Baixar a árvore' })).toBeInTheDocument();
   });
 
+  it('segue a proporção do desenho, ou preenche a altura do contêiner no palco', () => {
+    desenhar('sem_cache');
+    const proporcional = screen.getByRole('group', { name: /Árvore de chamadas/ });
+    expect(proporcional.style.aspectRatio).not.toBe('');
+    expect(proporcional).toHaveClass('h-auto');
+  });
+
+  it('no modo preencher a altura vem do contêiner, não da proporção', () => {
+    desenhar('sem_cache', undefined, undefined, { preencher: true, classeAltura: 'min-h-[220px]' });
+    const desenho = screen.getByRole('group', { name: /Árvore de chamadas/ });
+    expect(desenho.style.aspectRatio).toBe('');
+    expect(desenho).toHaveClass('flex-1', 'min-h-[220px]');
+    expect(desenho).not.toHaveClass('h-auto');
+  });
+
   it('no palco da apresentação não oferece exportar', () => {
     desenhar('sem_cache', undefined, undefined, { palco: true });
     expect(screen.getByRole('button', { name: 'Ajustar à tela' })).toBeInTheDocument();

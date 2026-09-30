@@ -47,8 +47,10 @@ test.describe('modo apresentação', () => {
     await expect(page).toHaveURL(/slide=4/);
   });
 
-  test('desenha as subárvores que o cache evitou', async ({ page }) => {
+  test('desenha as subárvores que o cache evitou numa árvore só', async ({ page }) => {
     await abrir(page, '/apresentacao?slide=4');
-    await expect(page.getByTestId('poda')).toHaveCount(5);
+    await expect(page.getByTestId('soma-arvore')).toContainText('46');
+    await expect(page.getByTestId('no-arvore')).toHaveCount(46);
+    await expect(page.locator('[data-testid="no-arvore"][data-fantasma="sim"]')).toHaveCount(30);
   });
 });

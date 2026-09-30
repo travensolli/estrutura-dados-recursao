@@ -82,6 +82,9 @@ export interface ArvoreSvgProps {
   /** No palco da apresentação: sem exportar, e a barra de zoom só aparece com o
       ponteiro sobre o desenho ou o foco dentro dele, para não ficar na imagem projetada. */
   palco?: boolean;
+  /** Ocupa a altura que o contêiner flex sobrar, em vez de seguir a proporção do desenho;
+      `classeAltura` passa a ser só o piso. */
+  preencher?: boolean;
 }
 
 interface Dica {
@@ -118,6 +121,7 @@ export function ArvoreSvg({
   enquadreMinimo = ENQUADRE_MINIMO,
   classeAltura = ALTURA_DESENHO,
   palco = false,
+  preencher = false,
 }: ArvoreSvgProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const comportamentoRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
@@ -356,8 +360,12 @@ export function ArvoreSvg({
   );
 
   return (
-    <figure className="m-0 flex flex-col gap-2">
-      <div className="group/desenho relative overflow-hidden rounded-lg border border-borda bg-superficie">
+    <figure className={`m-0 flex flex-col gap-2 ${preencher ? 'min-h-0 flex-1' : ''}`}>
+      <div
+        className={`group/desenho relative overflow-hidden rounded-lg border border-borda bg-superficie ${
+          preencher ? 'flex min-h-0 flex-1 flex-col' : ''
+        }`}
+      >
         {/* A barra flutua no canto inferior direito e não custa altura: nas três
             recorrências o ramo mais fundo é o da esquerda, f(n-1), e os da direita são
             rasos, então esse canto fica vazio. O contêiner deixa o ponteiro passar, e
@@ -403,8 +411,12 @@ export function ArvoreSvg({
           ref={svgRef}
           role="group"
           aria-label={descricao}
-          className={`block h-auto w-full touch-none ${classeAltura}`}
-          style={{ aspectRatio: `${layout.caixa.largura} / ${layout.caixa.altura}` }}
+          className={`block w-full touch-none ${preencher ? 'flex-1' : 'h-auto'} ${classeAltura}`}
+          style={
+            preencher
+              ? undefined
+              : { aspectRatio: `${layout.caixa.largura} / ${layout.caixa.altura}` }
+          }
         >
           <g
             data-camada="conteudo"

@@ -88,21 +88,26 @@ describe('modo apresentação', () => {
     });
   });
 
-  it('desenha as subárvores evitadas somando 30 chamadas', async () => {
+  it('desenha só a árvore com cache, com as 30 chamadas evitadas no tracejado', async () => {
     abrir('/apresentacao?slide=4');
     await esperarPalco();
-    await waitFor(() => expect(screen.getAllByTestId('poda')).toHaveLength(5));
+    const soma = await screen.findByTestId('soma-arvore');
 
-    const quantidades = screen
-      .getAllByTestId('poda')
-      .map((item) => Number(/evita (\d+)/.exec(item.textContent ?? '')?.[1]));
-    expect(quantidades).toEqual([12, 6, 6, 3, 3]);
-    expect(quantidades.reduce((soma, parcela) => soma + parcela, 0)).toBe(30);
-    expect(screen.getByText('evita 12 chamadas')).toBeInTheDocument();
-    expect(
-      screen.getAllByTestId('no-arvore').filter((no) => no.dataset.fantasma === 'sim'),
-    ).toHaveLength(30);
-    expect(screen.getByText(/dá 46 nós, exatamente o total sem cache/)).toBeInTheDocument();
+    expect(within(soma).getByText('feitas com cache').nextElementSibling).toHaveTextContent('16');
+    expect(within(soma).getByText('evitadas').nextElementSibling).toHaveTextContent('30');
+    expect(within(soma).getByText('as invocações sem cache').nextElementSibling).toHaveTextContent(
+      '46',
+    );
+    expect(screen.getAllByRole('group', { name: /Árvore de chamadas/ })).toHaveLength(1);
+
+    const nos = screen.getAllByTestId('no-arvore');
+    expect(nos).toHaveLength(46);
+    expect(nos.filter((no) => no.dataset.fantasma === 'sim')).toHaveLength(30);
+    const selos = screen
+      .getAllByText(/^evita \d+ chamadas?$/)
+      .map((selo) => Number(/\d+/.exec(selo.textContent ?? '')?.[0]))
+      .sort((a, b) => b - a);
+    expect(selos).toEqual([12, 6, 6, 3, 3]);
   });
 
   it('navega entre slides pelo teclado e guarda o slide no endereço', async () => {

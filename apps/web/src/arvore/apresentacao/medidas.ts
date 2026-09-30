@@ -10,5 +10,6 @@ export const ALTURA_ARVORE = 'min-h-[160px] max-h-[clamp(160px,calc(100dvh-440px
 /** Slide 3: regras, momentos, controles e narração acima do desenho. */
 export const ALTURA_ARVORE_REPRODUCAO =
   'min-h-[180px] max-h-[clamp(180px,calc(100dvh-382px),820px)]';
-/** Slide 4: duas árvores lado a lado, com as podas e a frase abaixo. */
-export const ALTURA_ARVORE_DUPLA = 'min-h-[160px] max-h-[clamp(160px,calc(100dvh-400px),700px)]';
+/** Slide 4: uma árvore só, que preenche o que sobra do palco; aqui vale só o piso, para
+    janelas muito baixas rolarem em vez de espremer o desenho. */
+export const ALTURA_ARVORE_EVITADA = 'min-h-[220px]';
