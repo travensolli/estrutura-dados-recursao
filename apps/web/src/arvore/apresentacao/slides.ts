@@ -51,7 +51,8 @@ export const SLIDES: readonly Slide[] = [
     id: 'conclusao',
     nome: 'Conclusão',
     titulo: 'Conclusão',
-    resumo: 'O cache troca tempo por memória, e nem toda sequência ganha com isso.',
+    resumo:
+      'O cache gasta memória para evitar chamadas repetidas, e só compensa quando elas se repetem.',
   },
 ];
 

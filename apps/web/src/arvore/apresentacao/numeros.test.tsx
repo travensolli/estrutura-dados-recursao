@@ -111,6 +111,9 @@ describe('números da apresentação', () => {
     expect(screen.getByLabelText('Sem cache')).toHaveTextContent('25');
     expect(screen.getByLabelText('Com cache')).toHaveTextContent('13');
     expect(screen.getAllByText('invocações para n = 6')).toHaveLength(2);
+    expect(screen.getByTestId('pergunta-cache')).toHaveTextContent(
+      'a função é chamada mais de uma vez com o mesmo argumento? No Tribonacci, sim: f(2) é chamado 7 vezes, e o cache evita 12 das 25 chamadas.',
+    );
     expect(container.textContent).not.toMatch(REFERENCIA);
   });
 });
