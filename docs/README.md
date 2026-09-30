@@ -51,7 +51,7 @@ daquela máquina.
 | `figuras/grafico-memoria.svg`                         | Memória retida pelo cache por n, em eixo linear               | Gerado por script |
 | `figuras/arvore-tribonacci-f7-sem-cache.svg` e `.png` | Os 46 nós coloridos por argumento, exportados da interface    | Exportado do app  |
 | `figuras/arvore-tribonacci-f7-com-cache.svg` e `.png` | Os 16 nós, com os acertos tracejados                          | Exportado do app  |
-| `figuras/tela-apresentacao-slide-conta.png`           | O slide da conta: 46 para 16, um quadrado por chamada         | Exportado do app  |
+| `figuras/tela-apresentacao-slide-conta.png`           | O slide da conta: as 30 evitadas, um quadrado por chamada     | Exportado do app  |
 | `figuras/tela-comparar-tribonacci-f18.png`            | A tela de comparação com tempo, memória e curvas              | Exportado do app  |
 
 Para exportar de novo as figuras da interface: abra

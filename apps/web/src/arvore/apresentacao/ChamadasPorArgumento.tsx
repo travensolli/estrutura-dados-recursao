@@ -39,8 +39,8 @@ export interface ChamadasPorArgumentoProps {
 /**
  * Um quadrado por chamada de cada argumento: os cheios continuam com cache, os
  * tracejados são os que o cache evitou. Na entrada, os tracejados se esvaziam
- * um a um no ritmo do contador ao lado, que desce das chamadas sem cache para
- * as com cache.
+ * um a um no ritmo do contador ao lado, que sobe de zero até as chamadas
+ * evitadas.
  */
 export function ChamadasPorArgumento({ comparacao }: ChamadasPorArgumentoProps) {
   const { linhas } = comparacao;

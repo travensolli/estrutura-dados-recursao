@@ -17,26 +17,25 @@ export function SlideConta({ dados }: { dados: DadosApresentacao }) {
   return (
     <div className="grid min-w-0 items-start gap-[clamp(1rem,3vw,3rem)] lg:grid-cols-[1.05fr_1fr]">
       <div className="flex min-w-0 flex-col gap-[clamp(0.5rem,1.5vh,1.25rem)]">
-        {/* O número e a unidade numa linha só, a unidade no corpo da frase de baixo. */}
-        <div className="flex flex-wrap items-baseline gap-x-[0.5em] text-[clamp(1rem,1.5vw,1.5rem)]">
+        {/* O destaque é o que o cache evitou: o número sobe de zero no ritmo em que os
+            quadrados ao lado se esvaziam, com a unidade na mesma linha. */}
+        <div
+          data-testid="evitadas"
+          className="flex flex-wrap items-baseline gap-x-[0.4em] text-[clamp(1.25rem,2.4vw,2.4rem)] font-semibold text-primaria"
+        >
           <Contador
-            de={comparacao.invocacoesSemCache}
-            para={comparacao.invocacoesComCache}
+            de={0}
+            para={comparacao.evitadas}
             rodada={rodada}
-            classe="text-[length:clamp(3.5rem,min(13vw,19vh),10rem)] leading-none font-semibold"
+            classe="text-[length:clamp(3.5rem,min(13vw,19vh),10rem)]"
           />
-          <span aria-hidden="true">invocações</span>
+          <span aria-hidden="true">chamadas evitadas</span>
+          <span className="sr-only">{`${formatarInteiro(comparacao.evitadas)} chamadas evitadas`}</span>
         </div>
         <p className="text-[clamp(1rem,1.5vw,1.5rem)]">
-          {`de ${formatarInteiro(comparacao.invocacoesSemCache)} sem cache para ${formatarInteiro(
+          {`de ${formatarInteiro(comparacao.invocacoesSemCache)} invocações sem cache, com cache só ${formatarInteiro(
             comparacao.invocacoesComCache,
-          )} com cache`}
-        </p>
-        <p
-          data-testid="evitadas"
-          className="font-mono text-[clamp(1.4rem,3vw,2.8rem)] font-semibold text-primaria"
-        >
-          {`− ${formatarInteiro(comparacao.evitadas)} chamadas evitadas`}
+          )} acontecem`}
         </p>
 
         <dl className="mt-1 flex flex-col gap-2">

@@ -74,17 +74,19 @@ describe('modo apresentação', () => {
     expect(screen.getByText(/cada n a mais multiplica por ≈ 1,84/)).toBeInTheDocument();
   });
 
-  it('conta de 46 para 16 e prova as 30 chamadas evitadas', async () => {
+  it('destaca as 30 chamadas evitadas das 46 e prova a conta', async () => {
     abrir('/apresentacao?slide=5');
     await esperarPalco();
     await waitFor(() => expect(screen.getByTestId('evitadas')).toBeInTheDocument());
 
-    expect(screen.getByTestId('evitadas')).toHaveTextContent('− 30 chamadas evitadas');
-    expect(screen.getByText('de 46 sem cache para 16 com cache')).toBeInTheDocument();
+    expect(screen.getByText('30 chamadas evitadas')).toBeInTheDocument();
+    expect(
+      screen.getByText('de 46 invocações sem cache, com cache só 16 acontecem'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1 }).nextElementSibling).toBeNull();
     expect(screen.getByTestId('prova-podas')).toHaveTextContent('12 + 6 + 6 + 3 + 3 = 30');
     expect(screen.getByTestId('prova-recursivas')).toHaveTextContent('45 − 15 = 30');
-    await waitFor(() => expect(screen.getByTestId('contador')).toHaveTextContent('16'), {
+    await waitFor(() => expect(screen.getByTestId('contador')).toHaveTextContent('30'), {
       timeout: 4000,
     });
   });
