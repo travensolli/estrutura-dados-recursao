@@ -7,7 +7,7 @@ import {
 } from '@sequencias/contrato';
 import { coletarAmbiente } from './ambiente';
 import { medirMemoria, type OpcoesMemoria } from './memoria';
-import { normalizarOrdem, porModo } from './modos';
+import { ORDEM_PADRAO, normalizarOrdem, porModo } from './modos';
 import { medirTemposDosModos, type OpcoesTempo } from './tempo';
 
 export interface OpcoesComparacao {
@@ -20,7 +20,10 @@ export interface OpcoesComparacao {
 
 /**
  * Executa a comparação completa de um n: tempo dos dois modos intercalado,
- * memória de cada modo em execução separada e o ambiente da máquina.
+ * memória de cada modo em execução separada e o ambiente da máquina. A ordem
+ * pedida vale só para o tempo; a memória sai sempre em ordem fixa, porque o
+ * modo medido depois herda o heap aquecido pelo primeiro e a alternância
+ * faria o comparativo oscilar entre rodadas.
  */
 export function compararModos(
   sequencia: Sequencia,
@@ -35,7 +38,9 @@ export function compararModos(
     repeticoes: opcoes.tempo?.repeticoes ?? repeticoesPedidas,
   });
 
-  const medicoes = porModo(ordem, (modo) => medirMemoria(sequencia, n, modo, opcoes.memoria));
+  const medicoes = porModo(ORDEM_PADRAO, (modo) =>
+    medirMemoria(sequencia, n, modo, opcoes.memoria),
+  );
   const semCache = medicoes.sem_cache.metricas;
   const comCache = medicoes.com_cache.metricas;
   if (semCache.valor !== comCache.valor) {
@@ -52,7 +57,7 @@ export function compararModos(
     digitos: comCache.digitos,
     repeticoes,
     tempo,
-    memoria: porModo(ordem, (modo) => medicoes[modo].memoria),
+    memoria: porModo(ORDEM_PADRAO, (modo) => medicoes[modo].memoria),
     invocacoes: { sem_cache: semCache.invocacoes, com_cache: comCache.invocacoes },
     fator_aceleracao: medianaComCache > 0 ? medianaSemCache / medianaComCache : 0,
     chamadas_evitadas: Math.max(0, semCache.invocacoes - comCache.invocacoes),

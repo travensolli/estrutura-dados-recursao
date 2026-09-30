@@ -18,7 +18,7 @@ export function trabalhosPendentes(): number {
   return fila.pendentes;
 }
 
-/** Monta a comparação já com a ordem dos modos alternada em relação à anterior. */
+/** Monta a comparação com a ordem do tempo alternada; a memória sai sempre em ordem fixa. */
 export function pedidoDeComparacao(
   sequencia: Sequencia,
   n: number,
