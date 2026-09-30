@@ -17,27 +17,28 @@ export function SlideConclusao({ dados }: { dados: DadosApresentacao }) {
   const n = comCache.n;
   const mesmaPilha =
     semCache.metricas.profundidade_maxima === comCache.metricas.profundidade_maxima;
+  const maisChamado = comparacao.argumentoMaisChamado;
 
   const colunas: Coluna[] = [
     {
       titulo: 'Sem cache',
       numero: formatarInteiro(comparacao.invocacoesSemCache),
       unidade: `invocações para n = ${n}`,
-      texto: `Crescimento ${info.crescimento_sem_cache}. Cada aumento de 1 em n multiplica o trabalho, porque a árvore inteira é refeita em cada ramo.`,
+      texto: `Crescimento ${info.crescimento_sem_cache}. Cada n a mais multiplica as chamadas por um fator constante, porque ramos diferentes recalculam as mesmas subárvores.`,
     },
     {
       titulo: 'Com cache',
       numero: formatarInteiro(comparacao.invocacoesComCache),
       unidade: `invocações para n = ${n}`,
-      texto: `Crescimento ${info.crescimento_com_cache}. Cada argumento é calculado uma única vez, e as demais chamadas viram consulta.`,
+      texto: `Crescimento ${info.crescimento_com_cache}. Cada argumento é calculado uma única vez; as chamadas seguintes com o mesmo argumento só consultam o dicionário.`,
     },
     {
       titulo: 'O preço',
       numero: formatarInteiro(comCache.metricas.entradas_cache),
       unidade: 'entradas guardadas na memória',
       texto: mesmaPilha
-        ? `A pilha não muda: ${formatarInteiro(comCache.metricas.profundidade_maxima)} quadros nos dois modos. O que o cache troca é memória por chamadas, não profundidade.`
-        : 'O cache troca memória por chamadas: o dicionário fica vivo até o fim da execução.',
+        ? `Uma entrada por argumento calculado, guardada até o fim da execução. A pilha é a mesma nos dois modos, ${formatarInteiro(comCache.metricas.profundidade_maxima)} quadros: o cache economiza chamadas, não profundidade.`
+        : 'Uma entrada por argumento calculado, guardada até o fim da execução.',
     },
   ];
 
@@ -62,19 +63,25 @@ export function SlideConclusao({ dados }: { dados: DadosApresentacao }) {
         ))}
       </div>
 
-      {/* O fecho: o que a turma leva embora é o critério, não a ressalva do fatorial. */}
-      {/* O fecho ocupa a largura toda do palco: a letra cresce com a tela em vez de a linha
-          parar numa coluna estreita. */}
+      {/* O fecho: o que a turma leva embora é o critério, com um caso de cada lado. Ocupa a
+          largura toda do palco, e a letra cresce com a tela. */}
       <div className="border-l-3 border-primaria pl-[clamp(0.75rem,1.5vw,1.5rem)] text-[clamp(1.05rem,min(1.75vw,3.4vh),2.1rem)] leading-snug">
         <p>
-          Memoização não acelera a recursão: ela apaga o trabalho repetido, e repetição só existe
-          quando a recursão ramifica. No fatorial, de ordem 1, cada argumento aparece uma vez e o
-          dicionário só cobra memória.
+          A memoização não acelera a recursão por si só: ela evita refazer chamadas, guardando cada
+          resultado já calculado.
         </p>
-        <p className="mt-2">
-          A pergunta que decide o uso do cache é uma só:{' '}
-          <strong className="font-semibold text-primaria">o mesmo argumento volta?</strong> A árvore
-          mostra; o contador prova.
+        <p data-testid="pergunta-cache" className="mt-2">
+          Por isso, antes de usar cache, a pergunta é:{' '}
+          <strong className="font-semibold text-primaria">
+            a função é chamada mais de uma vez com o mesmo argumento?
+          </strong>{' '}
+          {maisChamado &&
+            `No ${info.nome}, sim: f(${maisChamado.argumento}) é chamado ${formatarInteiro(
+              maisChamado.semCache,
+            )} vezes, e o cache evita ${formatarInteiro(comparacao.evitadas)} das ${formatarInteiro(
+              comparacao.invocacoesSemCache,
+            )} chamadas. `}
+          No fatorial, não: cada argumento é chamado uma única vez, e o cache só ocupa memória.
         </p>
       </div>
     </div>

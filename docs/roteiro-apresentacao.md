@@ -238,11 +238,13 @@ Calcular volta como ficou na seção 3, com o Tribonacci f(7) na tela e o modo *
   então não há nada para reaproveitar.
 - **A pilha não muda.** A profundidade máxima é a mesma com e sem cache, porque a primeira descida
   é idêntica. O cache economiza chamadas, não altura de pilha.
-- Fechamento: memoização é uma troca de espaço por tempo, e ela só compensa onde existe trabalho
-  repetido. Medir é o que permite afirmar isso.
+- Fechamento: a memoização gasta memória para evitar chamadas repetidas, e só compensa onde a
+  função é chamada mais de uma vez com o mesmo argumento; lá, menos chamadas viram menos tempo.
+  Medir é o que permite afirmar isso.
 - Se sobrar meio minuto, o slide 6 da apresentação, a Conclusão (`/apresentacao?slide=6`), põe
-  esse critério na tela: exponencial contra linear, o preço em memória e a pergunta que decide o uso do cache, **o
-  mesmo argumento volta?**
+  esse critério na tela: as chamadas sem e com cache, o preço em memória e a pergunta que decide o
+  uso do cache, **a função é chamada mais de uma vez com o mesmo argumento?**, com o Tribonacci de
+  um lado e o fatorial do outro.
 - Encerre abrindo para perguntas.
 
 ## Checklist dez minutos antes

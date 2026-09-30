@@ -520,6 +520,13 @@ melhor projetada.
   baixo, em vez de um rótulo pequeno acima dele.
 - **Slide 6, Conclusão.** Sai o nome Generalizando e o título
   Exponencial contra linear. O fecho ocupa a largura toda do palco.
+  O texto passa a dizer uma coisa só, do resumo ao fecho: o cache gasta
+  memória para evitar chamadas repetidas. Antes o resumo falava em
+  trocar tempo por memória e a coluna do preço em memória por chamadas.
+  A memoização não acelera a recursão por si só, e a pergunta que
+  decide o uso fica explícita, "a função é chamada mais de uma vez com
+  o mesmo argumento?", com o Tribonacci de um lado e o fatorial do
+  outro. A frase "A árvore mostra; o contador prova" sai.
 
 **Medição:** os slides 1, 2, 4, 5 e 6 cabem sem rolagem em 1024×640,
 1280×720, 1366×641, 1366×768, 1440×773 e 1920×1080, e o e2e confere os
