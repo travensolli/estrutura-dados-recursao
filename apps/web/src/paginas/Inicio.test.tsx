@@ -38,16 +38,16 @@ describe('Página inicial', () => {
     );
 
     const semCache = screen.getByRole('region', { name: 'Sem cache' });
-    expect(semCache).toHaveTextContent(/o caso base \(“com f\(0\) = …” nos cartões\), sai direto/);
-    expect(semCache).toHaveTextContent(/a ordem do cartão/);
-    expect(semCache).toHaveTextContent(/custo exponencial/);
+    expect(semCache).toHaveTextContent(/A instância pequena, o caso base, sai direto/);
+    expect(semCache).toHaveTextContent(/chamam a função para os k termos anteriores e combinam/);
+    expect(semCache).toHaveTextContent(/o custo se torna exponencial/);
     expect(within(semCache).getByText('Função')).toBeInTheDocument();
     expect(semCache.querySelectorAll('mark')).toHaveLength(0);
 
     const comCache = screen.getByRole('region', { name: 'Com cache (memoização)' });
     expect(comCache).toHaveTextContent(/se f\(n\) já foi calculado, devolve o valor guardado/);
-    expect(comCache).toHaveTextContent(/custo linear/);
-    expect(comCache).toHaveTextContent(/No Fatorial nada se repete/);
+    expect(comCache).toHaveTextContent(/o custo passa a ser linear/);
+    expect(comCache).toHaveTextContent(/No Fatorial, como nada se repete \(k ≤ 1\), não há ganho/);
     const marcadas = [...comCache.querySelectorAll('mark')].map((linha) =>
       linha.textContent?.trim(),
     );

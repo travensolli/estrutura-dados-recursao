@@ -163,17 +163,16 @@ export function PaginaInicio() {
         </p>
         <div className="mt-2 grid gap-x-8 gap-y-4 md:grid-cols-2">
           <BlocoModo modo="sem_cache" titulo="Sem cache">
-            A instância pequena, o <strong className="font-semibold">caso base</strong> (
-            <span className="whitespace-nowrap">“com f(0) = …”</span> nos cartões), sai direto. As
-            maiores chamam a função para os k termos anteriores, a{' '}
-            <strong className="font-semibold">ordem</strong> do cartão, e combinam. Com k ≥ 2 as
-            chamadas se repetem: custo <strong className="font-semibold">exponencial</strong>.
+            A instância pequena, o <strong className="font-semibold">caso base</strong>, sai direto.
+            As maiores chamam a função para os k termos anteriores e combinam. Com{' '}
+            <span className="whitespace-nowrap">k ≥ 2</span> as chamadas se repetem e o custo se
+            torna <strong className="font-semibold">exponencial</strong>.
           </BlocoModo>
           <BlocoModo modo="com_cache" titulo="Com cache (memoização)">
-            Antes de chamar de novo, a função consulta o cache (linhas marcadas): se f(n) já foi
-            calculado, devolve o valor guardado. Cada f(n) é calculado uma vez: custo{' '}
-            <strong className="font-semibold">linear</strong>. No Fatorial nada se repete, e não há
-            ganho.
+            Antes de chamar de novo, a função consulta o cache: se f(n) já foi calculado, devolve o
+            valor guardado. Cada f(n) é calculado uma vez e o custo passa a ser{' '}
+            <strong className="font-semibold">linear</strong>. No Fatorial, como nada se repete{' '}
+            <span className="whitespace-nowrap">(k ≤ 1)</span>, não há ganho.
           </BlocoModo>
         </div>
       </section>
