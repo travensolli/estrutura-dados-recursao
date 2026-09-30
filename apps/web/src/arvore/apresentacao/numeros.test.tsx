@@ -60,9 +60,11 @@ describe('números da apresentação', () => {
     semMovimento();
     const { container } = render(<SlideConta dados={dadosDe(N_APRESENTACAO)} />);
 
-    expect(screen.getByText('de 46 sem cache para 16 com cache')).toBeInTheDocument();
-    expect(screen.getByTestId('evitadas')).toHaveTextContent('− 30 chamadas evitadas');
-    expect(screen.getByTestId('contador')).toHaveTextContent('16');
+    expect(screen.getByText('30 chamadas evitadas')).toBeInTheDocument();
+    expect(screen.getByTestId('contador')).toHaveTextContent('30');
+    expect(
+      screen.getByText('das 46 invocações sem cache, só 16 acontecem com cache'),
+    ).toBeInTheDocument();
     expect(screen.getByTestId('prova-podas')).toHaveTextContent('12 + 6 + 6 + 3 + 3 = 30');
     expect(screen.getByTestId('prova-recursivas')).toHaveTextContent('45 − 15 = 30');
     expect(container.textContent).toMatch(REFERENCIA);
@@ -83,9 +85,11 @@ describe('números da apresentação', () => {
     semMovimento();
     const { container } = render(<SlideConta dados={dadosDe(N_APRESENTACAO - 1)} />);
 
-    expect(screen.getByText('de 25 sem cache para 13 com cache')).toBeInTheDocument();
-    expect(screen.getByTestId('evitadas')).toHaveTextContent('− 12 chamadas evitadas');
-    expect(screen.getByTestId('contador')).toHaveTextContent('13');
+    expect(screen.getByText('12 chamadas evitadas')).toBeInTheDocument();
+    expect(screen.getByTestId('contador')).toHaveTextContent('12');
+    expect(
+      screen.getByText('das 25 invocações sem cache, só 13 acontecem com cache'),
+    ).toBeInTheDocument();
     expect(screen.getByTestId('prova-podas')).toHaveTextContent('6 + 3 + 3 = 12');
     expect(screen.getByTestId('prova-recursivas')).toHaveTextContent('24 − 12 = 12');
     expect(screen.getAllByTestId('quadro-chamada')).toHaveLength(25);
