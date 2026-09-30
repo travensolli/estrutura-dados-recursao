@@ -11,6 +11,7 @@ import {
   rotuloAbrirRecolhidos,
 } from './modelo';
 import { MarcaTipo } from './ui/MarcaTipo';
+import { ALTURA_DESENHO_TETO } from './layout';
 
 const RECUO = 18;
 
@@ -135,7 +136,7 @@ export function ArvoreLista({
       <ul
         role="tree"
         aria-label={rotulo}
-        className="max-h-[70vh] overflow-auto rounded-lg border border-borda bg-superficie p-2"
+        className={`overflow-auto rounded-lg border border-borda bg-superficie p-2 ${ALTURA_DESENHO_TETO}`}
       >
         {itens.map((item) => {
           const { no } = item;
@@ -163,7 +164,7 @@ export function ArvoreLista({
               aria-label={rotuloAcessivel(item, mostraValor ? valor.abreviado : 'ainda calculando')}
               tabIndex={no.id === idAtivo ? 0 : -1}
               style={{ paddingInlineStart: `${item.nivel * RECUO}px` }}
-              className={`flex cursor-pointer items-center gap-2 rounded-md border-l border-borda px-2 py-1.5 hover:bg-superficie-suave focus-visible:outline-3 focus-visible:outline-foco ${
+              className={`flex cursor-pointer items-center gap-2 rounded-md border-l border-borda px-2 py-1.5 hover:bg-superficie-suave focus-visible:outline-(length:--espessura-foco) focus-visible:outline-offset-(--recuo-foco) focus-visible:outline-foco ${
                 estado === 'futuro' ? 'opacity-45' : ''
               } ${estado === 'ativo' ? 'bg-superficie-suave' : ''} ${
                 emFoco ? 'ring-2 ring-foco' : ''

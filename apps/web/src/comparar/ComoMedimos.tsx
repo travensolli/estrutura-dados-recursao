@@ -25,13 +25,15 @@ const ITENS: ReadonlyArray<{ termo: string; texto: string }> = [
   },
 ];
 
+/* Duas colunas de fluxo: a medida de leitura fica curta, a ordem dos verbetes se
+   mantém de cima para baixo e nenhum verbete curto deixa buraco ao lado de um longo. */
 function ListaMetodo() {
   return (
-    <dl className="space-y-2 text-sm">
+    <dl className="gap-x-6 text-sm leading-prosa lg:columns-2">
       {ITENS.map(({ termo, texto }) => (
-        <div key={termo} className="gap-x-4 sm:grid sm:grid-cols-[6rem_1fr]">
+        <div key={termo} className="mb-3 break-inside-avoid last:mb-0">
           <dt className="font-semibold">{termo}</dt>
-          <dd className="text-texto-suave">{texto}</dd>
+          <dd className="text-texto">{texto}</dd>
         </div>
       ))}
     </dl>
@@ -39,10 +41,13 @@ function ListaMetodo() {
 }
 
 /** O método da medição: aberto antes da primeira comparação, recolhido depois. */
-export function ComoMedimos({ recolhido }: { recolhido: boolean }) {
+export function ComoMedimos({ recolhido, className }: { recolhido: boolean; className?: string }) {
   if (recolhido) {
     return (
-      <Detalhes resumo={<h2 className="text-base font-semibold">{TITULO}</h2>}>
+      <Detalhes
+        resumo={<h2 className="text-base font-semibold">{TITULO}</h2>}
+        className={className}
+      >
         <ListaMetodo />
       </Detalhes>
     );

@@ -10,7 +10,7 @@ async function abrir(rota = '/calcular') {
   const usuario = userEvent.setup();
   renderizarComProvedores(<PaginaCalcular />, { rota });
   // Os limites de n vêm da API: com eles na tela, o formulário está pronto.
-  await screen.findByText(/^Aceita de 0 a \d/);
+  await screen.findByText(/^De 0 a \d/);
   return usuario;
 }
 
@@ -64,7 +64,7 @@ function linhaDoArgumento(argumento: number): HTMLElement {
 describe('Página calcular', () => {
   it('começa vazia, com tribonacci, n 7 e sem cache', async () => {
     await abrir();
-    expect(screen.getByLabelText('Sequência')).toHaveValue('tribonacci');
+    expect(screen.getByRole('radio', { name: 'Tribonacci' })).toBeChecked();
     expect(screen.getByRole('radio', { name: 'Sem cache' })).toBeChecked();
     expect(screen.getByLabelText('n')).toHaveValue('7');
     expect(screen.getByText('Nenhum cálculo ainda')).toBeInTheDocument();
@@ -262,11 +262,11 @@ describe('Página calcular', () => {
 
   it('guarda sequência, n e modo no endereço', async () => {
     const usuario = await abrir();
-    await usuario.selectOptions(screen.getByLabelText('Sequência'), 'fibonacci');
+    await usuario.click(screen.getByRole('radio', { name: 'Fibonacci' }));
     await usuario.click(screen.getByRole('radio', { name: 'Com cache' }));
     await usuario.clear(screen.getByLabelText('n'));
     await usuario.type(screen.getByLabelText('n'), '12');
-    expect(screen.getByLabelText('Sequência')).toHaveValue('fibonacci');
+    expect(screen.getByRole('radio', { name: 'Fibonacci' })).toBeChecked();
     expect(screen.getByRole('radio', { name: 'Com cache' })).toBeChecked();
     expect(screen.getByLabelText('n')).toHaveValue('12');
     expect(document.title).toMatch(/^Calcular Fibonacci f\(12\)/);

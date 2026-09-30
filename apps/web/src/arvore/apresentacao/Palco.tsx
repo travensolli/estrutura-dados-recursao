@@ -83,18 +83,21 @@ export function Palco({ etapa, indice, aoIr, aoAndar, offline = false, children 
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-fundo text-texto">
-      <header className="border-b border-borda px-[clamp(1rem,3vw,3rem)] pt-3">
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+      {/* Uma faixa só: o assunto à esquerda e a trilha de etapas ocupando o resto. */}
+      <header className="flex flex-wrap items-end gap-x-[clamp(1rem,2.5vw,2.5rem)] gap-y-1 border-b border-borda px-[clamp(1rem,3vw,3rem)] pt-2">
+        <div className="flex shrink-0 flex-col gap-1 pb-2">
           <p className="font-mono text-[clamp(0.8rem,1vw,1rem)] tracking-wide text-texto-suave">
             {`${ALVO}: recursão com e sem cache`}
           </p>
           {offline && (
-            <span className="rounded-full border border-alerta px-3 py-0.5 text-sm text-texto">
+            <span className="self-start rounded-full border border-alerta px-3 py-0.5 text-sm text-texto">
               modo offline: calculado no navegador
             </span>
           )}
         </div>
-        <nav aria-label="Etapas da apresentação" className="mt-2">
+        {/* A base mínima faz a trilha descer para a própria linha quando não cabe ao lado do
+            assunto; com base zero ela se espremeria em vez de quebrar. */}
+        <nav aria-label="Etapas da apresentação" className="min-w-0 flex-1 basis-[32rem]">
           <ol className="flex gap-1">
             {ETAPAS.map((passo, posicao) => {
               const atual = posicao === indice;
@@ -106,7 +109,7 @@ export function Palco({ etapa, indice, aoIr, aoAndar, offline = false, children 
                     data-testid="etapa-trilha"
                     aria-current={atual ? 'step' : undefined}
                     onClick={() => aoIr(posicao)}
-                    className={`flex min-h-toque w-full items-baseline gap-2 border-t-3 px-1 pt-2 pb-2 text-left ${
+                    className={`flex min-h-toque w-full items-baseline gap-2 border-t-3 px-1 pt-1.5 pb-1.5 text-left ${
                       atual
                         ? 'border-t-primaria text-texto'
                         : percorrida
@@ -136,22 +139,22 @@ export function Palco({ etapa, indice, aoIr, aoAndar, offline = false, children 
         id="conteudo"
         /* A moldura tem altura fixa e só o conteúdo rola: os controles de etapa
            ficam sempre visíveis e a chegada dos dados não empurra o rodapé. */
-        className="flex min-h-0 flex-1 flex-col gap-[clamp(0.75rem,1.5vh,1.5rem)] overflow-y-auto px-[clamp(1rem,3vw,3rem)] py-[clamp(0.75rem,2vh,2rem)]"
+        className="flex min-h-0 flex-1 flex-col gap-[clamp(0.5rem,1.2vh,1rem)] overflow-y-auto px-[clamp(1rem,3vw,3rem)] py-[clamp(0.5rem,1.5vh,1.25rem)]"
       >
         <div>
           {/* Nome da página só para leitor de tela: no projetor vale o título da etapa. */}
-          <h1 className="text-[clamp(1.5rem,3.1vw,2.9rem)] leading-tight font-semibold tracking-tight text-balance">
+          <h1 className="text-[clamp(1.3rem,2.5vw,2.25rem)] leading-tight font-semibold tracking-tight text-balance">
             <span className="sr-only">Modo apresentação: </span>
             {etapa.titulo}
           </h1>
-          <p className="mt-1 max-w-[70ch] text-[clamp(0.95rem,1.35vw,1.35rem)] text-texto-suave text-balance">
+          <p className="mt-0.5 max-w-[70ch] text-[clamp(0.9rem,1.2vw,1.2rem)] text-texto-suave text-balance">
             {etapa.resumo}
           </p>
         </div>
         {children}
       </main>
 
-      <footer className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-borda px-[clamp(1rem,3vw,3rem)] py-3">
+      <footer className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-borda px-[clamp(1rem,3vw,3rem)] py-2">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -173,11 +176,11 @@ export function Palco({ etapa, indice, aoIr, aoAndar, offline = false, children 
         <p className="font-mono text-[clamp(0.9rem,1.1vw,1.15rem)] tabular-nums">
           Etapa {indice + 1} de {TOTAL_ETAPAS}
         </p>
-        <p className="hidden text-[clamp(0.8rem,0.95vw,1rem)] text-texto-suave lg:block">
-          {etapa.setasOcupadas
-            ? 'Aqui as setas andam na execução: troque de etapa com PageUp e PageDown.'
-            : 'As setas trocam de etapa; os números de 1 a 6 vão direto.'}
-        </p>
+        {etapa.setasOcupadas && (
+          <p className="hidden text-[clamp(0.8rem,0.95vw,1rem)] text-texto-suave lg:block">
+            Aqui as setas andam na execução: troque de etapa com PageUp e PageDown.
+          </p>
+        )}
         <div className="ml-auto flex items-center gap-3">
           {tela.suportada && (
             <button type="button" className={BOTAO} onClick={tela.alternar}>
@@ -186,7 +189,7 @@ export function Palco({ etapa, indice, aoIr, aoAndar, offline = false, children 
           )}
           <Link
             to="/"
-            className="text-[clamp(0.8rem,0.95vw,1rem)] text-texto-suave underline underline-offset-4 hover:text-texto"
+            className="inline-flex min-h-toque items-center text-[clamp(0.8rem,0.95vw,1rem)] text-texto-suave underline underline-offset-4 hover:text-texto"
           >
             Sair da apresentação
           </Link>

@@ -12,7 +12,7 @@ async function abrir(rota = '/comparar') {
   const usuario = userEvent.setup();
   renderizarComProvedores(<PaginaComparar />, { rota });
   // Os limites de n vêm da API: com eles na tela, o formulário está pronto.
-  await screen.findByText(/^Aceita de 0 a \d/);
+  await screen.findByText(/^De 0 a \d/);
   return usuario;
 }
 
@@ -42,7 +42,7 @@ function linhaDaTabela(nome: RegExp): HTMLElement {
 describe('Página comparar', () => {
   it('começa vazia, com tribonacci, n 20 e 5 repetições', async () => {
     await abrir();
-    expect(screen.getByLabelText('Sequência')).toHaveValue('tribonacci');
+    expect(screen.getByRole('radio', { name: 'Tribonacci' })).toBeChecked();
     expect(screen.getByLabelText('n')).toHaveValue('20');
     expect(screen.getByLabelText('Repetições')).toHaveValue('5');
     expect(screen.getByText('Nenhuma comparação ainda')).toBeInTheDocument();
@@ -115,12 +115,12 @@ describe('Página comparar', () => {
   it('mostra as cinco estatísticas de tempo e o bloco de memória', async () => {
     const usuario = await abrir();
     await medir(usuario);
-    await usuario.click(screen.getByRole('heading', { name: 'Tempo' }));
-    await usuario.click(screen.getByRole('heading', { name: 'Memória' }));
+    await usuario.click(screen.getByRole('heading', { name: 'Números completos' }));
 
     for (const rotulo of [/^Mediana/, /^Média/, /^Mínimo/, /^Máximo/, /^Desvio padrão/]) {
       expect(within(linhaDaTabela(rotulo)).getAllByRole('cell')).toHaveLength(2);
     }
+    await usuario.click(screen.getByRole('tab', { name: 'Memória' }));
     expect(within(linhaDaTabela(/^Entradas no cache/)).getByText('18')).toBeInTheDocument();
     expect(within(linhaDaTabela(/^Profundidade máxima/)).getAllByText('19')).toHaveLength(2);
     expect(screen.getByText(/O coletor de lixo não é determinista/)).toBeInTheDocument();
@@ -146,7 +146,8 @@ describe('Página comparar', () => {
     const aviso = screen.getByText('Dados simulados').closest('[role="status"]');
     expect(aviso).not.toBeNull();
     expect(aviso).toHaveTextContent('A API real ainda não está ligada');
-    await usuario.click(screen.getByRole('heading', { name: 'Ambiente de execução' }));
+    await usuario.click(screen.getByRole('heading', { name: 'Números completos' }));
+    await usuario.click(screen.getByRole('tab', { name: 'Ambiente de execução' }));
     expect(screen.getByText('navegador (mock MSW) x64')).toBeInTheDocument();
   });
 

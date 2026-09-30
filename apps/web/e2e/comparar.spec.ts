@@ -7,7 +7,7 @@ test.describe('comparação de desempenho', () => {
     await page.getByRole('button', { name: /^Comparar$/ }).click();
     await expect(page.getByText(/Fator de aceleração/)).toBeVisible({ timeout: 60_000 });
     await expect(page.getByText(/Chamadas evitadas pelo cache/)).toBeVisible();
-    await expect(page.getByText(/Ambiente de execução/)).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Números completos' })).toBeVisible();
   });
 
   test('diz com honestidade que o fatorial não ganha com cache', async ({ page }) => {

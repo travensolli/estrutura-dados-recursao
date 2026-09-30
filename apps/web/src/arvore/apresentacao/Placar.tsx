@@ -31,8 +31,8 @@ export function Placar({ itens, rotulo }: PlacarProps) {
             <span
               className={`block font-mono leading-none tabular-nums ${
                 item.destaque
-                  ? 'text-[clamp(2rem,4vw,3.6rem)] font-semibold text-primaria'
-                  : 'text-[clamp(1.4rem,2.6vw,2.4rem)]'
+                  ? 'text-[clamp(1.75rem,3.2vw,3rem)] font-semibold text-primaria'
+                  : 'text-[clamp(1.25rem,2.2vw,2rem)]'
               }`}
             >
               {item.valor}

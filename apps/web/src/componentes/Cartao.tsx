@@ -39,13 +39,13 @@ export function Cartao({
       className={juntarClasses(
         'rounded-xl border bg-superficie shadow-cartao',
         destaque ? 'border-primaria/40' : 'border-borda',
-        compacto ? 'p-4' : 'p-4 sm:p-6',
+        compacto ? 'p-3' : 'p-4',
         className,
       )}
       {...rest}
     >
       {titulo || acoes ? (
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             {titulo ? (
               <Titulo id={idTitulo} className="text-lg font-semibold">
@@ -58,7 +58,7 @@ export function Cartao({
         </div>
       ) : null}
       {children}
-      {rodape ? <div className="mt-4 border-t border-borda pt-4 text-sm">{rodape}</div> : null}
+      {rodape ? <div className="mt-3 border-t border-borda pt-3 text-sm">{rodape}</div> : null}
     </Tag>
   );
 }

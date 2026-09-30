@@ -12,7 +12,14 @@ import {
 } from '../utilitarios/formatar';
 import { baixarPng, baixarSvg, type Extensao } from './exportar';
 import { estiloDoTipo } from './formas';
-import { calcularLayout, DIMENSOES, enquadrar, larguraDoNo, type NoPosicionado } from './layout';
+import {
+  ALTURA_DESENHO,
+  calcularLayout,
+  DIMENSOES,
+  enquadrar,
+  larguraDoNo,
+  type NoPosicionado,
+} from './layout';
 import {
   achatarNos,
   descreverArvore,
@@ -23,7 +30,6 @@ import {
   type EstadoNo,
   rotuloAbrirRecolhidos,
 } from './modelo';
-import { Contadores } from './ui/Contadores';
 import { Legenda } from './ui/Legenda';
 
 const ESCALA_MINIMA = 0.15;
@@ -63,6 +69,9 @@ export interface ArvoreSvgProps {
   enquadreMinimo?: number;
   /** Classes de altura do desenho. */
   classeAltura?: string;
+  /** No palco da apresentação: sem exportar, e a barra de zoom só aparece com o
+      ponteiro sobre o desenho ou o foco dentro dele, para não ficar na imagem projetada. */
+  palco?: boolean;
 }
 
 interface Dica {
@@ -74,8 +83,12 @@ interface Dica {
   abaixo: boolean;
 }
 
+/* Os botões moram numa barra flutuante sobre o desenho: sem borda própria, a barra
+   é que tem superfície e contorno. */
 const BOTAO =
-  'inline-flex min-h-toque min-w-toque items-center justify-center gap-1 rounded-md border border-borda bg-superficie px-2 text-sm text-texto hover:bg-superficie-suave disabled:opacity-60';
+  'inline-flex min-h-toque min-w-toque items-center justify-center gap-1 rounded px-2 text-sm text-texto hover:bg-superficie-suave disabled:opacity-60';
+const BARRA =
+  'pointer-events-auto flex items-center gap-0.5 rounded-md border border-borda bg-superficie/90 p-0.5 shadow-cartao backdrop-blur-sm';
 
 export function ArvoreSvg({
   raiz,
@@ -93,7 +106,8 @@ export function ArvoreSvg({
   fantasmas,
   selos,
   enquadreMinimo = ENQUADRE_MINIMO,
-  classeAltura = 'min-h-[clamp(200px,calc(100dvh-437px),820px)] max-h-[clamp(200px,calc(100dvh-437px),820px)] xl:min-h-[clamp(200px,calc(100dvh-349px),820px)] xl:max-h-[clamp(200px,calc(100dvh-349px),820px)]',
+  classeAltura = ALTURA_DESENHO,
+  palco = false,
 }: ArvoreSvgProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const comportamentoRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
@@ -332,62 +346,65 @@ export function ArvoreSvg({
   );
 
   return (
-    <figure className="m-0 flex flex-col gap-3">
-      {!compacto && <Contadores metricas={metricas} nosExibidos={nosExibidos} />}
-
-      <div className="flex flex-wrap items-center gap-2">
+    <figure className="m-0 flex flex-col gap-2">
+      <div className="group/desenho relative overflow-hidden rounded-lg border border-borda bg-superficie">
+        {/* A barra flutua no canto inferior direito e não custa altura: nas três
+            recorrências o ramo mais fundo é o da esquerda, f(n-1), e os da direita são
+            rasos, então esse canto fica vazio. O contêiner deixa o ponteiro passar, e
+            arrastar a árvore funciona até atrás dele. */}
         <div
-          className="flex items-center gap-1"
-          role="group"
-          aria-label={`Zoom da árvore ${rotuloModo(modo)}`}
+          className={`pointer-events-none absolute right-2 bottom-2 z-10 flex flex-wrap justify-end gap-1.5 ${
+            palco
+              ? 'transition-opacity duration-150 denso:opacity-0 denso:group-focus-within/desenho:opacity-100 denso:group-hover/desenho:opacity-100'
+              : ''
+          }`}
         >
-          <button type="button" className={BOTAO} onClick={() => aplicarZoom(PASSO_ZOOM)}>
-            <span aria-hidden="true">+</span>
-            <span className="sr-only">Aproximar</span>
-          </button>
-          <button type="button" className={BOTAO} onClick={() => aplicarZoom(1 / PASSO_ZOOM)}>
-            <span aria-hidden="true">−</span>
-            <span className="sr-only">Afastar</span>
-          </button>
-          <button type="button" className={BOTAO} onClick={ajustar}>
-            Ajustar à tela
-          </button>
-        </div>
-        <div
-          className="flex items-center gap-1"
-          role="group"
-          aria-label={`Exportar a árvore ${rotuloModo(modo)}`}
-        >
-          <button type="button" className={BOTAO} onClick={() => void exportarArquivo('svg')}>
-            Baixar SVG
-          </button>
-          <button
-            type="button"
-            className={BOTAO}
-            disabled={gerandoPng}
-            onClick={() => void exportarArquivo('png')}
-          >
-            {gerandoPng ? 'Gerando PNG…' : 'Baixar PNG'}
-          </button>
+          <div className={BARRA} role="group" aria-label={`Zoom da árvore ${rotuloModo(modo)}`}>
+            <button type="button" className={BOTAO} onClick={() => aplicarZoom(PASSO_ZOOM)}>
+              <span aria-hidden="true">+</span>
+              <span className="sr-only">Aproximar</span>
+            </button>
+            <button type="button" className={BOTAO} onClick={() => aplicarZoom(1 / PASSO_ZOOM)}>
+              <span aria-hidden="true">−</span>
+              <span className="sr-only">Afastar</span>
+            </button>
+            <button type="button" className={BOTAO} onClick={ajustar}>
+              Ajustar à tela
+            </button>
+          </div>
+          {!palco && (
+            <div
+              className={BARRA}
+              role="group"
+              aria-label={`Exportar a árvore ${rotuloModo(modo)}`}
+            >
+              <button type="button" className={BOTAO} onClick={() => void exportarArquivo('svg')}>
+                Baixar SVG
+              </button>
+              <button
+                type="button"
+                className={BOTAO}
+                disabled={gerandoPng}
+                onClick={() => void exportarArquivo('png')}
+              >
+                {gerandoPng ? 'Gerando PNG…' : 'Baixar PNG'}
+              </button>
+            </div>
+          )}
         </div>
         {recolhidos.size > 0 && (
-          <button type="button" className={BOTAO} onClick={() => setRecolhidos(new Set<number>())}>
-            {rotuloAbrirRecolhidos(recolhidos.size)}
-          </button>
+          <div className="pointer-events-none absolute top-2 left-2 z-10">
+            <div className={BARRA}>
+              <button
+                type="button"
+                className={BOTAO}
+                onClick={() => setRecolhidos(new Set<number>())}
+              >
+                {rotuloAbrirRecolhidos(recolhidos.size)}
+              </button>
+            </div>
+          </div>
         )}
-        {!compacto && (
-          <p className="ml-auto text-sm text-texto-suave">
-            Arraste para mover, role para aproximar e clique para recolher.
-          </p>
-        )}
-        {erroExportacao && (
-          <p role="alert" className="basis-full text-sm text-erro">
-            {erroExportacao}
-          </p>
-        )}
-      </div>
-
-      <div className="relative overflow-hidden rounded-lg border border-borda bg-superficie">
         <svg
           ref={svgRef}
           role="group"
@@ -466,8 +483,19 @@ export function ArvoreSvg({
         </p>
       </div>
 
-      <figcaption>
+      {erroExportacao && (
+        <p role="alert" className="text-sm text-erro">
+          {erroExportacao}
+        </p>
+      )}
+
+      <figcaption className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
         <Legenda />
+        {!compacto && (
+          <p className="text-sm text-texto-suave">
+            Arraste para mover, role para aproximar e clique para recolher.
+          </p>
+        )}
       </figcaption>
     </figure>
   );

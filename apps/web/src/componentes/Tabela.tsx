@@ -67,12 +67,12 @@ export function Tabela<T>({
     >
       <table
         className={juntarClasses(
-          'w-full border-collapse text-left text-sm',
+          'w-full border-collapse text-left text-sm leading-dados',
           ajustada && 'min-w-[36rem] table-fixed sm:min-w-0',
         )}
       >
         <caption
-          className={legendaVisivel ? 'px-4 py-3 text-left text-sm text-texto-suave' : 'sr-only'}
+          className={legendaVisivel ? 'px-3 py-2 text-left text-sm text-texto-suave' : 'sr-only'}
         >
           {legenda}
         </caption>
@@ -83,7 +83,7 @@ export function Tabela<T>({
                 key={coluna.chave}
                 scope="col"
                 className={juntarClasses(
-                  'border-b border-borda-forte bg-superficie px-4 py-3 font-semibold',
+                  'border-b border-borda-forte bg-superficie px-3 py-2 font-semibold',
                   !ajustada && 'whitespace-nowrap',
                   classeGrade,
                   cabecalhoFixo && 'sticky top-0 z-10',
@@ -99,7 +99,7 @@ export function Tabela<T>({
         <tbody>
           {linhas.length === 0 ? (
             <tr>
-              <td colSpan={colunas.length} className="px-4 py-8 text-center text-texto-suave">
+              <td colSpan={colunas.length} className="px-3 py-6 text-center text-texto-suave">
                 {vazio}
               </td>
             </tr>
@@ -115,7 +115,7 @@ export function Tabela<T>({
                 {colunas.map((coluna) => {
                   const conteudo = coluna.conteudo(linha);
                   const classes = juntarClasses(
-                    'px-4 py-2.5 align-middle',
+                    'px-3 py-1.5 align-middle',
                     classeGrade,
                     ajustada && 'break-words',
                     coluna.numerico && 'text-right tabular-nums',
@@ -144,7 +144,7 @@ export function Tabela<T>({
             <tr>
               <td
                 colSpan={colunas.length}
-                className="border-t border-borda px-4 py-3 text-texto-suave"
+                className="border-t border-borda px-3 py-2 text-texto-suave"
               >
                 {rodape}
               </td>

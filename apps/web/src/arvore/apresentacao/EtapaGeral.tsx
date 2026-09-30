@@ -13,7 +13,6 @@ interface Coluna {
 
 export function EtapaGeral({ dados }: { dados: DadosApresentacao }) {
   const info = dados.descricoes[SEQUENCIA_APRESENTACAO];
-  const fatorial = dados.descricoes.fatorial;
   const { comparacao, semCache, comCache } = dados;
   const n = comCache.n;
   const mesmaPilha =
@@ -63,9 +62,19 @@ export function EtapaGeral({ dados }: { dados: DadosApresentacao }) {
         ))}
       </div>
 
-      <p className="max-w-[80ch] text-[clamp(0.95rem,1.35vw,1.35rem)] text-balance">
-        {`O ganho vem da repetição, não do cache em si: no fatorial o crescimento é ${fatorial.crescimento_com_cache}, porque cada argumento aparece uma vez só. Ali o dicionário custa memória e não evita chamada nenhuma.`}
-      </p>
+      {/* O fecho: o que a turma leva embora é o critério, não a ressalva do fatorial. */}
+      <div className="max-w-[80ch] border-l-3 border-primaria pl-[clamp(0.75rem,1.5vw,1.5rem)] text-[clamp(1.05rem,1.5vw,1.5rem)] leading-snug text-balance">
+        <p>
+          Memoização não acelera a recursão: ela apaga o trabalho repetido, e repetição só existe
+          quando a recursão ramifica. No fatorial, de ordem 1, cada argumento aparece uma vez e o
+          dicionário só cobra memória.
+        </p>
+        <p className="mt-2">
+          A pergunta que decide o uso do cache é uma só:{' '}
+          <strong className="font-semibold text-primaria">o mesmo argumento volta?</strong> A árvore
+          mostra; o contador prova.
+        </p>
+      </div>
     </div>
   );
 }

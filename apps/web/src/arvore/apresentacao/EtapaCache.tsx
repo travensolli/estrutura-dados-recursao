@@ -5,13 +5,14 @@ import { achatarNos, podasPorAcerto, totalPassos } from '../modelo';
 import { Reproducao } from '../Reproducao';
 import { useReproducao } from '../usarReproducao';
 import type { DadosApresentacao } from './dados';
-import { ALTURA_ARVORE, ENQUADRE_APRESENTACAO } from './medidas';
+import { ALTURA_ARVORE_REPRODUCAO, ENQUADRE_APRESENTACAO } from './medidas';
 import { momentosDoCache } from './momentos';
 
 // Peça local da árvore: o Orquestrador harmoniza depois com o design system.
 
+/* Os oito momentos de f(7) cabem numa linha em 1366: uma faixa a menos acima da árvore. */
 const CHIP =
-  'min-h-toque rounded-full border border-borda px-4 text-[clamp(0.85rem,1.05vw,1.05rem)] font-mono hover:bg-superficie aria-pressed:border-primaria aria-pressed:bg-primaria-suave';
+  'min-h-toque rounded-full border border-borda px-3 text-[clamp(0.8rem,0.95vw,0.95rem)] leading-dados font-mono hover:bg-superficie aria-pressed:border-primaria aria-pressed:bg-primaria-suave';
 
 export function EtapaCache({ dados }: { dados: DadosApresentacao }) {
   const { comCache, evitada } = dados;
@@ -23,11 +24,16 @@ export function EtapaCache({ dados }: { dados: DadosApresentacao }) {
 
   return (
     <div className="flex min-w-0 flex-col gap-[clamp(0.5rem,1.2vh,1rem)]">
-      <p className="font-mono text-[clamp(0.85rem,1.15vw,1.2rem)] text-texto-suave">
-        {'1. caso base? devolve  →  2. está no dicionário? devolve  →  3. calcula e guarda'}
-      </p>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+        <p className="font-mono text-[clamp(0.85rem,1.15vw,1.2rem)] text-texto-suave">
+          {'1. caso base? devolve  →  2. está no dicionário? devolve  →  3. calcula e guarda'}
+        </p>
+        <p className="text-[clamp(0.8rem,1vw,1rem)] text-texto-suave">
+          {`${formatarInteiro(comCache.metricas.acertos_cache)} acertos em ${formatarInteiro(comCache.metricas.entradas_cache)} entradas guardadas`}
+        </p>
+      </div>
 
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Momentos do cache">
+      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Momentos do cache">
         {momentos.map((momento) => (
           <button
             key={momento.id}
@@ -43,9 +49,6 @@ export function EtapaCache({ dados }: { dados: DadosApresentacao }) {
             {momento.rotulo}
           </button>
         ))}
-        <span className="self-center text-[clamp(0.8rem,1vw,1rem)] text-texto-suave">
-          {`${formatarInteiro(comCache.metricas.acertos_cache)} acertos em ${formatarInteiro(comCache.metricas.entradas_cache)} entradas guardadas`}
-        </span>
       </div>
 
       <Reproducao
@@ -64,10 +67,11 @@ export function EtapaCache({ dados }: { dados: DadosApresentacao }) {
           passo={relogio.passo}
           animacaoReduzida={relogio.animacaoReduzida}
           compacto
+          palco
           argumentoRealcado={realce}
           aoRealcarArgumento={setRealce}
           enquadreMinimo={ENQUADRE_APRESENTACAO}
-          classeAltura={ALTURA_ARVORE}
+          classeAltura={ALTURA_ARVORE_REPRODUCAO}
         />
       </Reproducao>
     </div>

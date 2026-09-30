@@ -23,18 +23,19 @@ const VARIANTES: Record<VarianteBotao, string> = {
   perigo: 'bg-erro text-texto-invertido hover:brightness-95 dark:hover:brightness-110',
 };
 
-/* Todo tamanho respeita o alvo mínimo de toque de 44 px. */
+/* Todo tamanho respeita o piso de alvo: 32 px com mouse, 44 px no toque.
+   O grande é reservado à ação principal de cada tela. */
 const TAMANHOS: Record<TamanhoBotao, string> = {
   pequeno: 'min-h-toque px-3 text-sm',
   medio: 'min-h-toque px-4 text-base',
-  grande: 'min-h-12 px-5 text-lg',
+  grande: 'min-h-toque-g px-4 text-base',
 };
 
 /* Sem shrink-0, ao lado de um campo de largura total o botão encolhe abaixo do alvo de toque. */
 const TAMANHOS_ICONE: Record<TamanhoBotao, string> = {
   pequeno: 'size-toque shrink-0',
   medio: 'size-toque shrink-0',
-  grande: 'size-12 shrink-0',
+  grande: 'size-toque-g shrink-0',
 };
 
 export function classesBotao({

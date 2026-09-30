@@ -41,5 +41,6 @@ export {
   type SeletorSegmentadoProps,
 } from './SeletorSegmentado';
 export { SeletorSequencia, type SeletorSequenciaProps } from './SeletorSequencia';
+export { PaginaComPainel, type PaginaComPainelProps } from './PaginaComPainel';
 export { Tabela, type ColunaTabela, type TabelaProps } from './Tabela';
 export { classesBotao, type TamanhoBotao, type VarianteBotao } from './estilos-botao';

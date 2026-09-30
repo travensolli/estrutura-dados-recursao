@@ -51,6 +51,35 @@
   --arg-11: #a6761d;
 }
 
+/* Densidade. `--alvo` é o piso de altura de todo controle; `--alvo-g`, o do botão
+   de ação principal. O padrão é o alvo de toque de 44 px (WCAG 2.5.5); com ponteiro
+   fino e hover, que é notebook com mouse ou trackpad, cai para 32 px, acima dos
+   24 px de WCAG 2.2 SC 2.5.8. Navegador que não entende a consulta fica no valor
+   maior: a falha é sempre para o lado seguro. */
+:root {
+  --alvo: 2.75rem;
+  --alvo-g: 3rem;
+  --espessura-foco: 3px;
+  --recuo-foco: 2px;
+}
+
+@media (pointer: fine) and (hover: hover) {
+  :root {
+    --alvo: 2rem;
+    --alvo-g: 2.5rem;
+    --espessura-foco: 2px;
+    --recuo-foco: 1px;
+  }
+}
+
+/* Devolve o alvo de toque a uma subárvore, mesmo com mouse. */
+[data-densidade='confortavel'] {
+  --alvo: 2.75rem;
+  --alvo-g: 3rem;
+  --espessura-foco: 3px;
+  --recuo-foco: 2px;
+}
+
 .tema-escuro {
   --fundo: #121413;
   --superficie: #1c1f1e;
@@ -141,8 +170,14 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
 
-  /* alvo mínimo de toque: 44 px */
-  --spacing-toque: 2.75rem;
+  /* piso de alvo dos controles; o valor vem de `--alvo`, que muda com o ponteiro */
+  --spacing-toque: var(--alvo);
+  --spacing-toque-g: var(--alvo-g);
+
+  /* entrelinhas: dado tabular, interface e texto explicativo */
+  --leading-dados: 1.3;
+  --leading-interface: 1.45;
+  --leading-prosa: 1.65;
 
   /* acima disto a navegação deixa de ser compacta */
   --breakpoint-nav: 50rem;

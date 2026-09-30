@@ -25,7 +25,8 @@ export const ETAPAS: readonly Etapa[] = [
     id: 'sem-cache',
     nome: 'Sem cache',
     titulo: 'Sem cache, o mesmo argumento volta muitas vezes',
-    resumo: 'Passe o ponteiro por um nó ou por uma linha da tabela para ver todas as repetições.',
+    resumo:
+      'Passe o ponteiro por um nó ou por uma coluna da contagem para ver todas as repetições.',
   },
   {
     id: 'cache',

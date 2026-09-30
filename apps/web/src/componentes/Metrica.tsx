@@ -13,6 +13,8 @@ export interface MetricaProps {
   /** Traço colorido da série, sempre ao lado do rótulo escrito. */
   marca?: MarcaSerie;
   destaque?: boolean;
+  /** Sem caixa própria: a métrica vive dentro de outro cartão, separada por régua. */
+  embutida?: boolean;
   className?: string;
 }
 
@@ -30,13 +32,14 @@ export function Metrica({
   icone,
   marca,
   destaque = false,
+  embutida = false,
   className,
 }: MetricaProps) {
   return (
     <div
       className={juntarClasses(
-        'rounded-xl border border-borda bg-superficie p-4',
-        destaque && 'border-primaria/40',
+        !embutida && 'rounded-xl border border-borda bg-superficie p-3',
+        !embutida && destaque && 'border-primaria/40',
         className,
       )}
     >
@@ -52,7 +55,7 @@ export function Metrica({
       </div>
       <p
         className={juntarClasses(
-          'mt-1 leading-tight font-semibold break-words',
+          'mt-1 leading-none font-semibold tabular-nums break-words',
           destaque ? 'text-3xl sm:text-4xl' : 'text-2xl',
         )}
       >

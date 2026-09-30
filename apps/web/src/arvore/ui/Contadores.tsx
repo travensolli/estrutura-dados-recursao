@@ -1,37 +1,44 @@
 import type { Metricas } from '@sequencias/contrato';
+import { juntarClasses } from '../../utilitarios/classes';
 import { formatarInteiro } from '../../utilitarios/formatar';
 
 export interface ContadoresProps {
   metricas: Metricas;
   /** Quantos nós a árvore desenhada realmente traz, quando ela veio truncada. */
   nosExibidos?: number;
+  className?: string;
 }
 
-export function Contadores({ metricas, nosExibidos }: ContadoresProps) {
+/** Os números da execução em lista de placar: invocações em destaque, o resto em linhas. */
+export function Contadores({ metricas, nosExibidos, className }: ContadoresProps) {
   const itens = [
-    { rotulo: 'invocações', valor: metricas.invocacoes, destaque: true },
     { rotulo: 'chamadas recursivas', valor: metricas.chamadas_recursivas },
     { rotulo: 'casos base', valor: metricas.casos_base },
     { rotulo: 'calculados', valor: metricas.calculados },
     { rotulo: 'acertos de cache', valor: metricas.acertos_cache },
     { rotulo: 'profundidade máxima', valor: metricas.profundidade_maxima },
   ];
+  const truncada = nosExibidos !== undefined && nosExibidos < metricas.invocacoes;
   return (
-    <dl className="flex flex-wrap items-stretch gap-x-4 gap-y-3">
+    <dl className={juntarClasses('divide-y divide-borda', className)}>
+      <div className="flex items-baseline justify-between gap-3 pb-1">
+        <dt className="font-medium">invocações</dt>
+        <dd className="font-mono text-2xl leading-tight font-semibold tabular-nums">
+          {formatarInteiro(metricas.invocacoes)}
+        </dd>
+      </div>
       {itens.map((item) => (
-        <div key={item.rotulo} className="border-l border-borda pl-3 first:border-l-0 first:pl-0">
-          <dt className="text-sm text-texto-suave">{item.rotulo}</dt>
-          <dd
-            className={`font-mono tabular-nums ${item.destaque ? 'text-xl font-semibold' : 'text-lg'}`}
-          >
+        <div key={item.rotulo} className="flex items-baseline justify-between gap-3 py-0.5">
+          <dt className="text-sm leading-dados text-texto-suave">{item.rotulo}</dt>
+          <dd className="font-mono text-sm leading-dados font-medium tabular-nums">
             {formatarInteiro(item.valor)}
           </dd>
         </div>
       ))}
-      {nosExibidos !== undefined && nosExibidos < metricas.invocacoes && (
-        <div className="border-l border-borda pl-3">
-          <dt className="text-sm text-texto-suave">nós desenhados</dt>
-          <dd className="font-mono text-lg tabular-nums text-alerta">
+      {truncada && (
+        <div className="flex items-baseline justify-between gap-3 py-0.5">
+          <dt className="text-sm leading-dados text-texto-suave">nós desenhados</dt>
+          <dd className="font-mono text-sm leading-dados font-medium text-alerta tabular-nums">
             {formatarInteiro(nosExibidos)}
           </dd>
         </div>
