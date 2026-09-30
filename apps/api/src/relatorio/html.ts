@@ -447,8 +447,8 @@ function secaoMetodo(dados: DadosRelatorio): string {
     <ul>
       <li>O cronômetro roda só sobre as <strong>funções puras</strong>; as versões instrumentadas contam
       invocações e ficam fora da medição de tempo.</li>
-      <li>O valor oficial é a <strong>mediana</strong> das repetições, com aquecimento antes e os dois
-      modos medidos em ordem alternada.</li>
+      <li>O valor oficial é a <strong>mediana</strong> das repetições, com aquecimento antes; no tempo
+      os dois modos alternam a ordem, e a memória é medida sempre na mesma ordem, primeiro sem cache.</li>
       <li>O <strong>cache nasce vazio</strong> em cada execução: nenhuma medição aproveita a anterior.</li>
       <li>Tempo e memória saem de execuções separadas, porque amostrar memória custa tempo.</li>
       <li>Cada comparação roda num <code>worker_thread</code> próprio, um de cada vez, com prazo.</li>
