@@ -398,7 +398,10 @@ da área.
   um glossário dos símbolos: n, f(n), k, b, invocação, I_sem e I_com, pilha e
   Θ, com φ e τ. Cada linha diz em palavras o que mede, na primeira coluna,
   que passou de "Grandeza" para "O que se mede", e as fórmulas com notação
-  trazem a leitura logo abaixo. A nota do rodapé foi reescrita sem jargão.
+  trazem a leitura logo abaixo. A nota abaixo da tabela, que deduzia o
+  (k·f(n) − 1) / (k − 1), foi reescrita sem jargão e depois saiu: o
+  usuário achou que ela confundia mais do que explicava. A dedução segue
+  no artigo, na seção 2.4.
 
 **Medição:** em 1366x641 o Início termina 13px acima da dobra, com as
 fontes do sistema e com Verdana e Courier New forçadas. O pseudocódigo com
