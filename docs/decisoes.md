@@ -525,8 +525,10 @@ melhor projetada.
   trocar tempo por memória e a coluna do preço em memória por chamadas.
   A memoização não acelera a recursão por si só, e a pergunta que
   decide o uso fica explícita, "a função é chamada mais de uma vez com
-  o mesmo argumento?", com o Tribonacci de um lado e o fatorial do
-  outro. A frase "A árvore mostra; o contador prova" sai.
+  o mesmo argumento?", respondida com os números do Tribonacci. A frase
+  "A árvore mostra; o contador prova" sai. O caso do fatorial também
+  sai do slide, porque a apresentação é toda sobre o f(7), e fica com
+  quem apresenta, em voz alta, como o roteiro indica.
 
 **Medição:** os slides 1, 2, 4, 5 e 6 cabem sem rolagem em 1024×640,
 1280×720, 1366×641, 1366×768, 1440×773 e 1920×1080, e o e2e confere os
