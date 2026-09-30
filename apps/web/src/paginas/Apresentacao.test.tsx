@@ -81,7 +81,7 @@ describe('modo apresentação', () => {
 
     expect(screen.getByText('30 chamadas evitadas')).toBeInTheDocument();
     expect(
-      screen.getByText('das 46 invocações sem cache, só 16 acontecem com cache'),
+      screen.getByText('de 46 invocações sem cache, com cache só 16 acontecem'),
     ).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1 }).nextElementSibling).toBeNull();
     expect(screen.getByTestId('prova-podas')).toHaveTextContent('12 + 6 + 6 + 3 + 3 = 30');

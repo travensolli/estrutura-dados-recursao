@@ -33,9 +33,9 @@ export function SlideConta({ dados }: { dados: DadosApresentacao }) {
           <span className="sr-only">{`${formatarInteiro(comparacao.evitadas)} chamadas evitadas`}</span>
         </div>
         <p className="text-[clamp(1rem,1.5vw,1.5rem)]">
-          {`das ${formatarInteiro(comparacao.invocacoesSemCache)} invocações sem cache, só ${formatarInteiro(
+          {`de ${formatarInteiro(comparacao.invocacoesSemCache)} invocações sem cache, com cache só ${formatarInteiro(
             comparacao.invocacoesComCache,
-          )} acontecem com cache`}
+          )} acontecem`}
         </p>
 
         <dl className="mt-1 flex flex-col gap-2">
