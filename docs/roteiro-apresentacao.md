@@ -220,7 +220,9 @@ cartão **Como a comparação é feita**.
 
 ### 7. O Fatorial honesto e fechamento (0:45) — tela `/calcular`
 
-Na tela: `/calcular?sequencia=fatorial&n=10&modo=comparar`, e clique em **Calcular**.
+Na tela: `/calcular?sequencia=fatorial&n=10&modo=comparar`, e clique em **Calcular**. Pelo menu, o
+Calcular volta como ficou na seção 3, com o Tribonacci f(7) na tela e o modo **Comparar**: escolha
+**Fatorial**, ponha n = 10 e clique em **Calcular**.
 
 - Olhe para o professor e diga: no Fatorial o cache **não ajuda**, e a ferramenta mostra isso em
   vez de esconder: **10 invocações nos dois modos, zero evitadas**. No placar com cache, zero
@@ -242,6 +244,9 @@ Na tela: `/calcular?sequencia=fatorial&n=10&modo=comparar`, e clique em **Calcul
       (interface em `http://localhost:5173`).
 - [ ] Passar uma vez por todas as telas do roteiro, na ordem, para nenhum carregamento acontecer no
       palco — inclusive uma comparação com n = 25, para o aviso de medição pesada não surpreender.
+- [ ] Depois do ensaio, **recarregar a página** no Início. As telas guardam o que mostravam
+      enquanto a aba está aberta; sem recarregar, o Comparar abriria com a medição do ensaio em vez
+      do cartão **Como a comparação é feita**.
 - [ ] Janela maximizada e **zoom em 100%**: as telas foram calibradas para 1366×768, e zoom mexe na
       dobra. Se o projetor tiver resolução menor, use F11; o modo apresentação se adapta sozinho.
 - [ ] Conferir na etapa 5 da apresentação os três números: **46**, **16** e **30**.
