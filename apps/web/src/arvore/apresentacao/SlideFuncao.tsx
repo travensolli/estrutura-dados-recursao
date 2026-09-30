@@ -167,7 +167,6 @@ export function SlideFuncao({ dados }: { dados: DadosApresentacao }) {
   const { comCache, semCache } = dados;
   const { casosBase, passos } = contaPassoAPasso(comCache.raiz, info.ordem);
   const valor = abreviarValor(semCache.metricas.valor, 18);
-  const mesmoValor = semCache.metricas.valor === comCache.metricas.valor;
   const n = comCache.n;
 
   return (
@@ -205,11 +204,6 @@ export function SlideFuncao({ dados }: { dados: DadosApresentacao }) {
               {valor.abreviado}
             </p>
           </div>
-          <p className="text-[clamp(0.9rem,1.2vw,1.2rem)] text-texto-suave">
-            Calculado na hora pela própria recursão.
-            {mesmoValor &&
-              ' Os dois modos devolvem este valor: o cache muda o caminho, não a resposta.'}
-          </p>
         </section>
       </div>
 
