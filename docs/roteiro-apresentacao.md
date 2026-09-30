@@ -4,8 +4,8 @@ Trabalho PRJ.ED.1, Estrutura de Dados. As seções vão do fato medido à explic
 sem cache, ver a árvore sem cache, explicar o cache em f(7) e, por fim, medir tempo e memória. A
 tabela abaixo liga cada pedido do enunciado à seção que o responde. O palco é a
 **própria aplicação**, projetada do notebook (`pnpm dev` ou Docker Compose). As telas foram
-calibradas para caber numa janela de 1366×768 sem rolagem, também depois de executar e em todas as
-etapas da apresentação: em Calcular, Comparar e Árvore a configuração fica numa coluna à esquerda e
+calibradas para caber numa janela de 1366×768 sem rolagem, também depois de executar e em todos os
+slides da apresentação: em Calcular, Comparar e Árvore a configuração fica numa coluna à esquerda e
 o resultado inteiro à direita, e as tabelas de prova abrem sob demanda.
 
 O `docs/relatorio.html` continua no projeto como material de apoio e primeiro degrau do plano B: é
@@ -17,7 +17,7 @@ um arquivo só, estático, com todos os números. A base conceitual e as contas 
 Uma frase para guiar tudo: **a recursão ingênua refaz o mesmo trabalho muitas vezes; o cache troca
 um pouco de memória por uma redução enorme de chamadas, e dá para ver isso na árvore.**
 
-Se sobrar tempo para uma tela só, é a etapa 5 da apresentação: 46 chamadas viram 16.
+Se sobrar tempo para uma tela só, é o slide 5 da apresentação: 46 chamadas viram 16.
 
 ## O que o enunciado pede, e onde cada pedido é respondido
 
@@ -163,12 +163,14 @@ Este é um pedido explícito do enunciado; dê o tempo dele.
 
 ### 5. O palco do f(7): 46 → 16, e as 30 evitadas (2:30) — tela `/apresentacao`
 
-Na tela: `/apresentacao?etapa=3`, em **Tela cheia**. As etapas 1 e 2 repetem o que a turma acabou
-de ver; entre direto na 3 e avance com as setas.
+Na tela: `/apresentacao?slide=3`, em **Tela cheia**. Os slides 1 e 2 repetem o que a turma acabou
+de ver: a definição com a conta de f(0) a f(7), e a árvore sem cache com a curva de quanto as
+chamadas crescem com n. Entre direto no 3 e avance com as setas. O botão da lua, no rodapé, troca
+para o tema escuro se a sala estiver escura.
 
 Esta é a resposta que o enunciado pede por escrito. Não corra.
 
-- **Etapa 3, o cache em três regras.** As regras estão escritas no topo, e cada um dos oito
+- **Slide 3, o cache em três regras.** As regras estão escritas no topo, e cada um dos oito
   momentos logo abaixo leva a execução ao instante em que f(k) é guardado ou volta do dicionário.
   Diga as regras na ordem exata em que a função as executa:
   1. **É caso base?** Devolve 1 e não mexe no cache.
@@ -176,12 +178,16 @@ Esta é a resposta que o enunciado pede por escrito. Não corra.
   3. **Senão**, calcula, guarda e devolve.
      O nome da técnica é **memoização**: a mesma recursão de cima para baixo, com um caderninho ao
      lado. Se estiver atrasado, diga só a regra 2: é ela que explica a poda.
-- **Etapa 4, as duas árvores lado a lado.** As subárvores tracejadas são as que o acerto cortou.
-  Conte a história em duas partes: na **descida**, cada argumento aparece pela primeira vez e são
+- **Slide 4, a árvore com cache na tela toda.** As subárvores tracejadas são as que o acerto
+  cortou, e o selo de cada acerto diz quantas chamadas ela teria. A linha do topo faz a conta do
+  desenho: **16 feitas + 30 evitadas = 46**, as invocações sem cache. Conte a história em duas
+  partes: na **descida**, cada argumento aparece pela primeira vez e são
   **5 cálculos**, de f(3) a f(7); na **volta**, os irmãos à direita encontram tudo pronto e são
   **5 acertos**, cada um cortando a subárvore inteira que viria abaixo.
-- **Etapa 5, a conta.** O contador anima de 46 para 16 na frente da turma. Some as podas em voz
-  alta: **12 + 6 + 6 + 3 + 3 = 30**; o acerto de f(5) sozinho corta 12 chamadas. E a conta fecha
+- **Slide 5, a conta.** O contador anima de 46 para 16 na frente da turma, e ao lado os quadrados
+  tracejados se esvaziam no mesmo ritmo: cada quadrado é uma chamada daquele argumento, os cheios
+  continuam com cache. Aponte a linha de f(2): **13 chamadas sem cache, 3 com cache, 10 evitadas**.
+  Depois some as podas em voz alta: **12 + 6 + 6 + 3 + 3 = 30**; o acerto de f(5) sozinho corta 12 chamadas. E a conta fecha
   dos dois jeitos: 46 − 16 pela diferença dos totais, 45 − 15 contando só as recursivas.
 - Feche com a frase da resposta: "**com cache, f(7) faz 16 chamadas em vez de 46: são 30 chamadas
   recursivas evitadas, 65% do total**".
@@ -234,8 +240,8 @@ Calcular volta como ficou na seção 3, com o Tribonacci f(7) na tela e o modo *
   é idêntica. O cache economiza chamadas, não altura de pilha.
 - Fechamento: memoização é uma troca de espaço por tempo, e ela só compensa onde existe trabalho
   repetido. Medir é o que permite afirmar isso.
-- Se sobrar meio minuto, a etapa 6 da apresentação (`/apresentacao?etapa=6`) põe esse critério na
-  tela: exponencial contra linear, o preço em memória e a pergunta que decide o uso do cache, **o
+- Se sobrar meio minuto, o slide 6 da apresentação, a Conclusão (`/apresentacao?slide=6`), põe
+  esse critério na tela: exponencial contra linear, o preço em memória e a pergunta que decide o uso do cache, **o
   mesmo argumento volta?**
 - Encerre abrindo para perguntas.
 
@@ -250,7 +256,7 @@ Calcular volta como ficou na seção 3, com o Tribonacci f(7) na tela e o modo *
       do cartão **Como a comparação é feita**.
 - [ ] Janela maximizada e **zoom em 100%**: as telas foram calibradas para 1366×768, e zoom mexe na
       dobra. Se o projetor tiver resolução menor, use F11; o modo apresentação se adapta sozinho.
-- [ ] Conferir na etapa 5 da apresentação os três números: **46**, **16** e **30**.
+- [ ] Conferir no slide 5 da apresentação os três números: **46**, **16** e **30**.
 - [ ] Notificações desligadas, uma janela só, sem abas pessoais.
 - [ ] `docs/relatorio.html` aberto numa aba de reserva, com zoom entre 125% e 150%.
 

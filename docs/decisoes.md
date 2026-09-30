@@ -478,3 +478,47 @@ Ajustes pedidos pelo usuário nas telas com árvore.
   slides, e PNG, imagem em 2x para o projetor. A escolha fecha ao
   baixar, com Esc ou com clique fora. Enquanto o PNG é gerado, o ícone
   gira e a opção PNG fica desabilitada.
+
+## 2026-09-30: Os slides da apresentação ficam mais visuais
+
+Ajustes pedidos pelo usuário no modo apresentação, para cada tela ler
+melhor projetada.
+
+- **Slide, não etapa.** O rodapé diz "Slide 1 de 6", o botão de avançar
+  é Próximo e o endereço usa `?slide=`. O código acompanha o termo
+  (`slides.ts`, `Slide*.tsx`). O resumo abaixo do título ocupa a linha
+  toda e só quebra quando a tela não comporta. O rodapé ganha o botão de
+  tema claro e escuro, que antes só existia no layout.
+- **Slide 1, a definição e a conta.** A fórmula vai em MathML, desenhada
+  com a fonte matemática do sistema (Cambria Math no Windows), como
+  definição por partes. Ao lado, a conta de f(0) a f(7), termo a termo,
+  com os valores tirados da árvore com cache da própria execução. O
+  resultado fica só como f(7) = 31, em destaque.
+- **Slide 2, o crescimento.** A nota "quadros na pilha" sai. Ao lado da
+  contagem por argumento entra a curva das invocações sem cache de n = 0
+  a n = 10, contadas pela versão instrumentada do núcleo no navegador,
+  a mesma da API e do plano B. Até 10 porque, com escala linear e n = 12,
+  a barra do próprio f(7) some no chão.
+- **Slide 4, uma árvore só.** As duas árvores lado a lado ficavam
+  pequenas demais. A com cache já traz no tracejado o que a sem cache
+  faria, então fica só ela, com os selos, e uma linha com a conta do
+  desenho: 16 feitas + 30 evitadas = 46. O `ArvoreSvg` ganhou o modo
+  `preencher`, em que o desenho ocupa a altura que o contêiner flex
+  sobrar; o desconto fixo em pixels rolava em 1920×1080 e no tablet.
+- **Slide 5, uma chamada por quadrado.** As barras de sem cache e com
+  cache na mesma escala deixavam as do modo com cache rentes ao zero.
+  Agora cada linha tem um quadrado por chamada: todos são as sem cache,
+  os cheios as com cache e os tracejados as evitadas, como na árvore.
+  Os tracejados se esvaziam no ritmo do contador, pela inversa da mesma
+  curva, e o lado do quadrado sai da largura da coluna para a fileira
+  mais longa não quebrar.
+- **Slide 6, Conclusão.** Sai o nome Generalizando e o título
+  Exponencial contra linear. O fecho ocupa a largura toda do palco.
+
+**Medição:** os slides 1, 2, 4, 5 e 6 cabem sem rolagem em 1024×640,
+1280×720, 1366×641, 1366×768, 1440×773 e 1920×1080, e o e2e confere os
+seis em 1366×641 e 1366×768. O slide 3, que não mudou, ainda rola por
+dentro em 1024×640 (a dica das setas quebra o rodapé em duas linhas),
+1440×773 e 1920×1080 (a altura da reprodução é um desconto fixo em
+pixels). A figura `tela-apresentacao-slide-conta.png` foi exportada de
+novo com o slide 5 novo.
