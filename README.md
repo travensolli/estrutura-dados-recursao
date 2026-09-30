@@ -94,7 +94,8 @@ estruturas de recursão diferentes — linear, dupla e tripla.
 
 ### 2.1 Recursão e árvore de chamadas
 
-Um problema é recursivo quando uma instância contém instâncias menores do mesmo problema. A solução
+Um problema é recursivo quando uma instância contém instâncias menores do mesmo problema
+(CARVALHO, 2024). A solução
 combina um **caso base**, resolvido diretamente, com **chamadas recursivas** sobre instâncias
 reduzidas. A execução pode ser representada por uma **árvore de chamadas**: cada nó é uma invocação
 f(k) e seus filhos são as invocações que ela dispara. A forma dessa árvore depende de quantas
@@ -677,6 +678,9 @@ O índice está em [`docs/README.md`](docs/README.md). O documento que interessa
 ---
 
 ## Referências
+
+CARVALHO, Fabrício Galende Marques de. **Notas de aula da disciplina estrutura de dados**. São José
+dos Campos, 2024.
 
 CORMEN, Thomas H.; LEISERSON, Charles E.; RIVEST, Ronald L.; STEIN, Clifford. **Algoritmos**: teoria
 e prática. Tradução da 3. ed. Rio de Janeiro: Elsevier, 2012.
