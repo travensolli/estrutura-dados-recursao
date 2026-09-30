@@ -11,7 +11,7 @@ interface Coluna {
   texto: string;
 }
 
-export function SlideGeral({ dados }: { dados: DadosApresentacao }) {
+export function SlideConclusao({ dados }: { dados: DadosApresentacao }) {
   const info = dados.descricoes[SEQUENCIA_APRESENTACAO];
   const { comparacao, semCache, comCache } = dados;
   const n = comCache.n;
@@ -42,7 +42,7 @@ export function SlideGeral({ dados }: { dados: DadosApresentacao }) {
   ];
 
   return (
-    <div className="flex min-w-0 flex-col gap-[clamp(1rem,3vh,2.5rem)]">
+    <div className="flex min-w-0 flex-1 flex-col justify-center gap-[clamp(1rem,3vh,2.5rem)]">
       <div className="grid gap-[clamp(1rem,2.5vw,2.5rem)] lg:grid-cols-3">
         {colunas.map((coluna) => (
           <section
@@ -51,19 +51,21 @@ export function SlideGeral({ dados }: { dados: DadosApresentacao }) {
             className="border-t-3 border-borda-forte pt-3 lg:border-t-0 lg:border-l-3 lg:pt-0 lg:pl-[clamp(0.75rem,1.5vw,1.5rem)]"
           >
             <h2 className="text-[clamp(0.9rem,1.2vw,1.2rem)] text-texto-suave">{coluna.titulo}</h2>
-            <p className="font-mono text-[clamp(2.4rem,6vw,5rem)] leading-none font-semibold tabular-nums">
+            <p className="font-mono text-[clamp(2.4rem,min(6vw,11vh),7rem)] leading-none font-semibold tabular-nums">
               {coluna.numero}
             </p>
             <p className="mt-1 text-[clamp(0.8rem,1vw,1.05rem)] text-texto-suave">
               {coluna.unidade}
             </p>
-            <p className="mt-3 max-w-[46ch] text-[clamp(0.9rem,1.2vw,1.2rem)]">{coluna.texto}</p>
+            <p className="mt-3 text-[clamp(0.9rem,min(1.2vw,2.7vh),1.5rem)]">{coluna.texto}</p>
           </section>
         ))}
       </div>
 
       {/* O fecho: o que a turma leva embora é o critério, não a ressalva do fatorial. */}
-      <div className="max-w-[80ch] border-l-3 border-primaria pl-[clamp(0.75rem,1.5vw,1.5rem)] text-[clamp(1.05rem,1.5vw,1.5rem)] leading-snug text-balance">
+      {/* O fecho ocupa a largura toda do palco: a letra cresce com a tela em vez de a linha
+          parar numa coluna estreita. */}
+      <div className="border-l-3 border-primaria pl-[clamp(0.75rem,1.5vw,1.5rem)] text-[clamp(1.05rem,min(1.75vw,3.4vh),2.1rem)] leading-snug">
         <p>
           Memoização não acelera a recursão: ela apaga o trabalho repetido, e repetição só existe
           quando a recursão ramifica. No fatorial, de ordem 1, cada argumento aparece uma vez e o

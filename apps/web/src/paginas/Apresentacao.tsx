@@ -7,7 +7,7 @@ import { SlideCache } from '../arvore/apresentacao/SlideCache';
 import { SlideComCache } from '../arvore/apresentacao/SlideComCache';
 import { SlideConta } from '../arvore/apresentacao/SlideConta';
 import { SlideFuncao } from '../arvore/apresentacao/SlideFuncao';
-import { SlideGeral } from '../arvore/apresentacao/SlideGeral';
+import { SlideConclusao } from '../arvore/apresentacao/SlideConclusao';
 import { SlideSemCache } from '../arvore/apresentacao/SlideSemCache';
 import {
   escreverSlide,
@@ -27,7 +27,7 @@ const CONTEUDO_DO_SLIDE: Record<string, Conteudo> = {
   cache: SlideCache,
   'com-cache': SlideComCache,
   conta: SlideConta,
-  geral: SlideGeral,
+  conclusao: SlideConclusao,
 };
 
 export function PaginaApresentacao() {

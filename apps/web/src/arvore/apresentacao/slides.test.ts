@@ -17,6 +17,7 @@ describe('slides da apresentação', () => {
 
   it('aceita o identificador do slide', () => {
     expect(lerSlide(consulta('slide=conta'))).toBe(4);
+    expect(lerSlide(consulta('slide=conclusao'))).toBe(5);
     expect(lerSlide(consulta('slide=inexistente'))).toBe(0);
   });
 

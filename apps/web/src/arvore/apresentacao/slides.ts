@@ -48,9 +48,9 @@ export const SLIDES: readonly Slide[] = [
     resumo: 'Duas provas independentes para o mesmo número.',
   },
   {
-    id: 'geral',
-    nome: 'Generalizando',
-    titulo: 'Exponencial contra linear',
+    id: 'conclusao',
+    nome: 'Conclusão',
+    titulo: 'Conclusão',
     resumo: 'O cache troca tempo por memória, e nem toda sequência ganha com isso.',
   },
 ];

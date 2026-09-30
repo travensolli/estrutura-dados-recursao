@@ -5,7 +5,7 @@ import { executarMock } from '../../mocks/referencia-mock';
 import { contarNos } from '../modelo';
 import { resumirComparacao, type DadosApresentacao } from './dados';
 import { SlideConta } from './SlideConta';
-import { SlideGeral } from './SlideGeral';
+import { SlideConclusao } from './SlideConclusao';
 import { SlideSemCache } from './SlideSemCache';
 import { LIMITE_NOS_APRESENTACAO, N_APRESENTACAO, SEQUENCIA_APRESENTACAO } from './slides';
 import { montarArvoreComEvitadas } from './evitadas';
@@ -106,7 +106,7 @@ describe('números da apresentação', () => {
 
   it('generaliza com os totais da própria resposta', () => {
     semMovimento();
-    const { container } = render(<SlideGeral dados={dadosDe(N_APRESENTACAO - 1)} />);
+    const { container } = render(<SlideConclusao dados={dadosDe(N_APRESENTACAO - 1)} />);
 
     expect(screen.getByLabelText('Sem cache')).toHaveTextContent('25');
     expect(screen.getByLabelText('Com cache')).toHaveTextContent('13');

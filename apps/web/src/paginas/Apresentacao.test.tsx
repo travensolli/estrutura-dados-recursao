@@ -130,6 +130,7 @@ describe('modo apresentação', () => {
 
     await usuario.keyboard('6');
     expect(screen.getByText('Slide 6 de 6')).toBeInTheDocument();
+    expect(titulo()).toContain('Conclusão');
     expect(screen.getByTestId('endereco')).toHaveTextContent('?slide=6');
 
     await usuario.keyboard('{Home}');
