@@ -24,7 +24,7 @@ export function porModo<T>(ordem: ParDeModos, criar: (modo: Modo) => T): Record<
 
 let rodadas = 0;
 
-/** Alterna qual modo é medido primeiro a cada comparação pedida. */
+/** Alterna qual modo entra primeiro no tempo a cada comparação pedida. */
 export function proximaOrdemDeModos(): ParDeModos {
   const ordem = rodadas % 2 === 0 ? ORDEM_PADRAO : inverterOrdem(ORDEM_PADRAO);
   rodadas += 1;

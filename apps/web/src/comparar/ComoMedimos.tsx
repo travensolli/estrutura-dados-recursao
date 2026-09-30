@@ -16,7 +16,7 @@ const ITENS: ReadonlyArray<{ termo: string; texto: string }> = [
   {
     termo: 'Memória',
     texto:
-      'Com o lixo coletado, o heap é lido, a função roda e, com o cache ainda vivo, o lixo é coletado e o heap lido de novo: a diferença é o que ficou retido. Vale a mediana de 3 repetições próprias, sempre 3, qualquer que seja o número escolhido para o tempo; o pico é amostrado a cada 10.000 invocações. O coletor não é determinista, então os bytes indicam ordem de grandeza.',
+      'Com o lixo coletado, o heap é lido, a função roda e, com o cache ainda vivo, o lixo é coletado e o heap lido de novo: a diferença é o que ficou retido. Vale a mediana de 3 repetições próprias, sempre 3, qualquer que seja o número escolhido para o tempo; o pico é amostrado a cada 10.000 invocações. Aqui a ordem é sempre a mesma, primeiro sem cache e depois com cache: quem roda depois herda um heap mais aquecido, e a ordem fixa mantém o comparativo estável entre rodadas. O coletor não é determinista, então os bytes indicam ordem de grandeza.',
   },
   {
     termo: 'Curvas',
