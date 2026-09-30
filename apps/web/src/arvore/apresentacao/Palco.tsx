@@ -18,8 +18,12 @@ export interface PalcoProps {
   children: ReactNode;
 }
 
-const BOTAO =
-  'inline-flex min-h-toque items-center gap-2 rounded-md border border-borda-forte px-4 text-[clamp(0.9rem,1.1vw,1.1rem)] hover:bg-superficie disabled:opacity-35';
+/* Cada variante declara o próprio fundo de hover. Somar um hover de variante a outro de
+   base deixa a ordem do CSS decidir, e o Próximo ficava com texto branco em fundo branco. */
+const BOTAO_BASE =
+  'inline-flex min-h-toque items-center gap-2 rounded-md border px-4 text-[clamp(0.9rem,1.1vw,1.1rem)] transition-colors duration-150 ease-suave disabled:opacity-35';
+const BOTAO = `${BOTAO_BASE} border-borda-forte enabled:hover:bg-superficie`;
+const BOTAO_PRINCIPAL = `${BOTAO_BASE} border-primaria bg-primaria font-medium text-primaria-contraste enabled:hover:border-primaria-forte enabled:hover:bg-primaria-forte`;
 /** Campos de texto e afins: nenhum atalho vale dentro deles. */
 const CAMPOS = 'input, select, textarea, [contenteditable="true"]';
 /** A árvore e a lista usam as setas para andar entre os nós. */
@@ -169,7 +173,7 @@ export function Palco({ slide, indice, aoIr, aoAndar, offline = false, children 
           </button>
           <button
             type="button"
-            className={`${BOTAO} border-primaria bg-primaria font-medium text-primaria-contraste hover:bg-primaria-forte`}
+            className={BOTAO_PRINCIPAL}
             disabled={ultima}
             onClick={() => aoIr(indice + 1)}
           >
