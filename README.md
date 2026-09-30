@@ -27,9 +27,8 @@ medida chegou a 85.324× em Fibonacci f(35) e a 186.434× em Tribonacci f(30), a
 Tribonacci.
 
 > **Para apresentar:** o material projetado é [`docs/relatorio.html`](docs/relatorio.html), gerado
-> por `pnpm relatorio`. O que dizer em cada minuto está em
-> [`docs/roteiro-apresentacao.md`](docs/roteiro-apresentacao.md). Para rodar a aplicação e informar
-> o seu próprio n, veja o [Apêndice A](#apêndice-a--como-executar).
+> por `pnpm relatorio`. Para rodar a aplicação e informar o seu próprio n, veja o
+> [Apêndice A](#apêndice-a--como-executar).
 
 ---
 
@@ -672,9 +671,8 @@ O versionamento segue Gitflow e Conventional Commits com escopos fixos (`nucleo`
 
 ### Documentação
 
-O índice está em [`docs/README.md`](docs/README.md). Os dois documentos que interessam para a aula
-são [`docs/relatorio.html`](docs/relatorio.html), que vai ao projetor, e
-[`docs/roteiro-apresentacao.md`](docs/roteiro-apresentacao.md), que diz o que falar em cada minuto.
+O índice está em [`docs/README.md`](docs/README.md). O documento que interessa para a aula é
+[`docs/relatorio.html`](docs/relatorio.html), que vai ao projetor.
 
 ---
 
