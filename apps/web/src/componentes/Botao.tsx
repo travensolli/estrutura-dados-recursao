@@ -61,7 +61,7 @@ export interface BotaoIconeProps extends Omit<ComponentPropsWithRef<'button'>, '
   tamanhoIcone?: number;
 }
 
-/** Botão quadrado só com ícone, sempre com nome acessível e 44 px de alvo. */
+/** Botão quadrado só com ícone, sempre com nome acessível e o piso de alvo. */
 export function BotaoIcone({
   icone,
   rotulo,

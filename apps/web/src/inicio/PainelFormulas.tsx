@@ -127,19 +127,19 @@ function colunas(calculos: Calculos): ColunaTabela<LinhaFormula>[] {
       rotulo: 'Grandeza',
       conteudo: (linha) => linha.grandeza,
       cabecalhoDeLinha: true,
-      className: 'whitespace-nowrap',
+      className: 'w-[16%]',
     },
     {
       chave: 'formula',
       rotulo: 'Fórmula geral',
       conteudo: (linha) => linha.formula,
-      className: 'whitespace-nowrap',
+      className: 'w-[27%]',
     },
     ...SEQUENCIAS.map((sequencia): ColunaTabela<LinhaFormula> => ({
       chave: sequencia,
       rotulo: DESCRICAO_SEQUENCIAS[sequencia].nome,
       conteudo: (linha) => linha.valor(sequencia, calculos[sequencia]),
-      className: 'whitespace-nowrap',
+      className: 'w-[19%]',
     })),
   ];
 }
@@ -193,6 +193,9 @@ export function PainelFormulas() {
         linhas={linhas(n)}
         chave={(linha) => linha.chave}
         cabecalhoFixo={false}
+        grade
+        zebrado
+        ajustada
         className="mt-2"
       />
 

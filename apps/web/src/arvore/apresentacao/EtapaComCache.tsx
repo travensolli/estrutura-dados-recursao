@@ -31,6 +31,7 @@ export function EtapaComCache({ dados }: { dados: DadosApresentacao }) {
                 truncada={semCache.truncada}
                 nosExibidos={semCache.nos_exibidos}
                 compacto
+                palco
                 enquadreMinimo={ENQUADRE_APRESENTACAO}
                 classeAltura={ALTURA_ARVORE_DUPLA}
               />
@@ -48,6 +49,7 @@ export function EtapaComCache({ dados }: { dados: DadosApresentacao }) {
                 n={comCache.n}
                 modo={comCache.modo}
                 compacto
+                palco
                 fantasmas={evitada.fantasmas}
                 selos={evitada.selos}
                 enquadreMinimo={ENQUADRE_APRESENTACAO}

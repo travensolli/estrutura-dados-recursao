@@ -28,9 +28,10 @@ import {
   Esqueleto,
   EstadoErro,
   EstadoVazio,
-  GrupoBotoes,
+  Icone,
   Metrica,
   NumeroGrande,
+  PaginaComPainel,
   RotuloModo,
   SeletorSegmentado,
   SeletorSequencia,
@@ -50,7 +51,12 @@ import {
   type OpcoesEstadoUrl,
 } from '../hooks/useEstadoUrl';
 import { juntarClasses } from '../utilitarios/classes';
-import { formatarInteiro, formatarTempoNs, rotuloModo } from '../utilitarios/formatar';
+import {
+  formatarInteiro,
+  formatarQuantidade,
+  formatarTempoNs,
+  rotuloModo,
+} from '../utilitarios/formatar';
 import { validarInteiro } from '../utilitarios/validacao';
 
 const OPCOES_URL: OpcoesEstadoUrl = {};
@@ -134,21 +140,49 @@ interface PlacarMetricasProps {
   resposta: CalcularResposta;
   /** Dá um identificador estável a cada linha; só vale quando há um modo na tela. */
   identificar?: boolean;
+  /** Rótulo do atalho para a árvore desta execução, no pé do placar. */
+  rotuloArvore?: string;
+  className?: string;
 }
 
-/** As sete contagens de uma execução, com as invocações em destaque no topo. */
-function PlacarMetricas({ resposta, identificar = false }: PlacarMetricasProps) {
+function enderecoArvore(resposta: CalcularResposta): string {
+  return enderecoComEstado('/arvore', {
+    sequencia: resposta.sequencia,
+    n: resposta.n,
+    modo: resposta.modo,
+  });
+}
+
+/** As sete contagens de uma execução, com as invocações no topo e o tempo no pé.
+    Sem caixa própria: vive dentro do cartão do resultado, separado por régua. */
+function PlacarMetricas({
+  resposta,
+  identificar = false,
+  rotuloArvore,
+  className,
+}: PlacarMetricasProps) {
   return (
-    <Cartao
-      as="section"
+    <section
       aria-label={`Métricas ${rotuloModo(resposta.modo)}`}
-      compacto
-      className="min-w-0"
+      className={juntarClasses('min-w-0', className)}
     >
-      <p className="text-sm font-semibold">
-        <RotuloModo modo={resposta.modo} titulo />
-      </p>
-      <dl className="mt-1 divide-y divide-borda">
+      <div className="flex min-h-toque items-center justify-between gap-2">
+        <p className="text-sm font-semibold">
+          <RotuloModo modo={resposta.modo} titulo />
+        </p>
+        {rotuloArvore ? (
+          <BotaoLink
+            to={enderecoArvore(resposta)}
+            variante="discreta"
+            tamanho="pequeno"
+            icone="arvore"
+            className="-mr-3"
+          >
+            {rotuloArvore}
+          </BotaoLink>
+        ) : null}
+      </div>
+      <dl className="divide-y divide-borda">
         {METRICAS.map((descricao, indice) => (
           <div
             key={descricao.chave}
@@ -158,13 +192,15 @@ function PlacarMetricas({ resposta, identificar = false }: PlacarMetricasProps) 
               indice === 0 ? 'pb-1' : 'py-0.5',
             )}
           >
-            <dt className={indice === 0 ? 'font-medium' : 'text-sm text-texto-suave'}>
+            <dt className={indice === 0 ? 'font-medium' : 'text-sm leading-dados text-texto-suave'}>
               {rotuloMetrica(descricao, resposta.modo)}
             </dt>
             <dd
               className={juntarClasses(
                 'tabular-nums',
-                indice === 0 ? 'text-2xl leading-tight font-semibold' : 'text-sm font-medium',
+                indice === 0
+                  ? 'text-2xl leading-tight font-semibold'
+                  : 'text-sm leading-dados font-medium',
               )}
             >
               {formatarInteiro(descricao.valor(resposta.metricas))}
@@ -172,14 +208,35 @@ function PlacarMetricas({ resposta, identificar = false }: PlacarMetricasProps) 
           </div>
         ))}
       </dl>
-    </Cartao>
+      <dl className="mt-1 border-t-2 border-borda-forte pt-1.5">
+        <div
+          data-testid={identificar ? 'metrica-tempo' : undefined}
+          className="flex items-baseline justify-between gap-3"
+        >
+          <dt className="flex items-center gap-1.5 font-medium">
+            <Icone nome="relogio" tamanho={16} className="self-center text-texto-suave" />
+            Tempo desta execução
+          </dt>
+          <dd className="text-xl leading-tight font-semibold tabular-nums">
+            {duracaoLegivel(resposta.duracao_ms)}
+          </dd>
+        </div>
+      </dl>
+    </section>
   );
 }
 
 /** O que cada contagem significa; num modo só, a descrição daquele modo. */
 function DefinicoesMetricas({ modo }: { modo: Modo | null }) {
   return (
-    <Detalhes resumo={<span className="text-base font-semibold">O que cada número conta</span>}>
+    <Detalhes
+      resumo={<span className="text-base font-semibold">O que cada número conta</span>}
+      className="md:open:col-span-2"
+    >
+      <p className="mb-2 text-sm text-texto-suave">
+        Os números vêm de uma versão instrumentada da recursão, que conta cada chamada enquanto
+        calcula: são contagens exatas, sem relógio. Tempo e memória são medidos na tela Comparar.
+      </p>
       <dl className="space-y-1 text-sm">
         {METRICAS.map((descricao) => (
           <div key={descricao.chave} className="gap-x-4 sm:grid sm:grid-cols-[12rem_1fr]">
@@ -256,7 +313,10 @@ function TabelaArgumentos({ respostas }: { respostas: CalcularResposta[] }) {
     .join(' e ');
 
   return (
-    <Detalhes resumo={<span className="text-base font-semibold">Invocações por argumento</span>}>
+    <Detalhes
+      resumo={<span className="text-base font-semibold">Invocações por argumento</span>}
+      className="md:open:col-span-2"
+    >
       <Tabela
         legenda="Invocações por argumento, do maior para o menor"
         colunas={colunas}
@@ -412,77 +472,67 @@ export function PaginaCalcular() {
       ? `${DESCRICAO_SEQUENCIAS[primeira.sequencia].nome} f(${primeira.n}) = ${valorFalado(primeira.metricas)}. ${resultado
           .map(
             (item) =>
-              `${formatarInteiro(item.metricas.invocacoes)} invocações ${rotuloModo(item.modo)}`,
+              `${formatarQuantidade(item.metricas.invocacoes, 'invocação', 'invocações')} ${rotuloModo(item.modo)}`,
           )
           .join(', ')}.`
       : '';
 
   return (
-    <div className="space-y-4 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start lg:gap-x-6 lg:space-y-0">
-      <section
-        aria-labelledby="titulo-pagina"
-        className="space-y-2 lg:border-r lg:border-borda lg:pr-6"
-      >
-        <h1 id="titulo-pagina" className="text-2xl font-semibold">
-          Calcular
-        </h1>
-
-        <form
-          aria-label="O que calcular"
-          onSubmit={(evento) => void enviar(evento)}
-          className="space-y-2"
-        >
-          <SeletorSequencia
-            valor={sequencia}
-            aoMudar={(escolhida) => definir({ sequencia: escolhida })}
-          />
-          <SeletorSegmentado
-            rotulo="Modo"
-            valor={modo}
-            aoMudar={(valor) => definir({ modo: valor })}
-            opcoes={OPCOES_MODO}
-            vertical
-          />
-          <CampoNumero
-            rotulo="n"
-            valor={rascunho}
-            aoMudar={aoMudarN}
-            minimo={0}
-            maximo={limite}
-            ajuda={modo === 'comparar' ? 'O limite é o do modo sem cache.' : undefined}
-            reservarErro={false}
-          />
-          <div className="flex flex-wrap gap-2">
-            <Botao
-              type="submit"
-              className="flex-1"
-              icone="calcular"
-              carregando={carregando || verificando}
-              rotuloCarregando={carregando ? 'Calculando' : 'Conferindo o tamanho'}
-              disabled={!podeCalcular}
-            >
-              Calcular
-            </Botao>
-            {carregando ? (
+    <>
+      <PaginaComPainel
+        titulo="Calcular"
+        descricao="O valor e as chamadas de f(n)."
+        painel={
+          <form
+            aria-label="O que calcular"
+            onSubmit={(evento) => void enviar(evento)}
+            className="flex flex-col gap-3"
+          >
+            <SeletorSequencia
+              valor={sequencia}
+              aoMudar={(escolhida) => definir({ sequencia: escolhida })}
+            />
+            <SeletorSegmentado
+              rotulo="Modo"
+              valor={modo}
+              aoMudar={(valor) => definir({ modo: valor })}
+              opcoes={OPCOES_MODO}
+              colunas={2}
+            />
+            <CampoNumero
+              rotulo="n"
+              valor={rascunho}
+              aoMudar={aoMudarN}
+              minimo={0}
+              maximo={limite}
+            />
+            <div className="flex gap-2">
               <Botao
-                variante="neutra"
+                type="submit"
+                tamanho="grande"
                 className="flex-1"
-                icone="cancelar"
-                onClick={() => void cancelar()}
+                icone="calcular"
+                carregando={carregando || verificando}
+                rotuloCarregando={carregando ? 'Calculando' : 'Conferindo o tamanho'}
+                disabled={!podeCalcular}
               >
-                Cancelar
+                Calcular
               </Botao>
-            ) : null}
-          </div>
-          <p className="min-h-10 text-sm text-texto-suave">
-            {previsao
-              ? `Previsão para f(${previsao.n}) ${rotuloModo(previsao.modo)}: ${formatarInteiro(previsao.invocacoes_previstas)} invocações e profundidade ${formatarInteiro(previsao.profundidade_prevista)}.`
-              : null}
-          </p>
-        </form>
-      </section>
-
-      <div className="min-w-0 space-y-3">
+              {carregando ? (
+                <Botao
+                  variante="neutra"
+                  tamanho="grande"
+                  className="flex-1"
+                  icone="cancelar"
+                  onClick={() => void cancelar()}
+                >
+                  Cancelar
+                </Botao>
+              ) : null}
+            </div>
+          </form>
+        }
+      >
         <p role="status" aria-live="polite" className="sr-only">
           {resumoAcessivel}
         </p>
@@ -551,13 +601,20 @@ export function PaginaCalcular() {
             ) : null}
           </div>
 
-          {carregando ? <Esqueleto linhas={4} altura="h-16" rotulo="Calculando" /> : null}
+          {/* Com a altura do cartão que vai chegar: a tela não salta quando o resultado assenta. */}
+          {carregando ? (
+            <Esqueleto
+              linhas={1}
+              altura={modo === 'comparar' ? 'h-[29rem]' : 'h-[19rem]'}
+              rotulo="Calculando"
+            />
+          ) : null}
 
           {execucao === null && !carregando ? (
             <EstadoVazio
               icone="calcular"
               titulo="Nenhum cálculo ainda"
-              descricao="Escolha os parâmetros à esquerda e toque em Calcular: aparecem o valor exato e as contagens de cada modo."
+              descricao="Escolha os parâmetros à esquerda e clique em Calcular: aparecem o valor exato e as contagens de cada modo."
             />
           ) : null}
 
@@ -565,36 +622,40 @@ export function PaginaCalcular() {
             <div className="space-y-3">
               {desatualizado ? (
                 <p className="text-sm text-texto-suave">
-                  O formulário mudou depois deste resultado. Toque em Calcular para atualizar.
+                  O formulário mudou depois deste resultado. Clique em Calcular para atualizar.
                 </p>
               ) : null}
 
-              {segunda ? (
-                <>
-                  <div className="grid gap-3 md:grid-cols-3">
-                    <Cartao compacto className="min-w-0">
+              {/* Um cartão só: o valor, o ganho e os dois placares são uma resposta,
+                  separados por réguas e não por caixas. */}
+              <Cartao compacto className="min-w-0">
+                {segunda ? (
+                  <>
+                    <div className="grid gap-3 md:grid-cols-3 md:gap-0 md:divide-x md:divide-borda">
                       <NumeroGrande
                         tamanho="medio"
                         valor={primeira.metricas.valor}
                         rotulo={`${DESCRICAO_SEQUENCIAS[primeira.sequencia].nome} f(${primeira.n}) vale`}
                         nome={`f(${primeira.n})`}
                         descricao="Igual nos dois modos."
+                        className="md:pr-4"
                       />
-                    </Cartao>
-                    <Metrica
-                      rotulo="Chamadas evitadas pelo cache"
-                      valor={formatarInteiro(evitadas)}
-                      marca="com-cache"
-                      destaque
-                      detalhe={
-                        evitadas > 0
-                          ? `${formatarInteiro(primeira.metricas.invocacoes)} invocações sem cache contra ${formatarInteiro(segunda.metricas.invocacoes)} com cache.`
-                          : 'Nenhum argumento se repetiu nesta execução, então não havia o que reaproveitar.'
-                      }
-                    />
-                    <Cartao compacto className="min-w-0">
+                      <Metrica
+                        embutida
+                        rotulo="Chamadas evitadas pelo cache"
+                        valor={formatarInteiro(evitadas)}
+                        marca="com-cache"
+                        destaque
+                        detalhe={
+                          evitadas > 0
+                            ? `${formatarInteiro(primeira.metricas.invocacoes)} invocações sem cache contra ${formatarInteiro(segunda.metricas.invocacoes)} com cache.`
+                            : 'Nenhum argumento se repetiu nesta execução, então não havia o que reaproveitar.'
+                        }
+                        className="min-w-0 md:px-4"
+                      />
                       <BarraComparativa
                         titulo="Invocações por modo"
+                        className="md:pl-4"
                         series={[
                           {
                             modo: 'sem_cache',
@@ -608,64 +669,53 @@ export function PaginaCalcular() {
                           },
                         ]}
                       />
-                    </Cartao>
+                    </div>
+                    <div className="mt-3 grid gap-3 border-t border-borda pt-3 md:grid-cols-2 md:gap-0 md:divide-x md:divide-borda">
+                      {resultado.map((resposta, indice) => (
+                        <PlacarMetricas
+                          key={resposta.modo}
+                          resposta={resposta}
+                          rotuloArvore={`Ver árvore ${rotuloModo(resposta.modo)}`}
+                          className={indice === 0 ? 'md:pr-4' : 'md:pl-4'}
+                        />
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] md:gap-0 md:divide-x md:divide-borda">
+                    <div className="flex min-w-0 flex-col md:pr-4">
+                      <NumeroGrande
+                        valor={primeira.metricas.valor}
+                        rotulo={`${DESCRICAO_SEQUENCIAS[primeira.sequencia].nome} f(${primeira.n}) vale`}
+                        nome={`f(${primeira.n})`}
+                      />
+                      <BotaoLink
+                        to={enderecoArvore(primeira)}
+                        variante="secundaria"
+                        tamanho="pequeno"
+                        icone="arvore"
+                        className="mt-auto self-start"
+                      >
+                        Ver árvore desta execução
+                      </BotaoLink>
+                    </div>
+                    <PlacarMetricas resposta={primeira} identificar className="md:pl-4" />
                   </div>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    {resultado.map((resposta) => (
-                      <PlacarMetricas key={resposta.modo} resposta={resposta} />
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div className="grid gap-3 md:grid-cols-2">
-                  <Cartao compacto className="min-w-0">
-                    <NumeroGrande
-                      valor={primeira.metricas.valor}
-                      rotulo={`${DESCRICAO_SEQUENCIAS[primeira.sequencia].nome} f(${primeira.n}) vale`}
-                      nome={`f(${primeira.n})`}
-                    />
-                  </Cartao>
-                  <PlacarMetricas resposta={primeira} identificar />
-                </div>
-              )}
+                )}
+                <p className="mt-3 border-t border-borda pt-2 text-sm text-texto-suave">
+                  O tempo é uma medida única, com os contadores ligados: dá ordem de grandeza, não é
+                  benchmark.
+                </p>
+              </Cartao>
 
-              <DefinicoesMetricas modo={segunda ? null : primeira.modo} />
-              <TabelaArgumentos respostas={resultado} />
-
-              <p className="text-sm text-texto-suave">
-                Duração desta execução:{' '}
-                {resultado
-                  .map(
-                    (resposta) =>
-                      `${duracaoLegivel(resposta.duracao_ms)} ${rotuloModo(resposta.modo)}`,
-                  )
-                  .join(' e ')}
-                . Medida única, só para dar ordem de grandeza: não é benchmark. A tela Comparar
-                repete e mostra mediana, desvio e memória.
-              </p>
-
-              <GrupoBotoes>
-                {resultado.map((resposta) => (
-                  <BotaoLink
-                    key={resposta.modo}
-                    variante="secundaria"
-                    icone="arvore"
-                    to={enderecoComEstado('/arvore', {
-                      sequencia: resposta.sequencia,
-                      n: resposta.n,
-                      modo: resposta.modo,
-                    })}
-                  >
-                    {resultado.length > 1
-                      ? `Ver árvore ${rotuloModo(resposta.modo)}`
-                      : 'Ver árvore desta execução'}
-                  </BotaoLink>
-                ))}
-              </GrupoBotoes>
+              <div className="grid items-start gap-3 md:grid-cols-2">
+                <DefinicoesMetricas modo={segunda ? null : primeira.modo} />
+                <TabelaArgumentos respostas={resultado} />
+              </div>
             </div>
           ) : null}
         </section>
-      </div>
+      </PaginaComPainel>
 
       <DialogoConfirmacao
         aberto={confirmando}
@@ -685,6 +735,6 @@ export function PaginaCalcular() {
           mesmo valor bem mais rápido.
         </p>
       </DialogoConfirmacao>
-    </div>
+    </>
   );
 }

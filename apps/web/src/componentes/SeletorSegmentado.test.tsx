@@ -10,7 +10,7 @@ const OPCOES = [
   { valor: 'tribonacci', rotulo: 'Tribonacci' },
 ] as const;
 
-function SeletorControlado({ vertical = false }: { vertical?: boolean }) {
+function SeletorControlado({ vertical = false, colunas }: { vertical?: boolean; colunas?: 2 | 3 }) {
   const [valor, setValor] = useState<(typeof OPCOES)[number]['valor']>('fatorial');
   return (
     <SeletorSegmentado
@@ -19,11 +19,20 @@ function SeletorControlado({ vertical = false }: { vertical?: boolean }) {
       aoMudar={setValor}
       opcoes={OPCOES}
       vertical={vertical}
+      colunas={colunas}
     />
   );
 }
 
 describe('SeletorSegmentado', () => {
+  it('em duas colunas, a opção ímpar do fim ocupa a linha inteira', () => {
+    render(<SeletorControlado colunas={2} />);
+    expect(screen.getByRole('radiogroup', { name: 'Sequência' })).toHaveClass(
+      'grid-cols-[repeat(2,auto)]',
+    );
+    expect(screen.getByRole('radio', { name: 'Tribonacci' })).toHaveClass('odd:last:col-span-2');
+  });
+
   it('expõe um grupo de rádios nomeado', () => {
     render(<SeletorControlado />);
     const grupo = screen.getByRole('radiogroup', { name: 'Sequência' });

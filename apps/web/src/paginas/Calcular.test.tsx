@@ -9,7 +9,8 @@ import { PaginaCalcular } from './Calcular';
 async function abrir(rota = '/calcular') {
   const usuario = userEvent.setup();
   renderizarComProvedores(<PaginaCalcular />, { rota });
-  await screen.findByText(/^Previsão para/);
+  // Os limites de n vêm da API: com eles na tela, o formulário está pronto.
+  await screen.findByText(/^De 0 a \d/);
   return usuario;
 }
 
@@ -63,7 +64,7 @@ function linhaDoArgumento(argumento: number): HTMLElement {
 describe('Página calcular', () => {
   it('começa vazia, com tribonacci, n 7 e sem cache', async () => {
     await abrir();
-    expect(screen.getByLabelText('Sequência')).toHaveValue('tribonacci');
+    expect(screen.getByRole('radio', { name: 'Tribonacci' })).toBeChecked();
     expect(screen.getByRole('radio', { name: 'Sem cache' })).toBeChecked();
     expect(screen.getByLabelText('n')).toHaveValue('7');
     expect(screen.getByText('Nenhum cálculo ainda')).toBeInTheDocument();
@@ -102,6 +103,7 @@ describe('Página calcular', () => {
       ),
     ).toBeVisible();
     expect(screen.getByText('Sem cache nada é reaproveitado.')).toBeVisible();
+    expect(screen.getByText(/versão instrumentada da recursão/)).toBeVisible();
   });
 
   it('mostra as invocações por argumento com barra proporcional', async () => {
@@ -135,6 +137,16 @@ describe('Página calcular', () => {
     expect(resumo).toHaveAttribute('aria-live', 'polite');
   });
 
+  it('anuncia no singular uma execução de uma invocação só', async () => {
+    const usuario = await abrir('/calcular?sequencia=fatorial&n=1&modo=sem_cache');
+    await usuario.click(botaoCalcular());
+    await valorHeroi('Fatorial f(1) vale');
+    expect(screen.getByText('Fatorial f(1) = 1. 1 invocação sem cache.')).toHaveAttribute(
+      'role',
+      'status',
+    );
+  });
+
   it('liga o resultado à árvore da mesma execução', async () => {
     const usuario = await abrir();
     await usuario.click(botaoCalcular());
@@ -143,6 +155,18 @@ describe('Página calcular', () => {
       'href',
       '/arvore?sequencia=tribonacci&n=7&modo=sem_cache',
     );
+  });
+
+  it('destaca o tempo da execução no pé de cada placar', async () => {
+    const usuario = await abrir('/calcular?sequencia=tribonacci&n=7&modo=comparar');
+    await usuario.click(botaoCalcular());
+    await valorHeroi('Tribonacci f(7) vale');
+    for (const modo of ['sem cache', 'com cache'] as const) {
+      const tempo = within(linhaMetrica(regiaoMetricas(modo), 'Tempo desta execução')).getByRole(
+        'definition',
+      ).textContent;
+      expect(tempo).toMatch(/\d s$|\d ms$|\d µs$|\d ns$|resolução do relógio$/);
+    }
   });
 
   it('avisa que a duração é indicativa e não é benchmark', async () => {
@@ -238,11 +262,13 @@ describe('Página calcular', () => {
 
   it('guarda sequência, n e modo no endereço', async () => {
     const usuario = await abrir();
-    await usuario.selectOptions(screen.getByLabelText('Sequência'), 'fibonacci');
+    await usuario.click(screen.getByRole('radio', { name: 'Fibonacci' }));
     await usuario.click(screen.getByRole('radio', { name: 'Com cache' }));
     await usuario.clear(screen.getByLabelText('n'));
     await usuario.type(screen.getByLabelText('n'), '12');
-    expect(screen.getByLabelText('Sequência')).toHaveValue('fibonacci');
-    expect(await screen.findByText(/Previsão para f\(12\) com cache/)).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Fibonacci' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Com cache' })).toBeChecked();
+    expect(screen.getByLabelText('n')).toHaveValue('12');
+    expect(document.title).toMatch(/^Calcular Fibonacci f\(12\)/);
   });
 });

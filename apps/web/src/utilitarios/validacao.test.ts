@@ -12,6 +12,9 @@ describe('validarInteiro', () => {
 
   it('recusa texto vazio quando o campo é obrigatório', () => {
     expect(validarInteiro('  ').mensagem).toBe('Informe um valor para n.');
+    expect(validarInteiro('', { rotulo: 'repetições' }).mensagem).toBe(
+      'Informe um valor para repetições.',
+    );
   });
 
   it('recusa caracteres que não são dígitos', () => {
@@ -32,6 +35,7 @@ describe('validarInteiro', () => {
 describe('descreverIntervalo', () => {
   it('descreve intervalo fechado e aberto', () => {
     expect(descreverIntervalo(0, 30)).toBe('de 0 a 30');
+    expect(descreverIntervalo(1, 2000)).toBe('de 1 a 2.000');
     expect(descreverIntervalo(2)).toBe('a partir de 2');
   });
 });

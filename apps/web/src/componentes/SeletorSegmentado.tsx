@@ -23,8 +23,20 @@ export interface SeletorSegmentadoProps<T extends string> {
   desabilitado?: boolean;
   /** Empilha as opções em qualquer tela, para colunas de configuração. */
   vertical?: boolean;
+  /**
+   * Opções em grade de colunas iguais. Com duas colunas e um número ímpar de opções,
+   * a última ocupa a linha inteira: "Comparar" fica sob "Sem cache" e "Com cache".
+   */
+  colunas?: 2 | 3;
   className?: string;
 }
+
+/* Colunas do tamanho do conteúdo, com a folga dividida por igual: com fonte mais larga
+   ou em negrito na opção escolhida, "Tribonacci" não é cortado para caber num terço. */
+const GRADE = {
+  2: 'grid grid-cols-[repeat(2,auto)]',
+  3: 'grid grid-cols-[repeat(3,auto)]',
+} as const;
 
 const CLASSES_MARCA: Record<MarcaSerie, string> = {
   'sem-cache': 'bg-serie-sem-cache',
@@ -40,6 +52,7 @@ export function SeletorSegmentado<T extends string>({
   opcoes,
   desabilitado = false,
   vertical = false,
+  colunas,
   className,
 }: SeletorSegmentadoProps<T>) {
   const idRotulo = useId();
@@ -72,7 +85,7 @@ export function SeletorSegmentado<T extends string>({
   return (
     <div className={className}>
       {rotuloVisivel ? (
-        <p id={idRotulo} className="mb-1.5 font-medium">
+        <p id={idRotulo} className="mb-1 text-sm font-medium">
           {rotulo}
         </p>
       ) : null}
@@ -81,8 +94,8 @@ export function SeletorSegmentado<T extends string>({
         aria-label={rotuloVisivel ? undefined : rotulo}
         aria-labelledby={rotuloVisivel ? idRotulo : undefined}
         className={juntarClasses(
-          'flex gap-1 rounded-lg border border-borda bg-superficie-suave p-1',
-          vertical ? 'flex-col' : 'flex-row flex-wrap',
+          'gap-1 rounded-lg border border-borda bg-superficie-suave p-1',
+          colunas ? GRADE[colunas] : vertical ? 'flex flex-col' : 'flex flex-row flex-wrap',
         )}
       >
         {opcoes.map((opcao, indice) => {
@@ -101,8 +114,10 @@ export function SeletorSegmentado<T extends string>({
               onClick={() => aoMudar(opcao.valor)}
               onKeyDown={(evento) => aoTeclar(evento, indice)}
               className={juntarClasses(
-                'flex min-h-toque flex-1 items-center gap-2 rounded-md px-3',
-                vertical ? 'justify-start text-left' : 'justify-center text-center',
+                'flex min-h-toque min-w-0 flex-1 items-center gap-2 rounded-md text-sm',
+                colunas === 3 ? 'px-1.5' : colunas === 2 ? 'px-2.5' : 'px-3',
+                colunas === 2 && 'odd:last:col-span-2',
+                vertical && !colunas ? 'justify-start text-left' : 'justify-center text-center',
                 'transition-colors duration-150 ease-suave disabled:cursor-not-allowed disabled:opacity-60',
                 selecionada
                   ? 'bg-superficie font-semibold text-texto shadow-cartao ring-1 ring-borda-forte'

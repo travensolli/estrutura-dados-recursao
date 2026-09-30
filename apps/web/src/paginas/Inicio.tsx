@@ -1,9 +1,10 @@
 import type { InfoSequencia, Modo } from '@sequencias/contrato';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useSequencias } from '../api/consultas';
-import { BotaoLink, Cartao, Esqueleto, EstadoErro, GrupoBotoes } from '../componentes';
+import { Botao, BotaoLink, Cartao, Esqueleto, EstadoErro } from '../componentes';
 import { useTituloPagina } from '../hooks/titulo-pagina';
 import { enderecoComEstado } from '../hooks/useEstadoUrl';
+import { JanelaCodigo } from '../inicio/JanelaCodigo';
 import { PainelFormulas } from '../inicio/PainelFormulas';
 import { TIPOS } from '../inicio/formulas';
 import { juntarClasses } from '../utilitarios/classes';
@@ -38,7 +39,7 @@ function LinhaCrescimento({ modo, texto }: { modo: Modo; texto: string }) {
 function LinhaMotivacao({ modo, children }: { modo: Modo; children: ReactNode }) {
   return (
     <li className="flex items-baseline gap-2">
-      <span className="flex h-5 shrink-0 items-center">
+      <span className="flex h-[1.65em] shrink-0 items-center">
         <Marca modo={modo} />
       </span>
       <span>{children}</span>
@@ -60,6 +61,7 @@ function SeloTipo({ info }: { info: InfoSequencia }) {
 
 function CartaoSequencia({ info }: { info: InfoSequencia }) {
   const ultimoTermo = info.primeiros_termos.length - 1;
+  const [codigoAberto, setCodigoAberto] = useState(false);
   return (
     <Cartao
       as="article"
@@ -81,29 +83,46 @@ function CartaoSequencia({ info }: { info: InfoSequencia }) {
         <LinhaCrescimento modo="com_cache" texto={info.crescimento_com_cache} />
       </ul>
 
-      <GrupoBotoes className="mt-auto pt-2">
+      {/* Atalhos que já trazem a sequência escolhida: discretos, porque a faixa do
+          enunciado e a navegação são as rotas principais. O recuo alinha o texto do
+          primeiro atalho ao conteúdo do cartão. */}
+      <div className="mt-auto -ml-3 flex flex-wrap pt-1.5">
         <BotaoLink
           to={enderecoComEstado('/calcular', { sequencia: info.id })}
-          variante="secundaria"
+          variante="discreta"
           tamanho="pequeno"
         >
           Calcular
         </BotaoLink>
         <BotaoLink
           to={enderecoComEstado('/comparar', { sequencia: info.id })}
-          variante="neutra"
+          variante="discreta"
           tamanho="pequeno"
         >
           Comparar
         </BotaoLink>
         <BotaoLink
           to={enderecoComEstado('/arvore', { sequencia: info.id })}
-          variante="neutra"
+          variante="discreta"
           tamanho="pequeno"
         >
           Árvore
         </BotaoLink>
-      </GrupoBotoes>
+        <Botao
+          variante="discreta"
+          tamanho="pequeno"
+          aria-haspopup="dialog"
+          aria-label={`Código de ${info.nome} em TypeScript`}
+          onClick={() => setCodigoAberto(true)}
+        >
+          Código
+        </Botao>
+      </div>
+      <JanelaCodigo
+        sequencia={info.id}
+        aberta={codigoAberto}
+        aoFechar={() => setCodigoAberto(false)}
+      />
     </Cartao>
   );
 }
@@ -118,16 +137,18 @@ export function PaginaInicio() {
         <h1 id="titulo-pagina" className="text-2xl font-semibold">
           Recursão com e sem cache
         </h1>
-        <ul className="mt-1 space-y-0.5 text-sm text-texto-suave">
+        {/* A tese da apresentação, em paralelo: é o que se lê primeiro, antes de qualquer botão. */}
+        <ul className="mt-2 grid gap-x-8 gap-y-2 leading-prosa text-texto md:grid-cols-2">
           <LinhaMotivacao modo="sem_cache">
-            <strong className="font-semibold text-texto">Sem cache</strong>, cada chamada que não é
-            caso base abre uma chamada por termo anterior — a <em>ordem</em> da recorrência. Com
-            ordem 2 ou mais, os subproblemas se repetem e o custo é exponencial.
+            <strong className="font-semibold">Sem cache</strong>, cada chamada que não é caso base
+            abre uma chamada por termo anterior — a <em>ordem</em> da recorrência. Com ordem 2 ou
+            mais, os subproblemas se repetem e o custo é{' '}
+            <strong className="font-semibold">exponencial</strong>.
           </LinhaMotivacao>
           <LinhaMotivacao modo="com_cache">
-            <strong className="font-semibold text-texto">Com cache</strong> (memoização), cada f(k)
-            acima dos casos base é calculado uma vez e guardado; quando se repete, a chamada só
-            consulta o cache, e o custo vira linear.
+            <strong className="font-semibold">Com cache</strong> (memoização), cada f(k) acima dos
+            casos base é calculado uma vez e guardado; quando se repete, a chamada só consulta o
+            cache, e o custo vira <strong className="font-semibold">linear</strong>.
           </LinhaMotivacao>
         </ul>
       </section>
@@ -167,7 +188,7 @@ export function PaginaInicio() {
           <EstadoErro erro={error} aoTentarDeNovo={() => void refetch()} className="mt-4" />
         ) : null}
         {isPending ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {[0, 1, 2].map((indice) => (
               <Esqueleto
                 key={indice}
@@ -180,7 +201,7 @@ export function PaginaInicio() {
           </div>
         ) : null}
         {data ? (
-          <ul className="grid list-none gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid list-none gap-3 md:grid-cols-2 lg:grid-cols-3">
             {data.sequencias.map((info) => (
               <li key={info.id} className="min-w-0">
                 <CartaoSequencia info={info} />

@@ -13,6 +13,20 @@ export const DIMENSOES = {
   margem: 28,
 } as const;
 
+/* Altura do desenho na tela Árvore: a janela menos o cromo acima e abaixo dele
+   (cabeçalho, linha das visões, legenda e margens). Três formas da mesma medida,
+   escritas por extenso porque o Tailwind só gera classes que lê no código: o SVG
+   trava mínimo e máximo, a caixa de carregamento usa altura e a lista, teto. */
+export const ALTURA_DESENHO =
+  'min-h-[clamp(200px,calc(100dvh-200px),820px)] max-h-[clamp(200px,calc(100dvh-200px),820px)] xl:min-h-[clamp(200px,calc(100dvh-175px),820px)] xl:max-h-[clamp(200px,calc(100dvh-175px),820px)]';
+export const ALTURA_DESENHO_CAIXA =
+  'h-[clamp(200px,calc(100dvh-200px),820px)] xl:h-[clamp(200px,calc(100dvh-175px),820px)]';
+/** Na reprodução, a faixa dos controles e a da narração ficam acima do desenho. */
+export const ALTURA_DESENHO_REPRODUCAO =
+  'min-h-[clamp(200px,calc(100dvh-270px),820px)] max-h-[clamp(200px,calc(100dvh-270px),820px)] xl:min-h-[clamp(200px,calc(100dvh-245px),820px)] xl:max-h-[clamp(200px,calc(100dvh-245px),820px)]';
+export const ALTURA_DESENHO_TETO =
+  'max-h-[clamp(200px,calc(100dvh-200px),820px)] xl:max-h-[clamp(200px,calc(100dvh-175px),820px)]';
+
 export function larguraDoNo(tipo: No['tipo']): number {
   return tipo === 'base' ? DIMENSOES.larguraBase : DIMENSOES.largura;
 }

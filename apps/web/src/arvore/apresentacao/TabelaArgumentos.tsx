@@ -1,4 +1,4 @@
-import { corDoArgumento, formatarInteiro } from '../../utilitarios/formatar';
+import { corDoArgumento, formatarInteiro, formatarQuantidade } from '../../utilitarios/formatar';
 import type { LinhaArgumento } from './dados';
 
 // Peça local da árvore: o Orquestrador harmoniza depois com o design system.
@@ -9,6 +9,8 @@ export interface TabelaArgumentosProps {
   maximo: number;
   /** Uma coluna por modo ou só o modo sem cache. */
   colunas?: 'sem_cache' | 'ambos';
+  /** Tabela em linhas, ou faixa horizontal curta, um histograma, abaixo de um desenho largo. */
+  disposicao?: 'tabela' | 'faixa';
   legenda: string;
   argumentoRealcado?: number | null;
   /** Argumento com o realce preso, para o estado do botão da linha. */
@@ -53,6 +55,7 @@ export function TabelaArgumentos({
   linhas,
   maximo,
   colunas = 'sem_cache',
+  disposicao = 'tabela',
   legenda,
   argumentoRealcado = null,
   argumentoFixado = null,
@@ -61,6 +64,20 @@ export function TabelaArgumentos({
 }: TabelaArgumentosProps) {
   const ambos = colunas === 'ambos';
   const interativa = Boolean(aoRealcar ?? aoFixar);
+  if (disposicao === 'faixa') {
+    return (
+      <FaixaArgumentos
+        linhas={linhas}
+        maximo={maximo}
+        legenda={legenda}
+        argumentoRealcado={argumentoRealcado}
+        argumentoFixado={argumentoFixado}
+        aoRealcar={aoRealcar}
+        aoFixar={aoFixar}
+        interativa={interativa}
+      />
+    );
+  }
   return (
     <table className="w-full border-collapse">
       <caption className="pb-2 text-left text-[clamp(0.85rem,1.05vw,1.1rem)] text-texto-suave">
@@ -138,5 +155,99 @@ export function TabelaArgumentos({
         })}
       </tbody>
     </table>
+  );
+}
+
+type PropsFaixa = Pick<
+  TabelaArgumentosProps,
+  'linhas' | 'maximo' | 'legenda' | 'aoRealcar' | 'aoFixar'
+> & {
+  argumentoRealcado: number | null;
+  argumentoFixado: number | null;
+  interativa: boolean;
+};
+
+/* Um argumento por coluna, de f(n) a f(0): a barra sobe com as invocações e a
+   repetição salta aos olhos sem roubar a altura do desenho. */
+function FaixaArgumentos({
+  linhas,
+  maximo,
+  legenda,
+  argumentoRealcado,
+  argumentoFixado,
+  aoRealcar,
+  aoFixar,
+  interativa,
+}: PropsFaixa) {
+  return (
+    <figure className="m-0 min-w-0">
+      <figcaption className="pb-1 text-[clamp(0.85rem,1.05vw,1.1rem)] text-texto-suave">
+        {legenda}
+      </figcaption>
+      <ol
+        className="grid gap-1"
+        style={{ gridTemplateColumns: `repeat(${linhas.length}, minmax(0, 1fr))` }}
+      >
+        {linhas.map((linha) => {
+          const cor = corDoArgumento(linha.argumento);
+          const realcada = argumentoRealcado === linha.argumento;
+          const altura =
+            maximo > 0 ? Math.max(linha.semCache > 0 ? 4 : 0, (linha.semCache / maximo) * 100) : 0;
+          const conteudo = (
+            <>
+              <span
+                aria-hidden="true"
+                className="flex h-[clamp(2rem,6vh,4rem)] w-full items-end justify-center"
+              >
+                <span
+                  className="w-[55%] rounded-t-[3px]"
+                  style={{ height: `${altura}%`, backgroundColor: cor }}
+                />
+              </span>
+              <span className="font-mono text-[clamp(0.95rem,1.35vw,1.35rem)] leading-tight tabular-nums">
+                {formatarInteiro(linha.semCache)}
+              </span>
+              <span className="flex items-center gap-1 font-mono text-[clamp(0.8rem,1vw,1.05rem)] text-texto-suave">
+                <Ponto cor={cor} />
+                f({linha.argumento})
+              </span>
+            </>
+          );
+          const nome = `f(${linha.argumento}): ${formatarQuantidade(linha.semCache, 'invocação', 'invocações')}`;
+          return (
+            <li
+              key={linha.argumento}
+              data-testid="linha-argumento"
+              data-argumento={linha.argumento}
+              data-realcada={realcada ? 'sim' : 'nao'}
+              className={`min-w-0 rounded-md ${realcada ? 'bg-primaria-suave' : ''}`}
+              onPointerEnter={() => aoRealcar?.(linha.argumento)}
+              onPointerLeave={() => aoRealcar?.(null)}
+            >
+              {interativa ? (
+                <button
+                  type="button"
+                  aria-pressed={argumentoFixado === linha.argumento}
+                  aria-label={nome}
+                  className="flex w-full flex-col items-center gap-0.5 rounded-md px-1 pt-1 pb-1.5 hover:bg-superficie"
+                  onFocus={() => aoRealcar?.(linha.argumento)}
+                  onBlur={() => aoRealcar?.(null)}
+                  onClick={() => aoFixar?.(linha.argumento)}
+                >
+                  {conteudo}
+                </button>
+              ) : (
+                <div
+                  className="flex flex-col items-center gap-0.5 px-1 pt-1 pb-1.5"
+                  aria-label={nome}
+                >
+                  {conteudo}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </figure>
   );
 }

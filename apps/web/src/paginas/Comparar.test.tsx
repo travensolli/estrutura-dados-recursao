@@ -11,7 +11,8 @@ import { PaginaComparar } from './Comparar';
 async function abrir(rota = '/comparar') {
   const usuario = userEvent.setup();
   renderizarComProvedores(<PaginaComparar />, { rota });
-  await screen.findByText(/^Previsão:/);
+  // Os limites de n vêm da API: com eles na tela, o formulário está pronto.
+  await screen.findByText(/^De 0 a \d/);
   return usuario;
 }
 
@@ -41,10 +42,48 @@ function linhaDaTabela(nome: RegExp): HTMLElement {
 describe('Página comparar', () => {
   it('começa vazia, com tribonacci, n 20 e 5 repetições', async () => {
     await abrir();
-    expect(screen.getByLabelText('Sequência')).toHaveValue('tribonacci');
+    expect(screen.getByRole('radio', { name: 'Tribonacci' })).toBeChecked();
     expect(screen.getByLabelText('n')).toHaveValue('20');
     expect(screen.getByLabelText('Repetições')).toHaveValue('5');
     expect(screen.getByText('Nenhuma comparação ainda')).toBeInTheDocument();
+  });
+
+  it('explica o método antes de medir e o guarda recolhido depois', async () => {
+    const usuario = await abrir();
+    const metodo = screen.getByRole('region', { name: 'Como a comparação é feita' });
+    for (const termo of ['Contagens', 'Tempo', 'Memória', 'Curvas']) {
+      expect(within(metodo).getByText(termo)).toBeInTheDocument();
+    }
+    expect(within(metodo).getByText(/mede só as funções puras, sem contadores/)).toBeVisible();
+    expect(within(metodo).getByText(/clique em Comparar/)).toBeInTheDocument();
+    expect(within(metodo).getByText(/mediana das repetições escolhidas à esquerda/)).toBeVisible();
+    expect(
+      within(metodo).getByText(/sempre 3, qualquer que seja o número escolhido para o tempo/),
+    ).toBeVisible();
+
+    await medir(usuario);
+    expect(screen.queryByRole('region', { name: 'Como a comparação é feita' })).toBeNull();
+    const resumo = screen.getByRole('heading', { name: 'Como a comparação é feita' });
+    expect(resumo.closest('summary')).not.toBeNull();
+  });
+
+  it('concorda no singular quando há uma invocação e uma repetição', async () => {
+    const usuario = await abrir('/comparar?sequencia=fatorial&n=1&repeticoes=1');
+    await medir(usuario);
+    expect(cartaoMetrica('Chamadas evitadas pelo cache')).toHaveTextContent(
+      'Nenhum argumento se repetiu: 1 invocação nos dois modos.',
+    );
+    expect(
+      screen.getByText(/Os dois modos fizeram a mesma 1 invocação e o cache evitou zero chamadas/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/A mediana de 1 repetição foi/)).toBeInTheDocument();
+    expect(screen.getByText(/1 repetição por modo, com/)).toBeInTheDocument();
+  });
+
+  it('diz uma entrada guardada quando o cache guarda um valor só', async () => {
+    const usuario = await abrir('/comparar?sequencia=fatorial&n=2&repeticoes=2');
+    await medir(usuario);
+    expect(cartaoMetrica('Memória a mais com cache')).toHaveTextContent(/1 entrada guardada\b/);
   });
 
   it('mede tribonacci f(20) e mostra o fator de aceleração medido', async () => {
@@ -76,12 +115,12 @@ describe('Página comparar', () => {
   it('mostra as cinco estatísticas de tempo e o bloco de memória', async () => {
     const usuario = await abrir();
     await medir(usuario);
-    await usuario.click(screen.getByRole('heading', { name: 'Tempo' }));
-    await usuario.click(screen.getByRole('heading', { name: 'Memória' }));
+    await usuario.click(screen.getByRole('heading', { name: 'Números completos' }));
 
     for (const rotulo of [/^Mediana/, /^Média/, /^Mínimo/, /^Máximo/, /^Desvio padrão/]) {
       expect(within(linhaDaTabela(rotulo)).getAllByRole('cell')).toHaveLength(2);
     }
+    await usuario.click(screen.getByRole('tab', { name: 'Memória' }));
     expect(within(linhaDaTabela(/^Entradas no cache/)).getByText('18')).toBeInTheDocument();
     expect(within(linhaDaTabela(/^Profundidade máxima/)).getAllByText('19')).toHaveLength(2);
     expect(screen.getByText(/O coletor de lixo não é determinista/)).toBeInTheDocument();
@@ -107,7 +146,8 @@ describe('Página comparar', () => {
     const aviso = screen.getByText('Dados simulados').closest('[role="status"]');
     expect(aviso).not.toBeNull();
     expect(aviso).toHaveTextContent('A API real ainda não está ligada');
-    await usuario.click(screen.getByRole('heading', { name: 'Ambiente de execução' }));
+    await usuario.click(screen.getByRole('heading', { name: 'Números completos' }));
+    await usuario.click(screen.getByRole('tab', { name: 'Ambiente de execução' }));
     expect(screen.getByText('navegador (mock MSW) x64')).toBeInTheDocument();
   });
 

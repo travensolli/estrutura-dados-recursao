@@ -22,7 +22,7 @@ export function EtapaConta({ dados }: { dados: DadosApresentacao }) {
           de={comparacao.invocacoesSemCache}
           para={comparacao.invocacoesComCache}
           rodada={rodada}
-          classe="text-[clamp(3.5rem,13vw,10rem)] font-semibold"
+          classe="text-[length:clamp(3.5rem,min(13vw,19vh),10rem)] leading-none font-semibold"
         />
         <p className="text-[clamp(1rem,1.5vw,1.5rem)]">
           {`de ${formatarInteiro(comparacao.invocacoesSemCache)} sem cache para ${formatarInteiro(

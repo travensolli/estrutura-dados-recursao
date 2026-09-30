@@ -3,7 +3,7 @@ import { juntarClasses } from '../utilitarios/classes';
 import { Icone } from './Icone';
 
 export interface DetalhesProps {
-  /** Rótulo sempre visível; um toque abre e fecha o bloco. */
+  /** Rótulo sempre visível; um clique abre e fecha o bloco. */
   resumo: ReactNode;
   children: ReactNode;
   className?: string;
@@ -14,7 +14,7 @@ export function Detalhes({ resumo, children, className }: DetalhesProps) {
   return (
     <details
       className={juntarClasses(
-        'group rounded-xl border border-borda bg-superficie px-4',
+        'group rounded-xl border border-borda bg-superficie px-3',
         className,
       )}
     >
@@ -25,7 +25,7 @@ export function Detalhes({ resumo, children, className }: DetalhesProps) {
           className="text-texto-suave transition-transform duration-150 ease-suave group-open:rotate-180"
         />
       </summary>
-      <div className="pb-4">{children}</div>
+      <div className="pb-3">{children}</div>
     </details>
   );
 }

@@ -24,6 +24,12 @@ export interface TabelaProps<T> {
   cabecalhoFixo?: boolean;
   destacar?: (linha: T) => boolean;
   alturaMaxima?: string;
+  /** Linhas de grade entre todas as células, para cruzar linha e coluna com o olho. */
+  grade?: boolean;
+  /** Fundo alternado nas linhas do corpo. */
+  zebrado?: boolean;
+  /** Colunas de largura fixa com quebra de texto: a tabela não passa da largura disponível. */
+  ajustada?: boolean;
   className?: string;
 }
 
@@ -42,8 +48,12 @@ export function Tabela<T>({
   cabecalhoFixo = true,
   destacar,
   alturaMaxima,
+  grade = false,
+  zebrado = false,
+  ajustada = false,
   className,
 }: TabelaProps<T>) {
+  const classeGrade = grade && 'border-l border-borda first:border-l-0';
   return (
     <div
       role="region"
@@ -55,9 +65,14 @@ export function Tabela<T>({
         className,
       )}
     >
-      <table className="w-full border-collapse text-left text-sm">
+      <table
+        className={juntarClasses(
+          'w-full border-collapse text-left text-sm leading-dados',
+          ajustada && 'min-w-[36rem] table-fixed sm:min-w-0',
+        )}
+      >
         <caption
-          className={legendaVisivel ? 'px-4 py-3 text-left text-sm text-texto-suave' : 'sr-only'}
+          className={legendaVisivel ? 'px-3 py-2 text-left text-sm text-texto-suave' : 'sr-only'}
         >
           {legenda}
         </caption>
@@ -68,7 +83,9 @@ export function Tabela<T>({
                 key={coluna.chave}
                 scope="col"
                 className={juntarClasses(
-                  'border-b border-borda-forte bg-superficie px-4 py-3 font-semibold whitespace-nowrap',
+                  'border-b border-borda-forte bg-superficie px-3 py-2 font-semibold',
+                  !ajustada && 'whitespace-nowrap',
+                  classeGrade,
                   cabecalhoFixo && 'sticky top-0 z-10',
                   coluna.numerico && 'text-right',
                   coluna.className,
@@ -82,7 +99,7 @@ export function Tabela<T>({
         <tbody>
           {linhas.length === 0 ? (
             <tr>
-              <td colSpan={colunas.length} className="px-4 py-8 text-center text-texto-suave">
+              <td colSpan={colunas.length} className="px-3 py-6 text-center text-texto-suave">
                 {vazio}
               </td>
             </tr>
@@ -92,13 +109,15 @@ export function Tabela<T>({
                 key={chave(linha, indice)}
                 className={juntarClasses(
                   'border-b border-borda last:border-b-0',
-                  destacar?.(linha) && 'bg-primaria-suave',
+                  destacar?.(linha) ? 'bg-primaria-suave' : zebrado && 'even:bg-superficie-suave',
                 )}
               >
                 {colunas.map((coluna) => {
                   const conteudo = coluna.conteudo(linha);
                   const classes = juntarClasses(
-                    'px-4 py-2.5 align-middle',
+                    'px-3 py-1.5 align-middle',
+                    classeGrade,
+                    ajustada && 'break-words',
                     coluna.numerico && 'text-right tabular-nums',
                     coluna.className,
                   );
@@ -125,7 +144,7 @@ export function Tabela<T>({
             <tr>
               <td
                 colSpan={colunas.length}
-                className="border-t border-borda px-4 py-3 text-texto-suave"
+                className="border-t border-borda px-3 py-2 text-texto-suave"
               >
                 {rodape}
               </td>
