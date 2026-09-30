@@ -48,8 +48,11 @@ describe('modo apresentação', () => {
     abrir();
     expect(await esperarPalco()).toHaveTextContent('Tribonacci, definido por ele mesmo');
     await waitFor(() => expect(screen.getByTestId('valor-alvo')).toHaveTextContent('31'));
-    expect(screen.getByText('f(n) = f(n-1) + f(n-2) + f(n-3)')).toBeInTheDocument();
-    expect(screen.getByText('f(0) = f(1) = f(2) = 1')).toBeInTheDocument();
+    expect(screen.getByTestId('definicao')).toHaveTextContent(/f\(n−1\)\+f\(n−2\)\+f\(n−3\)/);
+    const passos = screen.getAllByTestId('passo');
+    expect(passos).toHaveLength(8);
+    expect(passos[0]).toHaveTextContent('f(0)caso base=1');
+    expect(passos.at(-1)).toHaveTextContent('f(7)=f(6)+f(5)+f(4)=17+9+5=31');
     expect(screen.getByText('Slide 1 de 6')).toBeInTheDocument();
   });
 

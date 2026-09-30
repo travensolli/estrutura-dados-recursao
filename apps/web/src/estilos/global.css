@@ -48,6 +48,11 @@
     background-color: var(--color-primaria-suave);
     color: var(--color-texto);
   }
+  /* O navegador já usa a fonte matemática no MathML; a pilha cobre quem não
+     conhece a família genérica `math`. */
+  math {
+    @apply font-matematica;
+  }
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -113,4 +118,17 @@
 
 @utility animar-painel {
   animation: surgir-painel 150ms var(--ease-suave) both;
+}
+
+/* Linha de uma conta que aparece depois da anterior; o atraso vem de cada linha.
+   Só entra com motion-safe: com movimento reduzido nem o atraso existe. */
+@keyframes surgir-linha {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+}
+
+@utility animar-linha {
+  animation: surgir-linha 280ms var(--ease-suave) both;
 }
