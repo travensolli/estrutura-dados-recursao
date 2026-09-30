@@ -97,7 +97,7 @@ export function Palco({ slide, indice, aoIr, aoAndar, offline = false, children 
         </div>
         {/* A base mínima faz a trilha descer para a própria linha quando não cabe ao lado do
             assunto; com base zero ela se espremeria em vez de quebrar. */}
-        <nav aria-label="Etapas da apresentação" className="min-w-0 flex-1 basis-[32rem]">
+        <nav aria-label="Slides da apresentação" className="min-w-0 flex-1 basis-[32rem]">
           <ol className="flex gap-1">
             {SLIDES.map((passo, posicao) => {
               const atual = posicao === indice;
@@ -147,7 +147,7 @@ export function Palco({ slide, indice, aoIr, aoAndar, offline = false, children 
             <span className="sr-only">Modo apresentação: </span>
             {slide.titulo}
           </h1>
-          <p className="mt-0.5 max-w-[70ch] text-[clamp(0.9rem,1.2vw,1.2rem)] text-texto-suave text-balance">
+          <p className="mt-0.5 text-[clamp(0.9rem,1.2vw,1.2rem)] text-pretty text-texto-suave">
             {slide.resumo}
           </p>
         </div>
@@ -170,15 +170,15 @@ export function Palco({ slide, indice, aoIr, aoAndar, offline = false, children 
             disabled={ultima}
             onClick={() => aoIr(indice + 1)}
           >
-            Próxima <span aria-hidden="true">→</span>
+            Próximo <span aria-hidden="true">→</span>
           </button>
         </div>
         <p className="font-mono text-[clamp(0.9rem,1.1vw,1.15rem)] tabular-nums">
-          Etapa {indice + 1} de {TOTAL_SLIDES}
+          Slide {indice + 1} de {TOTAL_SLIDES}
         </p>
         {slide.setasOcupadas && (
           <p className="hidden text-[clamp(0.8rem,0.95vw,1rem)] text-texto-suave lg:block">
-            Aqui as setas andam na execução: troque de etapa com PageUp e PageDown.
+            Aqui as setas andam na execução: troque de slide com PageUp e PageDown.
           </p>
         )}
         <div className="ml-auto flex items-center gap-3">
@@ -197,7 +197,7 @@ export function Palco({ slide, indice, aoIr, aoAndar, offline = false, children 
       </footer>
 
       <p className="sr-only" aria-live="polite">
-        {`Etapa ${indice + 1} de ${TOTAL_SLIDES}: ${slide.titulo}`}
+        {`Slide ${indice + 1} de ${TOTAL_SLIDES}: ${slide.titulo}`}
       </p>
     </div>
   );

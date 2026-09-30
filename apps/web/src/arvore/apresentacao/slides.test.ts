@@ -11,25 +11,25 @@ describe('slides da apresentação', () => {
 
   it('lê o slide da URL em base 1', () => {
     expect(lerSlide(consulta(''))).toBe(0);
-    expect(lerSlide(consulta('etapa=1'))).toBe(0);
-    expect(lerSlide(consulta('etapa=4'))).toBe(3);
+    expect(lerSlide(consulta('slide=1'))).toBe(0);
+    expect(lerSlide(consulta('slide=4'))).toBe(3);
   });
 
   it('aceita o identificador do slide', () => {
-    expect(lerSlide(consulta('etapa=conta'))).toBe(4);
-    expect(lerSlide(consulta('etapa=inexistente'))).toBe(0);
+    expect(lerSlide(consulta('slide=conta'))).toBe(4);
+    expect(lerSlide(consulta('slide=inexistente'))).toBe(0);
   });
 
   it('prende o slide dentro do roteiro', () => {
-    expect(lerSlide(consulta('etapa=0'))).toBe(0);
-    expect(lerSlide(consulta('etapa=-3'))).toBe(0);
-    expect(lerSlide(consulta('etapa=99'))).toBe(TOTAL_SLIDES - 1);
+    expect(lerSlide(consulta('slide=0'))).toBe(0);
+    expect(lerSlide(consulta('slide=-3'))).toBe(0);
+    expect(lerSlide(consulta('slide=99'))).toBe(TOTAL_SLIDES - 1);
   });
 
   it('escreve o slide de volta na URL', () => {
-    expect(escreverSlide(0)).toEqual({ etapa: '1' });
-    expect(escreverSlide(5)).toEqual({ etapa: '6' });
-    expect(escreverSlide(50)).toEqual({ etapa: String(TOTAL_SLIDES) });
+    expect(escreverSlide(0)).toEqual({ slide: '1' });
+    expect(escreverSlide(5)).toEqual({ slide: '6' });
+    expect(escreverSlide(50)).toEqual({ slide: String(TOTAL_SLIDES) });
   });
 
   it('devolve o slide pelo índice, mesmo fora da faixa', () => {

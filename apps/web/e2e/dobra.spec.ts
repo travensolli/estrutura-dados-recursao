@@ -49,9 +49,9 @@ test.describe('dobra do notebook', () => {
     }
   });
 
-  /* O palco tem altura fixa e só o miolo rola: nenhuma etapa pode precisar disso,
+  /* O palco tem altura fixa e só o miolo rola: nenhum slide pode precisar disso,
      nem em tela cheia (768) nem na janela do notebook (641). */
-  test('as seis etapas da apresentação cabem no palco sem rolar por dentro', async ({ page }) => {
+  test('os seis slides da apresentação cabem no palco sem rolar por dentro', async ({ page }) => {
     const conteudo: ReadonlyArray<(pagina: Page) => Locator> = [
       (pagina) => pagina.getByTestId('valor-alvo'),
       (pagina) => pagina.getByTestId('linha-argumento').first(),
@@ -63,13 +63,13 @@ test.describe('dobra do notebook', () => {
     for (const altura of [768, 641]) {
       await page.setViewportSize({ width: 1366, height: altura });
       for (const [indice, ancora] of conteudo.entries()) {
-        await abrir(page, `/apresentacao?etapa=${indice + 1}`);
+        await abrir(page, `/apresentacao?slide=${indice + 1}`);
         await expect(ancora(page)).toBeVisible();
         const excesso = await page.evaluate(() => {
           const miolo = document.querySelector('main#conteudo');
           return miolo ? miolo.scrollHeight - miolo.clientHeight : -1;
         });
-        expect(excesso, `etapa ${indice + 1} em 1366x${altura}`).toBeLessThanOrEqual(1);
+        expect(excesso, `slide ${indice + 1} em 1366x${altura}`).toBeLessThanOrEqual(1);
       }
     }
   });

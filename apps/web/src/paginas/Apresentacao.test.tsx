@@ -50,11 +50,11 @@ describe('modo apresentação', () => {
     await waitFor(() => expect(screen.getByTestId('valor-alvo')).toHaveTextContent('31'));
     expect(screen.getByText('f(n) = f(n-1) + f(n-2) + f(n-3)')).toBeInTheDocument();
     expect(screen.getByText('f(0) = f(1) = f(2) = 1')).toBeInTheDocument();
-    expect(screen.getByText('Etapa 1 de 6')).toBeInTheDocument();
+    expect(screen.getByText('Slide 1 de 6')).toBeInTheDocument();
   });
 
   it('mostra 46 invocações sem cache vindas das métricas', async () => {
-    abrir('/apresentacao?etapa=2');
+    abrir('/apresentacao?slide=2');
     await esperarPalco();
     const placar = await screen.findByLabelText('Números da execução sem cache');
     expect(within(placar).getByText('invocações').nextElementSibling).toHaveTextContent('46');
@@ -64,7 +64,7 @@ describe('modo apresentação', () => {
   });
 
   it('conta de 46 para 16 e prova as 30 chamadas evitadas', async () => {
-    abrir('/apresentacao?etapa=5');
+    abrir('/apresentacao?slide=5');
     await esperarPalco();
     await waitFor(() => expect(screen.getByTestId('evitadas')).toBeInTheDocument());
 
@@ -78,7 +78,7 @@ describe('modo apresentação', () => {
   });
 
   it('desenha as subárvores evitadas somando 30 chamadas', async () => {
-    abrir('/apresentacao?etapa=4');
+    abrir('/apresentacao?slide=4');
     await esperarPalco();
     await waitFor(() => expect(screen.getAllByTestId('poda')).toHaveLength(5));
 
@@ -101,7 +101,7 @@ describe('modo apresentação', () => {
 
     await usuario.keyboard('{ArrowRight}');
     expect(titulo()).toContain('Sem cache');
-    expect(screen.getByTestId('endereco')).toHaveTextContent('?etapa=2');
+    expect(screen.getByTestId('endereco')).toHaveTextContent('?slide=2');
 
     await usuario.keyboard('{ArrowRight}');
     expect(titulo()).toContain('O cache calcula uma vez');
@@ -113,11 +113,11 @@ describe('modo apresentação', () => {
     expect(titulo()).toContain('O cache calcula uma vez');
 
     await usuario.keyboard('6');
-    expect(screen.getByText('Etapa 6 de 6')).toBeInTheDocument();
-    expect(screen.getByTestId('endereco')).toHaveTextContent('?etapa=6');
+    expect(screen.getByText('Slide 6 de 6')).toBeInTheDocument();
+    expect(screen.getByTestId('endereco')).toHaveTextContent('?slide=6');
 
     await usuario.keyboard('{Home}');
-    expect(screen.getByText('Etapa 1 de 6')).toBeInTheDocument();
+    expect(screen.getByText('Slide 1 de 6')).toBeInTheDocument();
   });
 
   it('anda pela trilha e pelos botões do rodapé', async () => {
@@ -125,18 +125,18 @@ describe('modo apresentação', () => {
     abrir();
     await esperarPalco();
 
-    await usuario.click(screen.getByRole('button', { name: /Próxima/ }));
-    expect(screen.getByText('Etapa 2 de 6')).toBeInTheDocument();
+    await usuario.click(screen.getByRole('button', { name: /Próximo/ }));
+    expect(screen.getByText('Slide 2 de 6')).toBeInTheDocument();
 
     const trilha = screen.getAllByTestId('slide-trilha');
     await usuario.click(trilha[4] as HTMLElement);
-    expect(screen.getByText('Etapa 5 de 6')).toBeInTheDocument();
+    expect(screen.getByText('Slide 5 de 6')).toBeInTheDocument();
     expect(trilha[4]).toHaveAttribute('aria-current', 'step');
   });
 
   it('caminha pela reprodução do cache com os momentos guiados', async () => {
     const usuario = userEvent.setup();
-    abrir('/apresentacao?etapa=3');
+    abrir('/apresentacao?slide=3');
     await esperarPalco();
     await waitFor(() => expect(screen.getAllByTestId('momento-cache').length).toBeGreaterThan(0));
 

@@ -56,7 +56,7 @@ export const SLIDES: readonly Slide[] = [
 ];
 
 export const TOTAL_SLIDES = SLIDES.length;
-export const PARAMETRO_SLIDE = 'etapa';
+export const PARAMETRO_SLIDE = 'slide';
 
 function limitar(indice: number): number {
   if (!Number.isFinite(indice)) return 0;
