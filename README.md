@@ -650,6 +650,11 @@ apps/cli            execução por terminal
 docs/               relatório projetado, roteiro da aula, medições e decisões
 ```
 
+Cada app e pacote tem um README próprio, com o mapa dos arquivos e como rodar e testar:
+[`packages/contrato`](packages/contrato/README.md), [`packages/nucleo`](packages/nucleo/README.md),
+[`apps/api`](apps/api/README.md), [`apps/web`](apps/web/README.md) e
+[`apps/cli`](apps/cli/README.md).
+
 ### Qualidade
 
 ```bash
