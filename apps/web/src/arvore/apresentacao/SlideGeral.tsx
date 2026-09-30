@@ -1,6 +1,6 @@
 import { formatarInteiro } from '../../utilitarios/formatar';
 import type { DadosApresentacao } from './dados';
-import { SEQUENCIA_APRESENTACAO } from './etapas';
+import { SEQUENCIA_APRESENTACAO } from './slides';
 
 // Peça local da árvore: o Orquestrador harmoniza depois com o design system.
 
@@ -11,7 +11,7 @@ interface Coluna {
   texto: string;
 }
 
-export function EtapaGeral({ dados }: { dados: DadosApresentacao }) {
+export function SlideGeral({ dados }: { dados: DadosApresentacao }) {
   const info = dados.descricoes[SEQUENCIA_APRESENTACAO];
   const { comparacao, semCache, comCache } = dados;
   const n = comCache.n;

@@ -7,7 +7,7 @@ import { ALTURA_ARVORE_DUPLA, ENQUADRE_APRESENTACAO } from './medidas';
 
 // Peça local da árvore: o Orquestrador harmoniza depois com o design system.
 
-export function EtapaComCache({ dados }: { dados: DadosApresentacao }) {
+export function SlideComCache({ dados }: { dados: DadosApresentacao }) {
   const { semCache, comCache, evitada, comparacao } = dados;
   const nosDesenhados = contarNos(evitada.raiz);
   const fecha = nosDesenhados === semCache.metricas.invocacoes;

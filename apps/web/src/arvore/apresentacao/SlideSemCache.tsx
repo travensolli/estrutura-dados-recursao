@@ -8,7 +8,7 @@ import { TabelaArgumentos } from './TabelaArgumentos';
 
 // Peça local da árvore: o Orquestrador harmoniza depois com o design system.
 
-export function EtapaSemCache({ dados }: { dados: DadosApresentacao }) {
+export function SlideSemCache({ dados }: { dados: DadosApresentacao }) {
   const [realce, setRealce] = useState<number | null>(null);
   const [fixado, setFixado] = useState<number | null>(null);
   const { semCache, comparacao } = dados;

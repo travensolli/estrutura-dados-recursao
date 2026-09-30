@@ -4,10 +4,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { executarMock } from '../../mocks/referencia-mock';
 import { contarNos } from '../modelo';
 import { resumirComparacao, type DadosApresentacao } from './dados';
-import { EtapaConta } from './EtapaConta';
-import { EtapaGeral } from './EtapaGeral';
-import { EtapaSemCache } from './EtapaSemCache';
-import { LIMITE_NOS_APRESENTACAO, N_APRESENTACAO, SEQUENCIA_APRESENTACAO } from './etapas';
+import { SlideConta } from './SlideConta';
+import { SlideGeral } from './SlideGeral';
+import { SlideSemCache } from './SlideSemCache';
+import { LIMITE_NOS_APRESENTACAO, N_APRESENTACAO, SEQUENCIA_APRESENTACAO } from './slides';
 import { montarArvoreComEvitadas } from './evitadas';
 
 /** Os três números de referência de f(7): 46 invocações, 16 e 30 evitadas. */
@@ -58,7 +58,7 @@ afterEach(() => {
 describe('números da apresentação', () => {
   it('chega nos valores de referência com a resposta de f(7)', () => {
     semMovimento();
-    const { container } = render(<EtapaConta dados={dadosDe(N_APRESENTACAO)} />);
+    const { container } = render(<SlideConta dados={dadosDe(N_APRESENTACAO)} />);
 
     expect(screen.getByText('de 46 sem cache para 16 com cache')).toBeInTheDocument();
     expect(screen.getByTestId('evitadas')).toHaveTextContent('− 30 chamadas evitadas');
@@ -70,7 +70,7 @@ describe('números da apresentação', () => {
 
   it('acompanha outra execução, sem repetir nenhum número de f(7)', () => {
     semMovimento();
-    const { container } = render(<EtapaConta dados={dadosDe(N_APRESENTACAO - 1)} />);
+    const { container } = render(<SlideConta dados={dadosDe(N_APRESENTACAO - 1)} />);
 
     expect(screen.getByText('de 25 sem cache para 13 com cache')).toBeInTheDocument();
     expect(screen.getByTestId('evitadas')).toHaveTextContent('− 12 chamadas evitadas');
@@ -82,7 +82,7 @@ describe('números da apresentação', () => {
 
   it('tira o placar sem cache das métricas da resposta', () => {
     semMovimento();
-    render(<EtapaSemCache dados={dadosDe(N_APRESENTACAO - 1)} />);
+    render(<SlideSemCache dados={dadosDe(N_APRESENTACAO - 1)} />);
 
     const placar = screen.getByLabelText('Números da execução sem cache');
     expect(within(placar).getByText('invocações').nextElementSibling).toHaveTextContent('25');
@@ -93,7 +93,7 @@ describe('números da apresentação', () => {
 
   it('generaliza com os totais da própria resposta', () => {
     semMovimento();
-    const { container } = render(<EtapaGeral dados={dadosDe(N_APRESENTACAO - 1)} />);
+    const { container } = render(<SlideGeral dados={dadosDe(N_APRESENTACAO - 1)} />);
 
     expect(screen.getByLabelText('Sem cache')).toHaveTextContent('25');
     expect(screen.getByLabelText('Com cache')).toHaveTextContent('13');

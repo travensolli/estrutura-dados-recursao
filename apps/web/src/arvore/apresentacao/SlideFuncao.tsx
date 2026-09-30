@@ -1,10 +1,10 @@
 import { abreviarValor, formatarInteiro } from '../../utilitarios/formatar';
 import type { DadosApresentacao } from './dados';
-import { N_APRESENTACAO, SEQUENCIA_APRESENTACAO } from './etapas';
+import { N_APRESENTACAO, SEQUENCIA_APRESENTACAO } from './slides';
 
 // Peça local da árvore: o Orquestrador harmoniza depois com o design system.
 
-export function EtapaFuncao({ dados }: { dados: DadosApresentacao }) {
+export function SlideFuncao({ dados }: { dados: DadosApresentacao }) {
   const info = dados.descricoes[SEQUENCIA_APRESENTACAO];
   const metricas = dados.semCache.metricas;
   const valor = abreviarValor(metricas.valor, 18);

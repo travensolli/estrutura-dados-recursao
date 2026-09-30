@@ -94,7 +94,7 @@ describe('modo apresentação', () => {
     expect(screen.getByText(/dá 46 nós, exatamente o total sem cache/)).toBeInTheDocument();
   });
 
-  it('navega entre etapas pelo teclado e guarda a etapa no endereço', async () => {
+  it('navega entre slides pelo teclado e guarda o slide no endereço', async () => {
     const usuario = userEvent.setup();
     abrir();
     await esperarPalco();
@@ -106,7 +106,7 @@ describe('modo apresentação', () => {
     await usuario.keyboard('{ArrowRight}');
     expect(titulo()).toContain('O cache calcula uma vez');
 
-    // Na etapa do cache as setas são da reprodução: a trilha anda com PageDown.
+    // No slide do cache as setas são da reprodução: a trilha anda com PageDown.
     await usuario.keyboard('{PageDown}');
     expect(titulo()).toContain('O que deixou de ser chamado');
     await usuario.keyboard('{PageUp}');
@@ -128,7 +128,7 @@ describe('modo apresentação', () => {
     await usuario.click(screen.getByRole('button', { name: /Próxima/ }));
     expect(screen.getByText('Etapa 2 de 6')).toBeInTheDocument();
 
-    const trilha = screen.getAllByTestId('etapa-trilha');
+    const trilha = screen.getAllByTestId('slide-trilha');
     await usuario.click(trilha[4] as HTMLElement);
     expect(screen.getByText('Etapa 5 de 6')).toBeInTheDocument();
     expect(trilha[4]).toHaveAttribute('aria-current', 'step');

@@ -6,7 +6,7 @@ import { TabelaArgumentos } from './TabelaArgumentos';
 
 // Peça local da árvore: o Orquestrador harmoniza depois com o design system.
 
-export function EtapaConta({ dados }: { dados: DadosApresentacao }) {
+export function SlideConta({ dados }: { dados: DadosApresentacao }) {
   const [rodada, setRodada] = useState(0);
   const { comparacao } = dados;
   const soma = `${comparacao.parcelas.join(' + ')} = ${formatarInteiro(comparacao.somaParcelas)}`;
