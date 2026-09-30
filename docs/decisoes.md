@@ -446,3 +446,32 @@ mostrava tudo zerado, e a Árvore redesenhava o f(7) padrão.
 pelas três telas de novo pelo menu e confere, contra a API real, que a
 volta não fez nenhum pedido novo e que o tempo mostrado é o mesmo, em
 desktop, tablet e celular.
+
+## 2026-09-30: A árvore avisa o formulário mudado e a barra vira ícones
+
+Ajustes pedidos pelo usuário nas telas com árvore.
+
+- **O aviso do formulário.** Calcular e Comparar já diziam "O formulário
+  mudou depois deste resultado"; a Árvore não dizia nada, e quem mexia
+  nos controles via a árvore antiga sem saber. Agora diz "O formulário
+  mudou depois desta árvore. Clique em Ver árvore para atualizar."
+  enquanto os controles pedem uma árvore válida diferente da desenhada.
+  Controles inválidos já mostram o erro no campo, e voltar ao que está
+  desenhado tira o aviso. Como na Árvore o formulário é um rascunho, e
+  não o endereço, a página guarda o endereço em que ele foi mexido:
+  pedir outra árvore, ou chegar por outro link, apaga o aviso.
+- **Sem custar altura.** O aviso fica na linha dos botões Desenho, Lista
+  e Reproduzir, e em 1366x641 cabe nela sem rolagem. No passo a passo, a
+  dica do teclado ocupa a linha e o aviso desce: a página rola 16px e só
+  a legenda sai da janela. O aviso do Calcular no modo Comparar já custa
+  14px pelo mesmo motivo.
+- **Ícones na barra do desenho.** Aproximar, afastar e ajustar à tela
+  viram ícones (+, − e os quatro cantos de um quadrado), com o nome para
+  o leitor de tela e na dica do ponteiro. Vale também no palco da
+  apresentação, que usa o mesmo desenho.
+- **Um botão de baixar.** Os dois botões "Baixar SVG" e "Baixar PNG"
+  viraram um ícone de download que abre, para cima, a escolha do
+  formato, cada um com uma linha do que é: SVG, vetor para editores de
+  slides, e PNG, imagem em 2x para o projetor. A escolha fecha ao
+  baixar, com Esc ou com clique fora. Enquanto o PNG é gerado, o ícone
+  gira e a opção PNG fica desabilitada.

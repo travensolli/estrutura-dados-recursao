@@ -154,8 +154,9 @@ Este é um pedido explícito do enunciado; dê o tempo dele.
 - Detalhe bonito para citar: o número de folhas é igual ao valor da sequência. f(7) = 31 porque a
   soma final é 31 parcelas iguais a 1.
 - Os nós aparecem pequenos para a árvore caber inteira: são 31 folhas lado a lado. Use **+**, no
-  canto inferior direito do desenho, ou a roda do mouse para aproximar uma região, e **Ajustar à
-  tela** para voltar. Quem precisar ler cada chamada em texto tem a vista **Lista**.
+  canto inferior direito do desenho, ou a roda do mouse para aproximar uma região, e o botão dos
+  **quatro cantos**, ajustar à tela, para voltar. Quem precisar ler cada chamada em texto tem a
+  vista **Lista**.
 - Se a turma quiser interagir: clique num nó para recolher a subárvore, ou marque **com cache** na
   coluna da esquerda, clique em **Ver árvore** e mostre a árvore podada, com os acertos de cache em
   borda tracejada e marca de triângulo.
