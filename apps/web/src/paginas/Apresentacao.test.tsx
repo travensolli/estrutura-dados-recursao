@@ -178,6 +178,18 @@ describe('modo apresentação', () => {
     expect(pedir).toHaveBeenCalledTimes(1);
   });
 
+  it('alterna entre o tema claro e o escuro pelo rodapé', async () => {
+    const usuario = userEvent.setup();
+    abrir();
+    await esperarPalco();
+
+    await usuario.click(screen.getByRole('button', { name: 'Ativar tema escuro' }));
+    expect(document.documentElement).toHaveClass('tema-escuro');
+    await usuario.click(screen.getByRole('button', { name: 'Ativar tema claro' }));
+    expect(document.documentElement).not.toHaveClass('tema-escuro');
+    localStorage.clear();
+  });
+
   it('calcula no navegador e mostra o selo offline quando a API cai', async () => {
     vi.stubGlobal('Worker', TrabalhadorFalso);
     servidorMock.use(http.post('/api/arvore', () => HttpResponse.error()));

@@ -1,6 +1,7 @@
 import { DESCRICAO_SEQUENCIAS } from '@sequencias/contrato';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Link } from 'react-router';
+import { BotaoTema } from '../../componentes/BotaoTema';
 import { SLIDES, N_APRESENTACAO, SEQUENCIA_APRESENTACAO, TOTAL_SLIDES, type Slide } from './slides';
 import { useTelaCheia } from './usarTelaCheia';
 
@@ -182,6 +183,8 @@ export function Palco({ slide, indice, aoIr, aoAndar, offline = false, children 
           </p>
         )}
         <div className="ml-auto flex items-center gap-3">
+          {/* A sala decide o tema: projetor em sala clara pede o claro, sala escura o escuro. */}
+          <BotaoTema />
           {tela.suportada && (
             <button type="button" className={BOTAO} onClick={tela.alternar}>
               {tela.ativa ? 'Sair da tela cheia' : 'Tela cheia'}
