@@ -359,10 +359,13 @@ setas do navegador e o rótulo "Valor de n", e colunas de 300 e 260px.
   mesmo estilo do modo: um clique, e a escolhida fica marcada. No
   Calcular o modo fica em duas colunas, com "Comparar" na linha de baixo,
   sob os dois modos que ele junta.
-- **Um campo numérico.** Rótulo em cima, o valor entre menos e mais, e a
-  faixa aceita embaixo ("De 0 a 30"); o erro toma o lugar da faixa, sem
-  mudar a altura, e a faixa continua descrevendo o campo para o leitor de
-  tela. O limite de nós anda de 100 em 100.
+- **Um campo numérico.** Cada campo é uma linha: o nome e a faixa aceita
+  ("De 0 a 30") à esquerda, e à direita o valor entre menos e mais, numa
+  peça só, com uma borda e divisórias finas. Dois campos numa tela ficam
+  empilhados, não lado a lado: a primeira versão, com três caixas soltas e
+  dois campos encostados, parecia um formulário só. O erro aparece sob a
+  linha e a faixa fica à vista para explicar o limite. O limite de nós anda
+  de 100 em 100.
 - **Fonte larga.** As telas foram conferidas também com Verdana forçada,
   de métricas parecidas com as do DejaVu Sans do runner Linux. Com colunas
   iguais, "Tribonacci" era cortado na opção escolhida; as colunas dos

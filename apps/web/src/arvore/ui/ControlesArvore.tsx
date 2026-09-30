@@ -62,31 +62,28 @@ export function ControlesArvore({
         opcoes={OPCOES_MODO}
         colunas={2}
       />
-      {/* Lado a lado só no tamanho de mouse, como n e repetições no Comparar. */}
-      <div className="grid items-start gap-2 denso:grid-cols-2">
-        <CampoNumero
-          rotulo="n"
-          valor={textoN}
-          aoMudar={(texto, resultado) => {
-            setTextoN(texto);
-            trocar({ n: resultado.valido ? resultado.valor : Number.NaN });
-          }}
-          minimo={0}
-          maximo={limites[consulta.modo]}
-        />
-        <CampoNumero
-          rotulo="Limite de nós"
-          valor={textoLimite}
-          aoMudar={(texto, resultado) => {
-            setTextoLimite(texto);
-            trocar({ limite_nos: resultado.valido ? resultado.valor : Number.NaN });
-          }}
-          minimo={1}
-          maximo={limiteNosMaximo}
-          passo={100}
-          ajuda={pesado ? `Acima de ${formatarInteiro(LIMITE_NOS_ARVORE_PADRAO)}, pesa` : undefined}
-        />
-      </div>
+      <CampoNumero
+        rotulo="n"
+        valor={textoN}
+        aoMudar={(texto, resultado) => {
+          setTextoN(texto);
+          trocar({ n: resultado.valido ? resultado.valor : Number.NaN });
+        }}
+        minimo={0}
+        maximo={limites[consulta.modo]}
+      />
+      <CampoNumero
+        rotulo="Limite de nós"
+        valor={textoLimite}
+        aoMudar={(texto, resultado) => {
+          setTextoLimite(texto);
+          trocar({ limite_nos: resultado.valido ? resultado.valor : Number.NaN });
+        }}
+        minimo={1}
+        maximo={limiteNosMaximo}
+        passo={100}
+        ajuda={pesado ? `Acima de ${formatarInteiro(LIMITE_NOS_ARVORE_PADRAO)}, pesa` : undefined}
+      />
       <Botao type="submit" tamanho="grande" largo icone="arvore" disabled={!valida}>
         Ver árvore
       </Botao>

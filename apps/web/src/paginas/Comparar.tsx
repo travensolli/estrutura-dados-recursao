@@ -758,23 +758,21 @@ export function PaginaComparar() {
                 valor={sequencia}
                 aoMudar={(escolhida) => definir({ sequencia: escolhida })}
               />
-              {/* Lado a lado só no tamanho de mouse: no toque, os botões de 44 px esmagariam o campo. */}
-              <div className="grid items-start gap-2 denso:grid-cols-2">
-                <CampoNumero
-                  rotulo="n"
-                  valor={rascunhoN}
-                  aoMudar={aoMudarN}
-                  minimo={0}
-                  maximo={limite}
-                />
-                <CampoNumero
-                  rotulo="Repetições"
-                  valor={rascunhoRepeticoes}
-                  aoMudar={aoMudarRepeticoes}
-                  minimo={1}
-                  maximo={REPETICOES_MAXIMO}
-                />
-              </div>
+
+              <CampoNumero
+                rotulo="n"
+                valor={rascunhoN}
+                aoMudar={aoMudarN}
+                minimo={0}
+                maximo={limite}
+              />
+              <CampoNumero
+                rotulo="Repetições"
+                valor={rascunhoRepeticoes}
+                aoMudar={aoMudarRepeticoes}
+                minimo={1}
+                maximo={REPETICOES_MAXIMO}
+              />
               <div className="flex gap-2">
                 <Botao
                   type="submit"

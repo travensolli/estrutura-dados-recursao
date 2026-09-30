@@ -35,16 +35,14 @@ describe('CampoNumero', () => {
     expect(campo).toHaveAccessibleDescription(/De 0 a 30/);
   });
 
-  it('põe o erro no lugar da faixa aceita, sem tirar a faixa do leitor de tela', async () => {
+  it('anuncia o erro sob o campo e mantém a faixa à vista para explicar o limite', async () => {
     const usuario = userEvent.setup();
     render(<CampoControlado inicial="" />);
-    const faixa = screen.getByText('De 0 a 30');
-    expect(faixa).not.toHaveClass('sr-only');
     await usuario.type(screen.getByLabelText('n'), '31');
     const mensagem = screen.getByText('O maior valor aceito é 30.');
     expect(mensagem).toHaveAttribute('aria-live', 'polite');
-    expect(faixa).toHaveClass('sr-only');
-    expect(screen.getByLabelText('n')).toHaveAccessibleDescription(/De 0 a 30/);
+    expect(screen.getByText('De 0 a 30')).toBeVisible();
+    expect(screen.getByLabelText('n')).toHaveAccessibleDescription(/De 0 a 30.*O maior valor/);
   });
 
   it('nomeia o campo na mensagem de valor vazio', async () => {
