@@ -150,7 +150,7 @@ export const CompararRespostaSchema = z.object({
   chamadas_evitadas: z.number().int().nonnegative(),
   /** memória retida com cache menos memória retida sem cache. */
   diferenca_memoria_bytes: z.number(),
-  /** Ordem em que os modos foram medidos (alterna entre rodadas). */
+  /** Ordem dos modos na medição de tempo (alterna entre rodadas); a memória sai sempre em ordem fixa. */
   ordem_execucao: z.array(ModoSchema),
   ambiente: AmbienteExecucaoSchema,
 });
