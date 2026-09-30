@@ -50,9 +50,9 @@ daquela máquina.
 | `figuras/tela-comparar-tribonacci-f18.png`            | A tela de comparação com tempo, memória e curvas              | Exportado do app  |
 
 Para exportar de novo as figuras da interface: abra
-`/arvore?sequencia=tribonacci&n=7&modo=sem_cache`, use "Ajustar à tela" e depois "Baixar SVG" ou
-"Baixar PNG". O SVG sai com cores literais, sem variáveis de tema, e abre em qualquer editor de
-slides.
+`/arvore?sequencia=tribonacci&n=7&modo=sem_cache`, use o botão dos quatro cantos, ajustar à tela,
+e depois o de baixar, que abre a escolha entre SVG e PNG. O SVG sai com cores literais, sem
+variáveis de tema, e abre em qualquer editor de slides.
 
 ## Regras destes documentos
 

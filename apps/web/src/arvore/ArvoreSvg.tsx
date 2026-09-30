@@ -2,7 +2,17 @@ import type { Metricas, Modo, No, Sequencia } from '@sequencias/contrato';
 import { DESCRICAO_SEQUENCIAS } from '@sequencias/contrato';
 import { select } from 'd3-selection';
 import { zoom, zoomIdentity, type ZoomBehavior, type ZoomTransform } from 'd3-zoom';
-import { memo, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react';
+import { Icone } from '../componentes/Icone';
 import {
   abreviarValor,
   corDoArgumento,
@@ -360,36 +370,20 @@ export function ArvoreSvg({
           }`}
         >
           <div className={BARRA} role="group" aria-label={`Zoom da árvore ${rotuloModo(modo)}`}>
-            <button type="button" className={BOTAO} onClick={() => aplicarZoom(PASSO_ZOOM)}>
-              <span aria-hidden="true">+</span>
-              <span className="sr-only">Aproximar</span>
-            </button>
-            <button type="button" className={BOTAO} onClick={() => aplicarZoom(1 / PASSO_ZOOM)}>
-              <span aria-hidden="true">−</span>
-              <span className="sr-only">Afastar</span>
-            </button>
-            <button type="button" className={BOTAO} onClick={ajustar}>
-              Ajustar à tela
-            </button>
+            <BotaoDaBarra icone="mais" rotulo="Aproximar" onClick={() => aplicarZoom(PASSO_ZOOM)} />
+            <BotaoDaBarra
+              icone="menos"
+              rotulo="Afastar"
+              onClick={() => aplicarZoom(1 / PASSO_ZOOM)}
+            />
+            <BotaoDaBarra icone="ajustar" rotulo="Ajustar à tela" onClick={ajustar} />
           </div>
           {!palco && (
-            <div
-              className={BARRA}
-              role="group"
-              aria-label={`Exportar a árvore ${rotuloModo(modo)}`}
-            >
-              <button type="button" className={BOTAO} onClick={() => void exportarArquivo('svg')}>
-                Baixar SVG
-              </button>
-              <button
-                type="button"
-                className={BOTAO}
-                disabled={gerandoPng}
-                onClick={() => void exportarArquivo('png')}
-              >
-                {gerandoPng ? 'Gerando PNG…' : 'Baixar PNG'}
-              </button>
-            </div>
+            <MenuBaixar
+              modo={modo}
+              gerandoPng={gerandoPng}
+              aoEscolher={(extensao) => void exportarArquivo(extensao)}
+            />
           )}
         </div>
         {recolhidos.size > 0 && (
@@ -498,6 +492,121 @@ export function ArvoreSvg({
         )}
       </figcaption>
     </figure>
+  );
+}
+
+/** Só o ícone à vista; o nome vai para o leitor de tela e para a dica do ponteiro. */
+function BotaoDaBarra({
+  icone,
+  rotulo,
+  onClick,
+}: {
+  icone: 'mais' | 'menos' | 'ajustar';
+  rotulo: string;
+  onClick: () => void;
+}) {
+  return (
+    <button type="button" className={BOTAO} title={rotulo} onClick={onClick}>
+      <Icone nome={icone} tamanho={18} />
+      <span className="sr-only">{rotulo}</span>
+    </button>
+  );
+}
+
+const FORMATOS: ReadonlyArray<{ extensao: Extensao; rotulo: string; detalhe: string }> = [
+  { extensao: 'svg', rotulo: 'SVG', detalhe: 'Vetor, abre em editores de slides' },
+  { extensao: 'png', rotulo: 'PNG', detalhe: 'Imagem em 2x, nítida no projetor' },
+];
+
+interface MenuBaixarProps {
+  modo: Modo;
+  gerandoPng: boolean;
+  aoEscolher: (extensao: Extensao) => void;
+}
+
+/** Um botão de baixar que abre, para cima, a escolha do formato do arquivo. */
+function MenuBaixar({ modo, gerandoPng, aoEscolher }: MenuBaixarProps) {
+  const [aberto, setAberto] = useState(false);
+  const idFormatos = useId();
+  const raizRef = useRef<HTMLDivElement>(null);
+  const gatilhoRef = useRef<HTMLButtonElement>(null);
+
+  // Clicar fora fecha; o clique no próprio botão fica com o onClick dele.
+  useEffect(() => {
+    if (!aberto) return;
+    function aoApertar(evento: PointerEvent) {
+      if (!raizRef.current?.contains(evento.target as Node)) setAberto(false);
+    }
+    document.addEventListener('pointerdown', aoApertar);
+    return () => document.removeEventListener('pointerdown', aoApertar);
+  }, [aberto]);
+
+  function fechar() {
+    setAberto(false);
+    gatilhoRef.current?.focus();
+  }
+
+  const rotulo = gerandoPng ? 'Gerando PNG…' : 'Baixar a árvore';
+  return (
+    <div
+      ref={raizRef}
+      className={`relative ${BARRA}`}
+      role="group"
+      aria-label={`Exportar a árvore ${rotuloModo(modo)}`}
+      onKeyDown={(evento) => {
+        if (evento.key !== 'Escape' || !aberto) return;
+        evento.stopPropagation();
+        fechar();
+      }}
+      onBlur={(evento) => {
+        // Sem destino (clique em área que não recebe foco), quem fecha é o clique fora.
+        const destino = evento.relatedTarget;
+        if (destino !== null && !evento.currentTarget.contains(destino)) setAberto(false);
+      }}
+    >
+      <button
+        ref={gatilhoRef}
+        type="button"
+        className={BOTAO}
+        title={rotulo}
+        aria-expanded={aberto}
+        aria-controls={aberto ? idFormatos : undefined}
+        onClick={() => setAberto((atual) => !atual)}
+      >
+        <Icone
+          nome={gerandoPng ? 'carregando' : 'baixar'}
+          tamanho={18}
+          className={gerandoPng ? 'animate-spin' : undefined}
+        />
+        <span className="sr-only">{rotulo}</span>
+      </button>
+      {aberto && (
+        <div
+          id={idFormatos}
+          className="absolute right-0 bottom-full mb-1.5 flex w-64 flex-col rounded-md border border-borda bg-superficie-elevada p-1 shadow-flutuante"
+        >
+          {FORMATOS.map((formato) => (
+            <button
+              key={formato.extensao}
+              type="button"
+              aria-label={`Baixar ${formato.rotulo}`}
+              aria-describedby={`${idFormatos}-${formato.extensao}`}
+              className="flex min-h-toque flex-col items-start justify-center rounded px-2.5 py-1 text-left hover:bg-superficie-suave disabled:opacity-60"
+              disabled={formato.extensao === 'png' && gerandoPng}
+              onClick={() => {
+                fechar();
+                aoEscolher(formato.extensao);
+              }}
+            >
+              <span className="text-sm font-semibold">{formato.rotulo}</span>
+              <span id={`${idFormatos}-${formato.extensao}`} className="text-xs text-texto-suave">
+                {formato.detalhe}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

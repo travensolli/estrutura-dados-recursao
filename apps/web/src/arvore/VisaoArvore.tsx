@@ -1,5 +1,5 @@
 import { DESCRICAO_SEQUENCIAS, type ArvoreResposta } from '@sequencias/contrato';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { rotuloModo } from '../utilitarios/formatar';
 import { ArvoreLista } from './ArvoreLista';
 import { ArvoreSvg } from './ArvoreSvg';
@@ -19,6 +19,8 @@ export interface VisaoArvoreProps {
   /** Vista escolhida numa visita anterior a esta mesma árvore. */
   visaoInicial?: Visao | null;
   aoEscolherVisao?: (visao: Visao) => void;
+  /** Recado na linha dos botões, sem custar altura ao desenho. */
+  aviso?: ReactNode;
 }
 
 const BOTAO =
@@ -32,6 +34,7 @@ export function VisaoArvore({
   podasPorAcerto,
   visaoInicial = null,
   aoEscolherVisao,
+  aviso,
 }: VisaoArvoreProps) {
   const { raiz, metricas, sequencia, n, modo } = resposta;
   const nos = useMemo(() => achatarNos(raiz), [raiz]);
@@ -109,6 +112,8 @@ export function VisaoArvore({
             Espaço inicia e pausa, as setas andam um passo, Home e End vão às pontas.
           </p>
         )}
+
+        {aviso}
       </div>
 
       {reproduzindo ? (

@@ -13,13 +13,15 @@ import {
   type OpcaoSegmento,
 } from '../../componentes';
 import { formatarInteiro } from '../../utilitarios/formatar';
-import { consultaValida, validarConsulta, type ConsultaArvore } from '../consulta';
+import { consultaValida, mesmaConsulta, validarConsulta, type ConsultaArvore } from '../consulta';
 
 export interface ControlesArvoreProps {
   inicial: ConsultaArvore;
   limitesPorSequencia: Record<Sequencia, LimitesN>;
   limiteNosMaximo: number;
   aoAplicar: (consulta: ConsultaArvore) => void;
+  /** Avisa se os controles pedem uma árvore válida diferente da desenhada. */
+  aoAlterar?: (alterada: boolean) => void;
 }
 
 const OPCOES_MODO: ReadonlyArray<OpcaoSegmento<Modo>> = [
@@ -33,6 +35,7 @@ export function ControlesArvore({
   limitesPorSequencia,
   limiteNosMaximo,
   aoAplicar,
+  aoAlterar,
 }: ControlesArvoreProps) {
   const [consulta, setConsulta] = useState<ConsultaArvore>(inicial);
   /* Os campos guardam o texto digitado; a consulta só recebe números válidos. */
@@ -42,8 +45,12 @@ export function ControlesArvore({
   const valida = consultaValida(validarConsulta(consulta, limites, limiteNosMaximo));
   const pesado = consulta.limite_nos > LIMITE_NOS_ARVORE_PADRAO;
 
-  const trocar = (parcial: Partial<ConsultaArvore>) =>
-    setConsulta((atual) => ({ ...atual, ...parcial }));
+  function trocar(parcial: Partial<ConsultaArvore>) {
+    const proxima = { ...consulta, ...parcial };
+    setConsulta(proxima);
+    const erros = validarConsulta(proxima, limitesPorSequencia[proxima.sequencia], limiteNosMaximo);
+    aoAlterar?.(consultaValida(erros) && !mesmaConsulta(proxima, inicial));
+  }
 
   return (
     <form
