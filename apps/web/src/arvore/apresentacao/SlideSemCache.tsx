@@ -5,7 +5,7 @@ import { CrescimentoChamadas } from './CrescimentoChamadas';
 import { ALTURA_ARVORE, ENQUADRE_APRESENTACAO } from './medidas';
 import type { DadosApresentacao } from './dados';
 import { Placar } from './Placar';
-import { TabelaArgumentos } from './TabelaArgumentos';
+import { FaixaArgumentos } from './FaixaArgumentos';
 
 // Peça local da árvore: o Orquestrador harmoniza depois com o design system.
 
@@ -66,8 +66,7 @@ export function SlideSemCache({ dados }: { dados: DadosApresentacao }) {
 
       {/* Dentro de f(7), quem se repete; fora dele, quanto a repetição cresce com n. */}
       <div className="grid min-w-0 items-start gap-x-[clamp(1.5rem,3.5vw,3.5rem)] gap-y-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-        <TabelaArgumentos
-          disposicao="faixa"
+        <FaixaArgumentos
           linhas={comparacao.linhas}
           maximo={comparacao.maiorInvocacao}
           legenda={`Invocações por argumento em f(${semCache.n})`}

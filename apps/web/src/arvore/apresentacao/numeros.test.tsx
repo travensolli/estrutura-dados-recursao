@@ -66,6 +66,17 @@ describe('números da apresentação', () => {
     expect(screen.getByTestId('prova-podas')).toHaveTextContent('12 + 6 + 6 + 3 + 3 = 30');
     expect(screen.getByTestId('prova-recursivas')).toHaveTextContent('45 − 15 = 30');
     expect(container.textContent).toMatch(REFERENCIA);
+
+    // Um quadrado por chamada: todos são as sem cache, os tracejados as evitadas.
+    const quadros = screen.getAllByTestId('quadro-chamada');
+    expect(quadros).toHaveLength(46);
+    expect(quadros.filter((quadro) => quadro.dataset.evitada === 'sim')).toHaveLength(30);
+    const linhaDe2 = screen
+      .getAllByTestId('linha-chamadas')
+      .find((linha) => linha.dataset.argumento === '2') as HTMLElement;
+    expect(within(linhaDe2).getAllByTestId('quadro-chamada')).toHaveLength(13);
+    expect(linhaDe2).toHaveTextContent('f(2)133−10');
+    expect(screen.getByTestId('total-chamadas')).toHaveTextContent('total4616−30');
   });
 
   it('acompanha outra execução, sem repetir nenhum número de f(7)', () => {
@@ -77,6 +88,8 @@ describe('números da apresentação', () => {
     expect(screen.getByTestId('contador')).toHaveTextContent('13');
     expect(screen.getByTestId('prova-podas')).toHaveTextContent('6 + 3 + 3 = 12');
     expect(screen.getByTestId('prova-recursivas')).toHaveTextContent('24 − 12 = 12');
+    expect(screen.getAllByTestId('quadro-chamada')).toHaveLength(25);
+    expect(screen.getByTestId('total-chamadas')).toHaveTextContent('total2513−12');
     expect(container.textContent).not.toMatch(REFERENCIA);
   });
 

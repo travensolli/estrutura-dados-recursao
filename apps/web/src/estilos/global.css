@@ -132,3 +132,15 @@
 @utility animar-linha {
   animation: surgir-linha 280ms var(--ease-suave) both;
 }
+
+/* Um quadrado que perde o preenchimento: a chamada que o cache deixou de fazer.
+   Parte da cor cheia, `--cor`, e termina no fundo que o próprio quadrado declara. */
+@keyframes esvaziar {
+  from {
+    background-color: var(--cor);
+  }
+}
+
+@utility animar-esvaziar {
+  animation: esvaziar 240ms var(--ease-suave) both;
+}

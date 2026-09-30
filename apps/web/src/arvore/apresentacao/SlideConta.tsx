@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { formatarInteiro } from '../../utilitarios/formatar';
+import { ChamadasPorArgumento } from './ChamadasPorArgumento';
 import { Contador } from './Contador';
 import type { DadosApresentacao } from './dados';
-import { TabelaArgumentos } from './TabelaArgumentos';
 
 // Peça local da árvore: o Orquestrador harmoniza depois com o design system.
 
@@ -70,13 +70,9 @@ export function SlideConta({ dados }: { dados: DadosApresentacao }) {
         </button>
       </div>
 
-      <div className="min-w-0">
-        <TabelaArgumentos
-          linhas={comparacao.linhas}
-          maximo={comparacao.maiorInvocacao}
-          colunas="ambos"
-          legenda="Invocações por argumento nos dois modos"
-        />
+      <div className="@container min-w-0">
+        {/* A mesma rodada do contador: repetir a contagem esvazia os quadrados de novo. */}
+        <ChamadasPorArgumento key={rodada} comparacao={comparacao} />
       </div>
     </div>
   );
