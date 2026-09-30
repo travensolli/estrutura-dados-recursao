@@ -32,7 +32,7 @@ test.describe('modo apresentação', () => {
     await expect(page.getByTestId('contador')).toContainText('30');
     await expect(page.getByTestId('evitadas')).toContainText('chamadas evitadas');
     await expect(
-      page.getByText('das 46 invocações sem cache, só 16 acontecem com cache'),
+      page.getByText('de 46 invocações sem cache, com cache só 16 acontecem'),
     ).toBeVisible();
     await expect(page.getByTestId('prova-podas')).toContainText('12 + 6 + 6 + 3 + 3 = 30');
     await expect(page.getByTestId('prova-recursivas')).toContainText('45');

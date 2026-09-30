@@ -63,7 +63,7 @@ describe('números da apresentação', () => {
     expect(screen.getByText('30 chamadas evitadas')).toBeInTheDocument();
     expect(screen.getByTestId('contador')).toHaveTextContent('30');
     expect(
-      screen.getByText('das 46 invocações sem cache, só 16 acontecem com cache'),
+      screen.getByText('de 46 invocações sem cache, com cache só 16 acontecem'),
     ).toBeInTheDocument();
     expect(screen.getByTestId('prova-podas')).toHaveTextContent('12 + 6 + 6 + 3 + 3 = 30');
     expect(screen.getByTestId('prova-recursivas')).toHaveTextContent('45 − 15 = 30');
@@ -88,7 +88,7 @@ describe('números da apresentação', () => {
     expect(screen.getByText('12 chamadas evitadas')).toBeInTheDocument();
     expect(screen.getByTestId('contador')).toHaveTextContent('12');
     expect(
-      screen.getByText('das 25 invocações sem cache, só 13 acontecem com cache'),
+      screen.getByText('de 25 invocações sem cache, com cache só 13 acontecem'),
     ).toBeInTheDocument();
     expect(screen.getByTestId('prova-podas')).toHaveTextContent('6 + 3 + 3 = 12');
     expect(screen.getByTestId('prova-recursivas')).toHaveTextContent('24 − 12 = 12');
