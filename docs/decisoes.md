@@ -515,9 +515,12 @@ melhor projetada.
   os cheios as com cache e os tracejados as evitadas, como na árvore.
   Os tracejados se esvaziam no ritmo do contador, pela inversa da mesma
   curva, e o lado do quadrado sai da largura da coluna para a fileira
-  mais longa não quebrar. O slide fica sem resumo abaixo do título, e a
-  palavra invocações vem ao lado do contador, no corpo da frase de
-  baixo, em vez de um rótulo pequeno acima dele.
+  mais longa não quebrar. O slide fica sem resumo abaixo do título. O
+  número grande é o das chamadas evitadas: o contador sobe de zero até
+  30 enquanto os tracejados se esvaziam, com a unidade ao lado, e as 46
+  sem cache e as 16 com cache ficam na frase de baixo. Antes ele descia
+  de 46 para 16, e o 16 em destaque tirava o foco das 30 evitadas, que
+  são o assunto do slide.
 - **Slide 6, Conclusão.** Sai o nome Generalizando e o título
   Exponencial contra linear. O fecho ocupa a largura toda do palco.
   O texto passa a dizer uma coisa só, do resumo ao fecho: o cache gasta
