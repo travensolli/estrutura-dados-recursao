@@ -511,7 +511,9 @@ melhor projetada.
   os cheios as com cache e os tracejados as evitadas, como na árvore.
   Os tracejados se esvaziam no ritmo do contador, pela inversa da mesma
   curva, e o lado do quadrado sai da largura da coluna para a fileira
-  mais longa não quebrar.
+  mais longa não quebrar. O slide fica sem resumo abaixo do título, e a
+  palavra invocações vem ao lado do contador, no corpo da frase de
+  baixo, em vez de um rótulo pequeno acima dele.
 - **Slide 6, Conclusão.** Sai o nome Generalizando e o título
   Exponencial contra linear. O fecho ocupa a largura toda do palco.
 
