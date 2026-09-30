@@ -29,9 +29,11 @@ test.describe('modo apresentação', () => {
 
   test('mostra 46, 16 e 30 obtidos da execução', async ({ page }) => {
     await abrir(page, '/apresentacao?slide=5');
-    await expect(page.getByTestId('contador')).toContainText('16');
-    await expect(page.getByText('de 46 sem cache para 16 com cache')).toBeVisible();
-    await expect(page.getByTestId('evitadas')).toContainText('30');
+    await expect(page.getByTestId('contador')).toContainText('30');
+    await expect(page.getByTestId('evitadas')).toContainText('chamadas evitadas');
+    await expect(
+      page.getByText('das 46 invocações sem cache, só 16 acontecem com cache'),
+    ).toBeVisible();
     await expect(page.getByTestId('prova-podas')).toContainText('12 + 6 + 6 + 3 + 3 = 30');
     await expect(page.getByTestId('prova-recursivas')).toContainText('45');
   });
