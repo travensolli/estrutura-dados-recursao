@@ -197,7 +197,7 @@ function FaixaArgumentos({
             <>
               <span
                 aria-hidden="true"
-                className="flex h-[clamp(2rem,6vh,4rem)] w-full items-end justify-center"
+                className="flex h-[clamp(2.25rem,7.5vh,5rem)] w-full items-end justify-center"
               >
                 <span
                   className="w-[55%] rounded-t-[3px]"

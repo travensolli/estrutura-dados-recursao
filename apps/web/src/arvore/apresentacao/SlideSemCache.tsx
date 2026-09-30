@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { formatarInteiro } from '../../utilitarios/formatar';
 import { ArvoreSvg } from '../ArvoreSvg';
+import { CrescimentoChamadas } from './CrescimentoChamadas';
 import { ALTURA_ARVORE, ENQUADRE_APRESENTACAO } from './medidas';
 import type { DadosApresentacao } from './dados';
 import { Placar } from './Placar';
@@ -22,19 +23,28 @@ export function SlideSemCache({ dados }: { dados: DadosApresentacao }) {
 
   return (
     <div className="flex min-w-0 flex-col gap-[clamp(0.5rem,1.2vh,1rem)]">
-      <Placar
-        rotulo="Números da execução sem cache"
-        itens={[
-          { rotulo: 'invocações', valor: formatarInteiro(metricas.invocacoes), destaque: true },
-          { rotulo: 'casos base', valor: formatarInteiro(metricas.casos_base) },
-          { rotulo: 'calculados', valor: formatarInteiro(metricas.calculados) },
-          {
-            rotulo: 'profundidade máxima',
-            valor: formatarInteiro(metricas.profundidade_maxima),
-            nota: 'quadros na pilha',
-          },
-        ]}
-      />
+      {/* O placar e a frase dividem a primeira faixa: a frase não custa altura ao desenho. */}
+      <div className="flex flex-wrap items-end justify-between gap-x-[clamp(1rem,3vw,3rem)] gap-y-2">
+        <Placar
+          rotulo="Números da execução sem cache"
+          itens={[
+            { rotulo: 'invocações', valor: formatarInteiro(metricas.invocacoes), destaque: true },
+            { rotulo: 'casos base', valor: formatarInteiro(metricas.casos_base) },
+            { rotulo: 'calculados', valor: formatarInteiro(metricas.calculados) },
+            {
+              rotulo: 'profundidade máxima',
+              valor: formatarInteiro(metricas.profundidade_maxima),
+            },
+          ]}
+        />
+        {comparacao.argumentoMaisChamado && (
+          <p className="max-w-[44ch] flex-1 basis-[22rem] text-[clamp(0.95rem,1.3vw,1.3rem)]">
+            {`Sozinho, f(${comparacao.argumentoMaisChamado.argumento}) é chamado ${formatarInteiro(
+              comparacao.argumentoMaisChamado.semCache,
+            )} vezes das ${formatarInteiro(metricas.invocacoes)} invocações, sempre para devolver o mesmo resultado.`}
+          </p>
+        )}
+      </div>
 
       {/* A árvore sem cache é larga: na largura toda ela cresce, e a contagem por argumento
           vira uma faixa curta embaixo em vez de uma coluna que disputa a largura. */}
@@ -54,24 +64,19 @@ export function SlideSemCache({ dados }: { dados: DadosApresentacao }) {
         classeAltura={ALTURA_ARVORE}
       />
 
-      <div className="grid min-w-0 items-end gap-x-[clamp(1rem,2.5vw,2.5rem)] gap-y-2 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,22rem)]">
+      {/* Dentro de f(7), quem se repete; fora dele, quanto a repetição cresce com n. */}
+      <div className="grid min-w-0 items-start gap-x-[clamp(1.5rem,3.5vw,3.5rem)] gap-y-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <TabelaArgumentos
           disposicao="faixa"
           linhas={comparacao.linhas}
           maximo={comparacao.maiorInvocacao}
-          legenda="Invocações por argumento"
+          legenda={`Invocações por argumento em f(${semCache.n})`}
           argumentoRealcado={argumento}
           argumentoFixado={fixado}
           aoRealcar={setRealce}
           aoFixar={fixar}
         />
-        {comparacao.argumentoMaisChamado && (
-          <p className="pb-2 text-[clamp(0.95rem,1.3vw,1.3rem)] text-balance">
-            {`Sozinho, f(${comparacao.argumentoMaisChamado.argumento}) é chamado ${formatarInteiro(
-              comparacao.argumentoMaisChamado.semCache,
-            )} vezes das ${formatarInteiro(metricas.invocacoes)} invocações, sempre para devolver o mesmo resultado.`}
-          </p>
-        )}
+        <CrescimentoChamadas sequencia={semCache.sequencia} destaque={semCache.n} />
       </div>
     </div>
   );

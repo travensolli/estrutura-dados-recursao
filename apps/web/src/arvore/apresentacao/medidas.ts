@@ -5,8 +5,8 @@ export const ENQUADRE_APRESENTACAO = 0.12;
    do desenho, como na tela Árvore; o piso vale para janelas muito baixas. O teto só
    pesa quando a árvore é alta: a sem cache é larga e fica limitada pela largura. */
 
-/** Slide 2: placar acima, faixa dos argumentos abaixo, árvore na largura toda. */
-export const ALTURA_ARVORE = 'min-h-[160px] max-h-[clamp(160px,calc(100dvh-455px),820px)]';
+/** Slide 2: placar e frase acima; faixa dos argumentos e crescimento abaixo. */
+export const ALTURA_ARVORE = 'min-h-[160px] max-h-[clamp(160px,calc(100dvh-440px),820px)]';
 /** Slide 3: regras, momentos, controles e narração acima do desenho. */
 export const ALTURA_ARVORE_REPRODUCAO =
   'min-h-[180px] max-h-[clamp(180px,calc(100dvh-382px),820px)]';

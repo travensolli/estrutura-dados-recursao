@@ -64,6 +64,14 @@ describe('modo apresentação', () => {
     expect(within(placar).getByText('casos base').nextElementSibling).toHaveTextContent('31');
     expect(screen.getAllByTestId('linha-argumento')).toHaveLength(8);
     expect(screen.getByText(/f\(2\) é chamado 13 vezes das 46 invocações/)).toBeInTheDocument();
+    expect(screen.queryByText('quadros na pilha')).not.toBeInTheDocument();
+
+    const curva = screen.getAllByTestId('ponto-crescimento');
+    expect(curva).toHaveLength(11);
+    expect(curva.filter((ponto) => ponto.dataset.destaque === 'sim')).toHaveLength(1);
+    expect(curva[7]).toHaveAttribute('aria-label', 'n = 7: 46 invocações');
+    expect(curva.at(-1)).toHaveAttribute('aria-label', 'n = 10: 289 invocações');
+    expect(screen.getByText(/cada n a mais multiplica por ≈ 1,84/)).toBeInTheDocument();
   });
 
   it('conta de 46 para 16 e prova as 30 chamadas evitadas', async () => {
