@@ -139,7 +139,11 @@ describe('Página inicial', () => {
     await usuario.click(resumo);
     const tabela = screen.getByRole('table', { name: /com n = 7$/ });
     const linha = (grandeza: string) =>
-      within(within(tabela).getByRole('rowheader', { name: grandeza }).closest('tr')!);
+      within(
+        within(tabela)
+          .getByRole('rowheader', { name: new RegExp(`^${grandeza}`) })
+          .closest('tr')!,
+      );
 
     expect(linha('Tipo de recursão').getByText(/^tripla \(k = 3\)/)).toBeInTheDocument();
     expect(linha('Invocações sem cache').getByText(/^\(3 · 31 − 1\) \/ 2 =/)).toBeInTheDocument();
@@ -148,6 +152,37 @@ describe('Página inicial', () => {
     ).toBeInTheDocument();
     expect(linha('Chamadas evitadas').getByText(/^46 − 16 =/)).toBeInTheDocument();
     expect(linha('Chamadas evitadas').getByText(/^7 − 7 =/)).toBeInTheDocument();
+  });
+
+  it('explica os termos das fórmulas e o que cada linha mede, para quem não conhece a notação', async () => {
+    const usuario = userEvent.setup();
+    await renderizar();
+    await usuario.click(screen.getByText('Fórmulas gerais: invocações, pilha e complexidade'));
+
+    const termos = Object.fromEntries(
+      screen
+        .getAllByRole('term')
+        .map((termo) => [termo.textContent, termo.nextElementSibling?.textContent]),
+    );
+    expect(Object.keys(termos)).toEqual([
+      'n',
+      'f(n)',
+      'k',
+      'b',
+      'invocação',
+      'Isem, Icom',
+      'pilha',
+      'Θ(…)',
+    ]);
+    expect(termos.k).toMatch(/^a ordem: quantas chamadas recursivas/);
+    expect(termos['Θ(…)']).toMatch(/φ ≈ 1,618 .* τ ≈ 1,839/);
+
+    const tabela = screen.getByRole('table', { name: /com n = 7$/ });
+    expect(
+      within(tabela).getByRole('rowheader', {
+        name: 'Profundidade da pilha o máximo de chamadas abertas ao mesmo tempo',
+      }),
+    ).toBeInTheDocument();
   });
 
   it('refaz as contas quando o n do exemplo muda', async () => {
@@ -160,7 +195,9 @@ describe('Página inicial', () => {
 
     const tabela = screen.getByRole('table', { name: /com n = 10$/ });
     const evitadas = within(
-      within(tabela).getByRole('rowheader', { name: 'Chamadas evitadas' }).closest('tr')!,
+      within(tabela)
+        .getByRole('rowheader', { name: /^Chamadas evitadas/ })
+        .closest('tr')!,
     );
     expect(evitadas.getByText(/^289 − 25 =/)).toBeInTheDocument();
   });
