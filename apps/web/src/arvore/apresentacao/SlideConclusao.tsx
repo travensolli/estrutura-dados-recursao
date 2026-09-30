@@ -63,8 +63,8 @@ export function SlideConclusao({ dados }: { dados: DadosApresentacao }) {
         ))}
       </div>
 
-      {/* O fecho: o que a turma leva embora é o critério, com um caso de cada lado. Ocupa a
-          largura toda do palco, e a letra cresce com a tela. */}
+      {/* O fecho: o que a turma leva embora é o critério, aplicado ao f(7) do palco; o caso
+          do fatorial fica com quem apresenta. Ocupa a largura toda, e a letra cresce com a tela. */}
       <div className="border-l-3 border-primaria pl-[clamp(0.75rem,1.5vw,1.5rem)] text-[clamp(1.05rem,min(1.75vw,3.4vh),2.1rem)] leading-snug">
         <p>
           A memoização não acelera a recursão por si só: ela evita refazer chamadas, guardando cada
@@ -80,8 +80,7 @@ export function SlideConclusao({ dados }: { dados: DadosApresentacao }) {
               maisChamado.semCache,
             )} vezes, e o cache evita ${formatarInteiro(comparacao.evitadas)} das ${formatarInteiro(
               comparacao.invocacoesSemCache,
-            )} chamadas. `}
-          No fatorial, não: cada argumento é chamado uma única vez, e o cache só ocupa memória.
+            )} chamadas.`}
         </p>
       </div>
     </div>

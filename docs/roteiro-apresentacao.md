@@ -243,8 +243,9 @@ Calcular volta como ficou na seção 3, com o Tribonacci f(7) na tela e o modo *
   Medir é o que permite afirmar isso.
 - Se sobrar meio minuto, o slide 6 da apresentação, a Conclusão (`/apresentacao?slide=6`), põe
   esse critério na tela: as chamadas sem e com cache, o preço em memória e a pergunta que decide o
-  uso do cache, **a função é chamada mais de uma vez com o mesmo argumento?**, com o Tribonacci de
-  um lado e o fatorial do outro.
+  uso do cache, **a função é chamada mais de uma vez com o mesmo argumento?**, respondida com o
+  Tribonacci. O outro lado não está no slide, porque a apresentação é toda sobre o f(7): diga em
+  voz alta que no fatorial cada argumento é chamado uma única vez, e o cache só ocupa memória.
 - Encerre abrindo para perguntas.
 
 ## Checklist dez minutos antes
