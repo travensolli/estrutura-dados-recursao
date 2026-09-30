@@ -43,13 +43,24 @@ export function useEstimativa(entrada: EstimativaEntrada | null) {
   });
 }
 
+/**
+ * Execuções já feitas ficam como estão: voltar à tela não refaz a conta nem a
+ * medição, e o tempo mostrado continua o mesmo. O resultado também não expira do
+ * cache, porque a tela lembra qual execução mostrava (ver hooks/memoria).
+ */
+export const OPCOES_EXECUCAO = {
+  retry: false,
+  refetchOnMount: false,
+  gcTime: Number.POSITIVE_INFINITY,
+} as const;
+
 /** Cálculos pesados: sem repetição automática e habilitados só com entrada definida. */
 export function useCalcular(entrada: CalcularEntrada | null) {
   return useQuery({
     queryKey: entrada ? chaves.calcular(entrada) : ['calcular', 'vazio'],
     queryFn: ({ signal }) => api.calcular(entrada as CalcularEntrada, signal),
     enabled: entrada !== null,
-    retry: false,
+    ...OPCOES_EXECUCAO,
   });
 }
 
@@ -58,7 +69,7 @@ export function useComparar(entrada: CompararEntrada | null) {
     queryKey: entrada ? chaves.comparar(entrada) : ['comparar', 'vazio'],
     queryFn: ({ signal }) => api.comparar(entrada as CompararEntrada, signal),
     enabled: entrada !== null,
-    retry: false,
+    ...OPCOES_EXECUCAO,
   });
 }
 
@@ -67,7 +78,7 @@ export function useSerie(entrada: SerieEntrada | null) {
     queryKey: entrada ? chaves.serie(entrada) : ['serie', 'vazia'],
     queryFn: ({ signal }) => api.serie(entrada as SerieEntrada, signal),
     enabled: entrada !== null,
-    retry: false,
+    ...OPCOES_EXECUCAO,
   });
 }
 
@@ -76,6 +87,6 @@ export function useArvore(entrada: ArvoreEntrada | null) {
     queryKey: entrada ? chaves.arvore(entrada) : ['arvore', 'vazia'],
     queryFn: ({ signal }) => api.arvore(entrada as ArvoreEntrada, signal),
     enabled: entrada !== null,
-    retry: false,
+    ...OPCOES_EXECUCAO,
   });
 }

@@ -1,6 +1,7 @@
 import type { ArvoreResposta } from '@sequencias/contrato';
 import { useQuery } from '@tanstack/react-query';
 import { api, apiIndisponivel } from '../api/cliente';
+import { OPCOES_EXECUCAO } from '../api/consultas';
 import { usePlanoB } from '../plano-b/usarPlanoB';
 import type { ConsultaArvore } from './consulta';
 
@@ -17,7 +18,7 @@ export function useArvoreComPlanoB(consulta: ConsultaArvore | null) {
   return useQuery<ArvoreComOrigem>({
     queryKey: ['arvore-com-plano-b', consulta],
     enabled: consulta !== null,
-    retry: false,
+    ...OPCOES_EXECUCAO,
     queryFn: async ({ signal }): Promise<ArvoreComOrigem> => {
       const pedido = consulta as ConsultaArvore;
       try {

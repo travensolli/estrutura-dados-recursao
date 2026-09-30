@@ -41,6 +41,7 @@ import {
   type ColunaTabela,
   type OpcaoSegmento,
 } from '../componentes';
+import { useEstadoLembrado } from '../hooks/memoria';
 import { useTituloPagina } from '../hooks/titulo-pagina';
 import {
   enderecoComEstado,
@@ -375,7 +376,8 @@ export function PaginaCalcular() {
     setRascunho(String(n));
   }
 
-  const [execucao, setExecucao] = useState<Pedido | null>(null);
+  // A execução na tela sobrevive à troca de página; o resultado vem do cache.
+  const [execucao, setExecucao] = useEstadoLembrado<Pedido | null>('calcular.execucao', null);
   const [confirmando, setConfirmando] = useState(false);
   const [verificando, setVerificando] = useState(false);
   const [cancelado, setCancelado] = useState(false);
