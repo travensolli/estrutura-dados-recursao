@@ -28,10 +28,6 @@ Se sobrar tempo para uma tela só, é a etapa 5 da apresentação: 46 chamadas v
 | Explicar o cache no Tribonacci e **quantas** evita  | 5                | `/apresentacao` | seção 5            |
 | Comparar desempenho em **tempo e memória**          | 6                | `/comparar`     | seção 4            |
 
-A tela inicial mostra os quatro pedidos como uma faixa de atalhos ("O enunciado:", numerados de 1 a
-4 na ordem em que o enunciado os faz): aponte-a no começo, porque ela prova de cara que nada ficou de
-fora, e use-a para navegar.
-
 Nenhum dos quatro pode ser cortado: cada um vale nota. O que é cortável está marcado na tabela de
 tempos.
 
@@ -57,7 +53,7 @@ diferença com naturalidade.
 
 | Seção | Assunto                                       | Tela            | Tempo | Acumulado | Cortável? |
 | ----- | --------------------------------------------- | --------------- | ----- | --------- | --------- |
-| 1     | O enunciado, item a item                      | `/`             | 0:45  | 0:45      | não       |
+| 1     | O enunciado e a definição de recursão         | `/`             | 0:45  | 0:45      | não       |
 | 2     | As três sequências                            | `/`             | 1:00  | 1:45      | não       |
 | 3     | Calcular f(7): mesmo valor, contagens opostas | `/calcular`     | 1:30  | 3:15      | não       |
 | 4     | A árvore de chamadas sem cache                | `/arvore`       | 1:45  | 5:00      | não       |
@@ -70,18 +66,23 @@ ao vivo, nunca a seção 5.
 
 ## Seção a seção
 
-### 1. O enunciado, item a item (0:45) — tela `/`
+### 1. O enunciado e a definição de recursão (0:45) — tela `/`
 
-Na tela: o Início. Logo abaixo do título estão as duas linhas que motivam o trabalho, lado a lado,
-sem cache à esquerda e com cache à direita, e a faixa "O enunciado:".
+Na tela: o Início. Logo abaixo do título está a definição do material de apoio e, lado a lado,
+os dois blocos, sem cache à esquerda e com cache à direita, cada um com o texto curto e o
+pseudocódigo no molde do material.
 
 - Leia o enunciado em uma frase: calcular três sequências recursivas de dois jeitos, com e sem
-  cache, comparar tempo e memória e mostrar a árvore de chamadas.
-- Leia as duas linhas do topo, que são a tese da apresentação: **sem cache**, cada chamada que não
-  é caso base abre uma chamada por termo anterior, e com ordem 2 ou mais os subproblemas se repetem
-  em custo exponencial; **com cache**, cada f(k) acima dos casos base é calculado uma vez e, quando
-  se repete, só consulta o cache: o custo vira linear.
-- Aponte a faixa: **cada pedido do enunciado tem uma tela, e a apresentação passa por todas.**
+  cache, comparar tempo e memória e mostrar a árvore de chamadas. Cada pedido tem uma tela no menu
+  do topo, e a apresentação passa por todas.
+- Leia a definição: **problemas recursivos são aqueles em que uma instância do problema contém uma
+  instância "menor" do mesmo problema.** Calcular f(7) passa por calcular f(6).
+- Bloco **sem cache**: a instância pequena é o **caso base** e sai direto; as maiores chamam a
+  função para os k termos anteriores, a **ordem**, e combinam. Com ordem 2 ou mais, as chamadas se
+  repetem e o custo é exponencial.
+- Bloco **com cache**: o mesmo pseudocódigo, e as linhas marcadas são o que o cache acrescenta.
+  Antes de chamar de novo, a função olha o cache; se já calculou f(n), devolve o valor guardado. O
+  custo vira linear, mas só quando o argumento se repete: no Fatorial não se repete.
 - A pergunta que atravessa tudo: **quantas vezes o computador calcula a mesma coisa?**
 
 ### 2. As três sequências (1:00) — tela `/`
@@ -106,17 +107,18 @@ termos. Abaixo deles, fechado, o painel **Fórmulas gerais**.
   viram lineares, com 2n − 1 invocações a partir de n = 1 e 3n − 5 a partir de n = 2; abaixo disso
   a chamada já é caso base. O Fatorial é linear nos dois modos, sem ganho.
 - Fatorial é uma corrente. Fibonacci e Tribonacci são árvores. Só quem é árvore repete subproblema.
-- Se houver pergunta sobre de onde saem as contagens, abra **Fórmulas gerais**: com k = ordem e
-  b = casos base, as invocações com cache são 1 + k · (n − b + 1), e a tabela já traz a conta de
-  f(7) nas três colunas. No Tribonacci: (3 · 31 − 1) / 2 = 46 sem cache, 1 + 3 · (7 − 3 + 1) = 16
+- Se houver pergunta sobre de onde saem as contagens, abra **Fórmulas gerais**: o topo explica cada
+  símbolo (n, f(n), k, b, invocação, pilha, Θ) e cada linha diz em palavras o que mede. Com k =
+  ordem e b = casos base, as invocações com cache são 1 + k · (n − b + 1), e a tabela já traz a
+  conta de f(7) nas três colunas. No Tribonacci: (3 · 31 − 1) / 2 = 46 sem cache, 1 + 3 · (7 − 3 + 1) = 16
   com cache, 30 evitadas. Feche o painel antes de seguir.
-- Anuncie o exemplo que atravessa a apresentação: **Tribonacci f(7) = 31**. Clique no item
-  **1 · Calcular com e sem cache** da faixa.
+- Anuncie o exemplo que atravessa a apresentação: **Tribonacci f(7) = 31**. Clique em
+  **Calcular**, no pé do cartão do Tribonacci.
 
 ### 3. Calcular f(7): mesmo valor, contagens opostas (1:30) — tela `/calcular`
 
-Na tela: `/calcular?sequencia=tribonacci&n=7&modo=comparar`. Na coluna da esquerda, confira
-Tribonacci, o modo **Comparar** e n = 7, e clique em **Calcular**.
+Na tela: `/calcular?sequencia=tribonacci`, que abre com n = 7. Na coluna da esquerda, confira
+Tribonacci e n = 7, escolha o modo **Comparar** e clique em **Calcular**.
 
 Este é o item (a)–(c) do enunciado acontecendo ao vivo, e não uma captura de tela.
 
