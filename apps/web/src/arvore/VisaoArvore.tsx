@@ -16,6 +16,9 @@ export interface VisaoArvoreProps {
   resposta: ArvoreResposta;
   /** Chamadas evitadas por acerto, para a narração do passo. */
   podasPorAcerto?: ReadonlyMap<number, number>;
+  /** Vista escolhida numa visita anterior a esta mesma árvore. */
+  visaoInicial?: Visao | null;
+  aoEscolherVisao?: (visao: Visao) => void;
 }
 
 const BOTAO =
@@ -24,18 +27,28 @@ const ABA =
   'min-h-toque rounded px-3 text-sm aria-pressed:bg-primaria aria-pressed:text-primaria-contraste';
 
 /** Junta as duas visões da árvore e a reprodução passo a passo. */
-export function VisaoArvore({ resposta, podasPorAcerto }: VisaoArvoreProps) {
+export function VisaoArvore({
+  resposta,
+  podasPorAcerto,
+  visaoInicial = null,
+  aoEscolherVisao,
+}: VisaoArvoreProps) {
   const { raiz, metricas, sequencia, n, modo } = resposta;
   const nos = useMemo(() => achatarNos(raiz), [raiz]);
   const relogio = useReproducao(totalPassos(raiz));
   const estreita = useMidia(TELA_ESTREITA);
-  const [escolha, setEscolha] = useState<Visao | null>(null);
+  const [escolha, setEscolha] = useState<Visao | null>(visaoInicial);
   const [reproduzindo, setReproduzindo] = useState(false);
 
   // Sem escolha do usuário, a tela estreita manda: árvore larga não cabe.
   const visao = escolha ?? (estreita ? 'lista' : 'desenho');
   const passo = reproduzindo ? relogio.passo : null;
   const titulo = `Árvore de chamadas de ${DESCRICAO_SEQUENCIAS[sequencia].nome} f(${n}) ${rotuloModo(modo)}`;
+
+  function escolher(proxima: Visao) {
+    setEscolha(proxima);
+    aoEscolherVisao?.(proxima);
+  }
 
   const alternarReproducao = useCallback(() => {
     relogio.paraOInicio();
@@ -73,7 +86,7 @@ export function VisaoArvore({ resposta, podasPorAcerto }: VisaoArvoreProps) {
             type="button"
             className={ABA}
             aria-pressed={visao === 'desenho'}
-            onClick={() => setEscolha('desenho')}
+            onClick={() => escolher('desenho')}
           >
             Desenho
           </button>
@@ -81,7 +94,7 @@ export function VisaoArvore({ resposta, podasPorAcerto }: VisaoArvoreProps) {
             type="button"
             className={ABA}
             aria-pressed={visao === 'lista'}
-            onClick={() => setEscolha('lista')}
+            onClick={() => escolher('lista')}
           >
             Lista
           </button>

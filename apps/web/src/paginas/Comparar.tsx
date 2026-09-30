@@ -48,6 +48,7 @@ import {
 import { ComoMedimos } from '../comparar/ComoMedimos';
 import { LegendaSeries } from '../componentes/BarraComparativa';
 import type { EscalaGrafico, PontoGrafico } from '../componentes/GraficoLinhas';
+import { useEstadoLembrado } from '../hooks/memoria';
 import { useTituloPagina } from '../hooks/titulo-pagina';
 import { enderecoComEstado, useEstadoUrl, type OpcoesEstadoUrl } from '../hooks/useEstadoUrl';
 import { juntarClasses } from '../utilitarios/classes';
@@ -648,8 +649,9 @@ export function PaginaComparar() {
   const [rascunhoN, setRascunhoN, ecoarN] = useRascunho(n);
   const [rascunhoRepeticoes, setRascunhoRepeticoes, ecoarRepeticoes] = useRascunho(repeticoes);
 
-  const [medicao, setMedicao] = useState<Medicao | null>(null);
-  const [escala, setEscala] = useState<EscalaGrafico>('linear');
+  // A medição na tela e a escala sobrevivem à troca de página; os números vêm do cache.
+  const [medicao, setMedicao] = useEstadoLembrado<Medicao | null>('comparar.medicao', null);
+  const [escala, setEscala] = useEstadoLembrado<EscalaGrafico>('comparar.escala', 'linear');
   const [confirmando, setConfirmando] = useState(false);
   const [verificando, setVerificando] = useState(false);
   const [cancelada, setCancelada] = useState(false);

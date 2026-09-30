@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet } from 'react-router';
 import { BotaoTema } from '../componentes/BotaoTema';
 import { Icone, type NomeIcone } from '../componentes/Icone';
+import { useEnderecosLembrados } from '../hooks/memoria';
 import { juntarClasses } from '../utilitarios/classes';
 
 interface ItemNavegacao {
@@ -18,6 +19,7 @@ const ITENS: ItemNavegacao[] = [
 ];
 
 export function Layout() {
+  const enderecoLembrado = useEnderecosLembrados();
   return (
     <div className="flex min-h-dvh flex-col">
       <a
@@ -46,8 +48,9 @@ export function Layout() {
             <ul className="flex gap-1 p-1">
               {ITENS.map((item) => (
                 <li key={item.para}>
+                  {/* Cada tela volta como foi deixada: com a consulta do último endereço. */}
                   <NavLink
-                    to={item.para}
+                    to={enderecoLembrado(item.para)}
                     end={item.para === '/'}
                     className={({ isActive }) =>
                       juntarClasses(

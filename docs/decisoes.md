@@ -406,3 +406,43 @@ cache, de 10 linhas, é o que define a altura dos blocos; por isso ele usa a
 entrelinha de dados e o texto ao lado foi cortado até caber numa linha a
 menos na fonte larga. A tabela não rola para o lado em 1366 nem em 1024px
 com n = 40.
+
+## 2026-09-30: As telas lembram o que mostravam
+
+Pedido do usuário: depois de calcular, comparar ou desenhar uma árvore,
+trocar de página e voltar deve mostrar a mesma coisa. O formulário já
+vivia no endereço, mas o menu levava à rota sem a consulta, e a execução
+disparada era estado local da tela, perdido ao desmontar. A volta
+mostrava tudo zerado, e a Árvore redesenhava o f(7) padrão.
+
+- **Memória da sessão.** `hooks/memoria.ts` guarda um mapa num contexto
+  acima das rotas, para sobreviver também à apresentação, que fica fora
+  do layout. O menu leva cada tela ao último endereço visto nela, e
+  `useEstadoLembrado` substitui o `useState` da execução do Calcular, da
+  medição e da escala do Comparar e da vista Desenho ou Lista da Árvore,
+  que só volta para a mesma árvore. Vale enquanto a aba estiver aberta:
+  recarregar começa do zero, e o checklist do roteiro pede isso depois do
+  ensaio.
+- **Sem refazer.** As consultas de execução (calcular, comparar, série e
+  árvore) não refazem ao montar e não expiram do cache
+  (`refetchOnMount: false`, `gcTime` infinito). A volta mostra o mesmo
+  tempo medido, não uma medição nova. O custo é memória: cada execução
+  diferente da sessão fica no cache até recarregar a página.
+- **Sair no meio não descarta.** Essas consultas deixaram de repassar o
+  `signal` ao `fetch`. Com ele, desmontar a tela abortava o pedido e a
+  volta media tudo de novo, enquanto a API, cujo worker não para quando o
+  cliente desiste, terminava a conta de qualquer jeito. Agora o pedido
+  segue e o resultado espera a volta. O Cancelar continua valendo: o
+  `cancelQueries` larga a espera na hora e a resposta tardia é ignorada.
+- **Link com outros parâmetros.** Entrar por um atalho que muda a
+  consulta, como o cartão do Início, preenche o formulário e mantém o
+  resultado anterior com o aviso de que o formulário mudou, como já
+  acontecia ao mexer no formulário depois de calcular.
+- **O que não volta.** O zoom e os nós recolhidos do desenho, o passo a
+  passo, os blocos abertos e a aba dos números completos voltam ao
+  estado inicial: são posição de leitura, não resultado.
+
+**Medição:** o e2e `navegacao.spec.ts` calcula, compara e desenha, passa
+pelas três telas de novo pelo menu e confere, contra a API real, que a
+volta não fez nenhum pedido novo e que o tempo mostrado é o mesmo, em
+desktop, tablet e celular.
