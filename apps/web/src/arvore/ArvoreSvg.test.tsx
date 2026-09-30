@@ -78,13 +78,44 @@ describe('ArvoreSvg', () => {
 
   it('põe a barra de zoom e a de exportar sobre o desenho, fora do palco', () => {
     desenhar('sem_cache');
-    expect(screen.getByRole('group', { name: 'Zoom da árvore sem cache' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Baixar SVG' })).toBeInTheDocument();
+    const zoom = within(screen.getByRole('group', { name: 'Zoom da árvore sem cache' }));
+    for (const rotulo of ['Aproximar', 'Afastar', 'Ajustar à tela']) {
+      // Só o ícone fica à vista: o nome vem do texto para leitor de tela e da dica.
+      expect(zoom.getByRole('button', { name: rotulo })).toHaveAttribute('title', rotulo);
+    }
+    expect(zoom.queryByText('Ajustar à tela', { selector: ':not(.sr-only)' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Baixar a árvore' })).toBeInTheDocument();
   });
 
   it('no palco da apresentação não oferece exportar', () => {
     desenhar('sem_cache', undefined, undefined, { palco: true });
     expect(screen.getByRole('button', { name: 'Ajustar à tela' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Baixar a árvore' })).toBeNull();
+  });
+
+  it('o botão de baixar abre a escolha do formato e fecha com Esc', () => {
+    desenhar('sem_cache');
+    const baixar = screen.getByRole('button', { name: 'Baixar a árvore' });
+    expect(baixar).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('button', { name: 'Baixar SVG' })).toBeNull();
+
+    fireEvent.click(baixar);
+    expect(baixar).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('button', { name: 'Baixar SVG' })).toHaveAccessibleDescription(
+      'Vetor, abre em editores de slides',
+    );
+    expect(screen.getByRole('button', { name: 'Baixar PNG' })).toBeInTheDocument();
+
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Baixar PNG' }), { key: 'Escape' });
+    expect(baixar).toHaveAttribute('aria-expanded', 'false');
+    expect(baixar).toHaveFocus();
+    expect(screen.queryByRole('button', { name: 'Baixar PNG' })).toBeNull();
+  });
+
+  it('clicar fora fecha a escolha do formato', () => {
+    desenhar('sem_cache');
+    fireEvent.click(screen.getByRole('button', { name: 'Baixar a árvore' }));
+    fireEvent.pointerDown(document.body);
     expect(screen.queryByRole('button', { name: 'Baixar SVG' })).toBeNull();
   });
 
@@ -158,9 +189,13 @@ describe('ArvoreSvg', () => {
     });
     desenhar('sem_cache');
 
+    fireEvent.click(screen.getByRole('button', { name: 'Baixar a árvore' }));
     fireEvent.click(screen.getByRole('button', { name: 'Baixar SVG' }));
 
     expect(clicar).toHaveBeenCalledTimes(1);
+    // Escolher fecha a lista; ao reabrir, o PNG segue disponível.
+    expect(screen.queryByRole('button', { name: 'Baixar SVG' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Baixar a árvore' }));
     expect(screen.getByRole('button', { name: 'Baixar PNG' })).toBeEnabled();
   });
 
