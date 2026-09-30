@@ -148,9 +148,11 @@ export function Palco({ slide, indice, aoIr, aoAndar, offline = false, children 
             <span className="sr-only">Modo apresentação: </span>
             {slide.titulo}
           </h1>
-          <p className="mt-0.5 text-[clamp(0.9rem,1.2vw,1.2rem)] text-pretty text-texto-suave">
-            {slide.resumo}
-          </p>
+          {slide.resumo && (
+            <p className="mt-0.5 text-[clamp(0.9rem,1.2vw,1.2rem)] text-pretty text-texto-suave">
+              {slide.resumo}
+            </p>
+          )}
         </div>
         {children}
       </main>

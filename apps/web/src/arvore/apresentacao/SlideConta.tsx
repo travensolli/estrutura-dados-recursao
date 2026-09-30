@@ -17,13 +17,16 @@ export function SlideConta({ dados }: { dados: DadosApresentacao }) {
   return (
     <div className="grid min-w-0 items-start gap-[clamp(1rem,3vw,3rem)] lg:grid-cols-[1.05fr_1fr]">
       <div className="flex min-w-0 flex-col gap-[clamp(0.5rem,1.5vh,1.25rem)]">
-        <p className="text-[clamp(0.8rem,1vw,1.05rem)] text-texto-suave">invocações</p>
-        <Contador
-          de={comparacao.invocacoesSemCache}
-          para={comparacao.invocacoesComCache}
-          rodada={rodada}
-          classe="text-[length:clamp(3.5rem,min(13vw,19vh),10rem)] leading-none font-semibold"
-        />
+        {/* O número e a unidade numa linha só, a unidade no corpo da frase de baixo. */}
+        <div className="flex flex-wrap items-baseline gap-x-[0.5em] text-[clamp(1rem,1.5vw,1.5rem)]">
+          <Contador
+            de={comparacao.invocacoesSemCache}
+            para={comparacao.invocacoesComCache}
+            rodada={rodada}
+            classe="text-[length:clamp(3.5rem,min(13vw,19vh),10rem)] leading-none font-semibold"
+          />
+          <span aria-hidden="true">invocações</span>
+        </div>
         <p className="text-[clamp(1rem,1.5vw,1.5rem)]">
           {`de ${formatarInteiro(comparacao.invocacoesSemCache)} sem cache para ${formatarInteiro(
             comparacao.invocacoesComCache,
