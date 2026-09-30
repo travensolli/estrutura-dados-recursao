@@ -1,8 +1,7 @@
 # @sequencias/web
 
-A interface do trabalho, em React + Vite. É o palco da apresentação: todas as telas do
-[roteiro](../../docs/roteiro-apresentacao.md) estão aqui, calibradas para caber numa janela de
-1366×768 sem rolagem.
+A interface do trabalho, em React + Vite. É o palco da apresentação: todas as telas estão aqui,
+calibradas para caber numa janela de 1366×768 sem rolagem.
 
 ## Como rodar
 
