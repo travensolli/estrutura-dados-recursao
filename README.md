@@ -3,6 +3,8 @@
 **Trabalho:** PRJ.ED.1 — Estrutura de Dados\
 **Curso:** Desenvolvimento de Software Multiplataforma (FATEC), 2º período\
 **Tema:** algoritmos recursivos, árvore de chamadas e memoização\
+**Dupla:** [Gabriel Travensolli da Silva](https://github.com/travensolli) e
+[Andrea Turibio](https://github.com/DeaTuribio), que desenvolveram e apresentaram o trabalho\
 **Execução de referência:** 28 de setembro de 2026
 
 ---
